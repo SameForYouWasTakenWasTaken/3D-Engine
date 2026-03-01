@@ -3,6 +3,7 @@
 #include <vector>
 #include <entt.hpp>
 #include <Engine/Scene.hpp>
+#include <Engine/Events.hpp>
 
 class Scene; // forward declaration
 
@@ -13,7 +14,7 @@ public:
 
     virtual void OnDraw(Scene& scene, entt::registry& registry) {}
     virtual void OnUpdate(entt::registry& registry, float dt) {}
-    virtual void OnEvent(entt::registry& registry) {} //TODO: add event to arguments later
+    virtual void OnEvent(entt::registry& registry, Event& e) {} //TODO: add event to arguments later
     virtual void OnAttach(Scene& scene, entt::registry& registry) {}
     virtual void OnDetach(entt::registry& registry) {}
 };

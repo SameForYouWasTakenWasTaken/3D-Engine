@@ -75,7 +75,16 @@ void GameLayer::OnDetach(entt::registry& registry)
     });
 }
 
-void GameLayer::OnEvent(entt::registry& registry)
+void GameLayer::OnEvent(entt::registry& registry, Event& e)
 {
-    // Called when an event is fired
+    if (auto *resizeEvent = dynamic_cast<WindowResizeEvent*>(&e))
+    {
+        float ratio = static_cast<float>(resizeEvent->Width) / static_cast<float>(resizeEvent->Height);
+        auto view = registry.view<COMPCamera>();
+        auto* cam = registry.try_get<COMPCamera>(view.front());
+        if (cam)
+        {
+            cam->SetRatio(ratio);
+        }
+    }
 }

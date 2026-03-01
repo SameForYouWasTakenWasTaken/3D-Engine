@@ -1,3 +1,0 @@
-D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-subbuild/CMakeFiles/glfw-populate.dir
-D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-subbuild/CMakeFiles/edit_cache.dir
-D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-subbuild/CMakeFiles/rebuild_cache.dir
