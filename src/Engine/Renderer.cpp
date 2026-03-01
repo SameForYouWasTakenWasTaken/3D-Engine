@@ -146,3 +146,15 @@ void Renderer::End()
         );
     }
 }
+
+void Renderer::OnEvent(Event& e)
+{
+    auto activeScene = m_SceneManager->m_ActiveScene;
+    if (activeScene)
+        activeScene->OnEvent(e);
+    
+    if (auto *resizeEvent = dynamic_cast<WindowResizeEvent*>(&e))
+    {
+        glViewport(0, 0, resizeEvent->Width, resizeEvent->Height);
+    }
+}

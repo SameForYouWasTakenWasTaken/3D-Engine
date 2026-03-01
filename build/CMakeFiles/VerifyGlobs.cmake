@@ -41,6 +41,8 @@ set(OLD_GLOB
   "D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp"
   "D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp"
   "D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp"
+  "D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp"
+  "D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp"
   "D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp"
   "D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layers/GameLayer.hpp"
   "D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp"

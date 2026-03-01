@@ -250,6 +250,7 @@ CMakeFiles/main.dir/src/Engine/Renderer.cpp.obj: \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Systems/SceneManager.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Scene.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Logger.hpp \
  C:/msys64/ucrt64/include/c++/14.2.0/filesystem \
  C:/msys64/ucrt64/include/c++/14.2.0/bits/fs_fwd.h \
@@ -511,4 +512,5 @@ CMakeFiles/main.dir/src/Engine/Renderer.cpp.obj: \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/VAO.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/VBO.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Tags.hpp

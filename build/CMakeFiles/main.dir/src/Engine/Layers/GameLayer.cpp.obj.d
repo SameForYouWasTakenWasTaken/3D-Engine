@@ -514,4 +514,6 @@ CMakeFiles/main.dir/src/Engine/Layers/GameLayer.cpp.obj: \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/integer.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/detail/func_integer.inl \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Mesh.hpp \
- D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Tags.hpp
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Tags.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp

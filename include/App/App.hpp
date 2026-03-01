@@ -12,14 +12,17 @@
 #include <App/Debug.hpp>
 #include <Engine/Renderer.hpp>
 #include <Engine/Layers/GameLayer.hpp>
+#include <Engine/Events.hpp>
 
 class App final
 {
+    std::unique_ptr<Renderer> renderer;
 public:
     App(AppSettings Settings);
 
     void Run();
     void Shutdown();
+    void OnEvent(Event& e);
 
     EngineContext m_EngineContext;
 };

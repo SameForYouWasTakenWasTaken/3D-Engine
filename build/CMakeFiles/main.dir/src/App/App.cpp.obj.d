@@ -272,6 +272,30 @@ CMakeFiles/main.dir/src/App/App.cpp.obj: \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glfw-src/include/GLFW/glfw3.h \
  C:/msys64/ucrt64/include/GL/gl.h \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/KHR/khrplatform.h \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/entt.hpp \
+ C:/msys64/ucrt64/include/c++/14.2.0/version \
+ C:/msys64/ucrt64/include/c++/14.2.0/iterator \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stream_iterator.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/algorithm \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/ranges_algo.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/pstl/glue_algorithm_defs.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/ranges \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/elements_of.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/deque \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_deque.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/deque.tcc \
+ C:/msys64/ucrt64/include/c++/14.2.0/list \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_list.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/list.tcc \
+ C:/msys64/ucrt64/include/c++/14.2.0/map \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_tree.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_map.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_multimap.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/set \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_set.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_multiset.h \
+ C:/msys64/ucrt64/include/c++/14.2.0/unordered_set \
+ C:/msys64/ucrt64/include/c++/14.2.0/bits/unordered_set.h \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Logger.hpp \
  C:/msys64/ucrt64/include/c++/14.2.0/filesystem \
  C:/msys64/ucrt64/include/c++/14.2.0/bits/fs_fwd.h \
@@ -283,12 +307,6 @@ CMakeFiles/main.dir/src/App/App.cpp.obj: \
  C:/msys64/ucrt64/include/c++/14.2.0/x86_64-w64-mingw32/bits/basic_file.h \
  C:/msys64/ucrt64/include/c++/14.2.0/x86_64-w64-mingw32/bits/c++io.h \
  C:/msys64/ucrt64/include/c++/14.2.0/bits/fstream.tcc \
- C:/msys64/ucrt64/include/c++/14.2.0/deque \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_deque.h \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/deque.tcc \
- C:/msys64/ucrt64/include/c++/14.2.0/algorithm \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/ranges_algo.h \
- C:/msys64/ucrt64/include/c++/14.2.0/pstl/glue_algorithm_defs.h \
  C:/msys64/ucrt64/include/c++/14.2.0/iostream \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/glad/glad.h \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/VAO.hpp \
@@ -347,27 +365,10 @@ CMakeFiles/main.dir/src/App/App.cpp.obj: \
  C:/msys64/ucrt64/include/c++/14.2.0/expected \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/App/Debug.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Renderer.hpp \
- C:/msys64/ucrt64/include/c++/14.2.0/ranges \
- C:/msys64/ucrt64/include/c++/14.2.0/iterator \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stream_iterator.h \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/elements_of.h \
- D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/entt.hpp \
- C:/msys64/ucrt64/include/c++/14.2.0/version \
- C:/msys64/ucrt64/include/c++/14.2.0/list \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_list.h \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/list.tcc \
- C:/msys64/ucrt64/include/c++/14.2.0/map \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_tree.h \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_map.h \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_multimap.h \
- C:/msys64/ucrt64/include/c++/14.2.0/set \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_set.h \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_multiset.h \
- C:/msys64/ucrt64/include/c++/14.2.0/unordered_set \
- C:/msys64/ucrt64/include/c++/14.2.0/bits/unordered_set.h \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Systems/SceneManager.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Scene.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Systems/CameraManager.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Camera.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/gtc/matrix_transform.hpp \
@@ -516,5 +517,6 @@ CMakeFiles/main.dir/src/App/App.cpp.obj: \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/integer.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/detail/func_integer.inl \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Mesh.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Tags.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layers/GameLayer.hpp

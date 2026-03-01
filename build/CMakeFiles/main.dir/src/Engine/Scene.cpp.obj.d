@@ -250,6 +250,7 @@ CMakeFiles/main.dir/src/Engine/Scene.cpp.obj: \
  C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_multiset.h \
  C:/msys64/ucrt64/include/c++/14.2.0/unordered_set \
  C:/msys64/ucrt64/include/c++/14.2.0/bits/unordered_set.h \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Logger.hpp \
  C:/msys64/ucrt64/include/c++/14.2.0/filesystem \
  C:/msys64/ucrt64/include/c++/14.2.0/bits/fs_fwd.h \
@@ -513,4 +514,5 @@ CMakeFiles/main.dir/src/Engine/Scene.cpp.obj: \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/integer.hpp \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/build/_deps/glm-src/glm/detail/func_integer.inl \
  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Mesh.hpp \
- D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Tags.hpp
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Tags.hpp \
+ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp

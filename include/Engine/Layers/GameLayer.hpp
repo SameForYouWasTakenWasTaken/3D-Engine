@@ -10,6 +10,7 @@
 #include <Tags.hpp>
 #include <Engine/Renderer.hpp>
 #include <Engine/LowLevel/Shader.hpp>
+#include <Engine/Events/WindowResizeEvent.hpp>
 
 class GameLayer : public Layer
 {
@@ -21,5 +22,5 @@ public:
     void OnUpdate(entt::registry& registry, float dt) override;
     void OnAttach(Scene& scene, entt::registry& registry) override;
     void OnDetach(entt::registry& registry) override;
-    void OnEvent(entt::registry& registry) override;
+    void OnEvent(entt::registry& registry, Event& e) override;
 };

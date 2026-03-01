@@ -506,6 +506,8 @@ CMakeFiles/main.dir/src/App/App.cpp.obj
  D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layers/GameLayer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp
@@ -2220,6 +2222,8 @@ CMakeFiles/main.dir/src/Engine/Layers/GameLayer.cpp.obj
  D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layers/GameLayer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp
@@ -3350,6 +3354,8 @@ CMakeFiles/main.dir/src/Engine/Renderer.cpp.obj
  D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/Shader.hpp
@@ -3868,6 +3874,8 @@ CMakeFiles/main.dir/src/Engine/Scene.cpp.obj
  D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/Shader.hpp
@@ -4877,6 +4885,8 @@ CMakeFiles/main.dir/src/Engine/Systems/SceneManager.cpp.obj
  D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/Shader.hpp
@@ -5901,6 +5911,8 @@ CMakeFiles/main.dir/src/main.cpp.obj
  D:/dev/Development/cpp/Trying out openGL again/include/Components/Transform.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/CameraContext.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Contexts/EngineContext.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events.hpp
+ D:/dev/Development/cpp/Trying out openGL again/include/Engine/Events/WindowResizeEvent.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/Layers/GameLayer.hpp
  D:/dev/Development/cpp/Trying out openGL again/include/Engine/LowLevel/EBO.hpp

@@ -505,6 +505,8 @@ CMakeFiles/main.dir/src/App/App.cpp.obj: D:/dev/Development/cpp/Trying\ out\ ope
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Transform.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/CameraContext.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/EngineContext.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layers/GameLayer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
@@ -2214,6 +2216,8 @@ CMakeFiles/main.dir/src/Engine/Layers/GameLayer.cpp.obj: D:/dev/Development/cpp/
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Transform.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/CameraContext.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/EngineContext.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layers/GameLayer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
@@ -3339,6 +3343,8 @@ CMakeFiles/main.dir/src/Engine/Renderer.cpp.obj: D:/dev/Development/cpp/Trying\ 
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Transform.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/CameraContext.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/EngineContext.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/Shader.hpp \
@@ -3856,6 +3862,8 @@ CMakeFiles/main.dir/src/Engine/Scene.cpp.obj: D:/dev/Development/cpp/Trying\ out
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Transform.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/CameraContext.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/EngineContext.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/Shader.hpp \
@@ -4863,6 +4871,8 @@ CMakeFiles/main.dir/src/Engine/Systems/SceneManager.cpp.obj: D:/dev/Development/
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Transform.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/CameraContext.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/EngineContext.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/Shader.hpp \
@@ -5884,6 +5894,8 @@ CMakeFiles/main.dir/src/main.cpp.obj: D:/dev/Development/cpp/Trying\ out\ openGL
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Components/Transform.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/CameraContext.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Contexts/EngineContext.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp \
+  D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layers/GameLayer.hpp \
   D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/EBO.hpp \
@@ -6344,6 +6356,8 @@ C:/msys64/ucrt64/include/c++/14.2.0/bits/std_thread.h:
 
 C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_algo.h:
 
+D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events.hpp:
+
 C:/msys64/ucrt64/include/c++/14.2.0/bits/stl_bvector.h:
 
 C:/msys64/ucrt64/include/timezoneapi.h:
@@ -6433,6 +6447,12 @@ C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/prfchwintrin.h:
 C:/msys64/ucrt64/include/c++/14.2.0/iosfwd:
 
 C:/msys64/ucrt64/include/c++/14.2.0/bits/unique_lock.h:
+
+C:/msys64/ucrt64/include/rpcnsi.h:
+
+C:/msys64/ucrt64/include/profileapi.h:
+
+D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Events/WindowResizeEvent.hpp:
 
 C:/msys64/ucrt64/include/c++/14.2.0/bits/unique_ptr.h:
 
@@ -6908,8 +6928,6 @@ _deps/glm-src/glm/detail/type_quat.hpp:
 
 _deps/glm-src/glm/detail/type_mat4x4.inl:
 
-D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Renderer.hpp:
-
 _deps/glm-src/glm/detail/type_vec1.hpp:
 
 _deps/glm-src/glm/detail/type_vec2.hpp:
@@ -7116,9 +7134,9 @@ _deps/glm-src/glm/matrix.hpp:
 
 C:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/clflushoptintrin.h:
 
-_deps/glm-src/glm/trigonometric.hpp:
-
 D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/Vertex.hpp:
+
+_deps/glm-src/glm/trigonometric.hpp:
 
 _deps/glm-src/glm/vec3.hpp:
 
@@ -7151,6 +7169,8 @@ D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Layer.hpp:
 D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/Shader.hpp:
 
 D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/LowLevel/VBO.hpp:
+
+D:/dev/Development/cpp/Trying\ out\ openGL\ again/include/Engine/Renderer.hpp:
 
 C:/msys64/ucrt64/include/dpapi.h:
 
@@ -7265,10 +7285,6 @@ C:/msys64/ucrt64/include/oleidl.h:
 C:/msys64/ucrt64/include/processenv.h:
 
 C:/msys64/ucrt64/include/processthreadsapi.h:
-
-C:/msys64/ucrt64/include/rpcnsi.h:
-
-C:/msys64/ucrt64/include/profileapi.h:
 
 C:/msys64/ucrt64/include/propidl.h:
 

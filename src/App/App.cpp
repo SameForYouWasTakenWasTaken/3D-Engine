@@ -30,8 +30,17 @@ App::App(AppSettings Settings)
         Shutdown();
         return;
     }
-    //glfwSetWindowUserPointer(m_EngineContext.ActiveWindow, this);
+    glfwSetWindowUserPointer(m_EngineContext.ActiveWindow, this);
     glfwMakeContextCurrent(m_EngineContext.ActiveWindow);
+    
+    glfwSetFramebufferSizeCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, int width, int height){
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            WindowResizeEvent event(width, height);
+            app->OnEvent(event);
+        }
+    });
     
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         logger.LogError("Failed to load glad!");
@@ -45,26 +54,28 @@ App::App(AppSettings Settings)
 }
 void App::Run()
 {
-    Renderer renderer(m_EngineContext);
-    entt::registry registry;
-
+    renderer = std::make_unique<Renderer>(m_EngineContext);
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto scene = std::make_shared<Scene>(m_EngineContext);
     scene->AddLayer(gameLayer);
 
-    renderer.m_SceneManager->AddScene(scene);
+    renderer->m_SceneManager->AddScene(scene);
     
-
+    float dt;
+    auto then = glfwGetTime();
     while (!glfwWindowShouldClose(m_EngineContext.ActiveWindow) && !m_EngineContext.SafeShutdown)
     {
+        float now = glfwGetTime();
+        dt = now - then;
+        then = now;
         glClearColor(0.2f, 0.3f, 0.4f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         
-        renderer.Begin();
-        renderer.Update(0.016f); // TODO: Get actual delta time
-        renderer.End();
+        renderer->Begin();
+        renderer->Update(dt); // TODO: Get actual delta time
+        renderer->End();
 
         glfwSwapBuffers(m_EngineContext.ActiveWindow);
         glfwPollEvents();
@@ -78,4 +89,9 @@ void App::Shutdown()
     // After shutdown
     //m_EngineContext.logger.CreateLogFile(); // TODO: Auto delete logs that are a week old
     glfwTerminate();
+}
+
+void App::OnEvent(Event& e)
+{
+    renderer->OnEvent(e);
 }
