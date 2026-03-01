@@ -16,6 +16,7 @@
 #include <Components/Material.hpp>
 #include <Components/Mesh.hpp>
 #include <Engine/Layer.hpp>
+#include <Engine/Events.hpp>
 #include <Contexts/EngineContext.hpp>
 #include <Tags.hpp>
 
@@ -53,4 +54,5 @@ public:
     void Submit(Mesh* mesh, COMPMaterial* material, const COMPTransform& transform);
     void Begin();
     void End();
+    void OnEvent(Event& e);
 };

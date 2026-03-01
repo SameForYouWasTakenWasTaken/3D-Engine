@@ -11,6 +11,8 @@
 #include <Components/Transform.hpp>
 #include <Components/Material.hpp>
 #include <Components/Mesh.hpp>
+#include <Engine/Events.hpp>
+#include <Engine/Events/WindowResizeEvent.hpp>
 
 class Layer; // forward declaration
 class Renderer; // forward declaration
@@ -32,4 +34,5 @@ public:
     virtual void RemoveLayer(std::shared_ptr<Layer> layer);
     virtual void Draw(Renderer& renderer);
     virtual void Update(float dt);
+    virtual void OnEvent(Event& e);
 };

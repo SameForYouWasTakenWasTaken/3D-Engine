@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 #include <GLFW/glfw3.h>
+#include <entt.hpp>
 
 #include <Logger.hpp>
 
@@ -19,6 +20,8 @@ struct EngineContext
 
     bool SafeShutdown = false; // If a critical error happens, this should be toggled to safely shutdown
     
+    // Events
+    entt::dispatcher EventDispatcher;
     // Logging related stuff
     Logger logger = Logger("EngineContext");
 };

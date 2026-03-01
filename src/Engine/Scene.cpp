@@ -70,3 +70,26 @@ void Scene::Update(float dt)
         layer->OnUpdate(m_Registry, dt);
     }
 }
+
+void Scene::OnEvent(Event& e)
+{
+    for (auto& layer : m_Layers)
+    {
+        layer->OnEvent(m_Registry, e);
+        if (e.Handled)
+            break;
+    }
+
+    if (auto* resizeEvent = dynamic_cast<WindowResizeEvent*>(&e))
+    {
+        auto activeCamera = m_CameraManager.GetActiveCamera();
+        auto* cam = m_Registry.try_get<COMPCamera>(activeCamera);
+        if (cam)
+        {
+            // Set aspect ratio to new size
+            cam->SetRatio(
+                static_cast<float>(resizeEvent->Width) / static_cast<float>(resizeEvent->Height)
+            );
+        }
+    }
+}
