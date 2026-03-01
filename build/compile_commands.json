@@ -1,0 +1,278 @@
+[
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\App\\App.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\App\\App.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/App/App.cpp",
+  "output": "CMakeFiles/main.dir/src/App/App.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\App\\Debug.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\App\\Debug.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/App/Debug.cpp",
+  "output": "CMakeFiles/main.dir/src/App/Debug.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Components\\Camera.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Components\\Camera.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Components/Camera.cpp",
+  "output": "CMakeFiles/main.dir/src/Components/Camera.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Components\\Mesh.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Components\\Mesh.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Components/Mesh.cpp",
+  "output": "CMakeFiles/main.dir/src/Components/Mesh.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Components\\Transform.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Components\\Transform.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Components/Transform.cpp",
+  "output": "CMakeFiles/main.dir/src/Components/Transform.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\Layers\\GameLayer.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\Layers\\GameLayer.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/Layers/GameLayer.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/Layers/GameLayer.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\LowLevel\\EBO.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\LowLevel\\EBO.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/LowLevel/EBO.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/LowLevel/EBO.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\LowLevel\\Shader.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\LowLevel\\Shader.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/LowLevel/Shader.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/LowLevel/Shader.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\LowLevel\\VAO.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\LowLevel\\VAO.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/LowLevel/VAO.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/LowLevel/VAO.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\LowLevel\\VBO.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\LowLevel\\VBO.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/LowLevel/VBO.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/LowLevel/VBO.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\Renderer.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\Renderer.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/Renderer.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/Renderer.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\Scene.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\Scene.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/Scene.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/Scene.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\Systems\\CameraManager.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\Systems\\CameraManager.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/Systems/CameraManager.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/Systems/CameraManager.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Engine\\Systems\\SceneManager.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Engine\\Systems\\SceneManager.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Engine/Systems/SceneManager.cpp",
+  "output": "CMakeFiles/main.dir/src/Engine/Systems/SceneManager.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\Logger.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\Logger.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/Logger.cpp",
+  "output": "CMakeFiles/main.dir/src/Logger.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_C.rsp -g -o CMakeFiles\\main.dir\\src\\glad.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\glad.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/glad.c",
+  "output": "CMakeFiles/main.dir/src/glad.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\main.dir\\src\\main.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\src\\main.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/src/main.cpp",
+  "output": "CMakeFiles/main.dir/src/main.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\context.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\context.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/context.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/context.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\init.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\init.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/init.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/init.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\input.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\input.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/input.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/input.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\monitor.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\monitor.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/monitor.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/monitor.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\platform.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\platform.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/platform.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/platform.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\vulkan.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\vulkan.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/vulkan.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/vulkan.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\window.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\window.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/window.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/window.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\egl_context.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\egl_context.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/egl_context.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/egl_context.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\osmesa_context.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\osmesa_context.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/osmesa_context.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/osmesa_context.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\null_init.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\null_init.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/null_init.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/null_init.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\null_monitor.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\null_monitor.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/null_monitor.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/null_monitor.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\null_window.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\null_window.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/null_window.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/null_window.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\null_joystick.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\null_joystick.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/null_joystick.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/null_joystick.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_module.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_module.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_module.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_module.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_time.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_time.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_time.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_time.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_thread.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_thread.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_thread.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_thread.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_init.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_init.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_init.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_init.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_joystick.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_joystick.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_joystick.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_joystick.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_monitor.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_monitor.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_monitor.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_monitor.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\win32_window.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\win32_window.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/win32_window.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/win32_window.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-build/src",
+  "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE @CMakeFiles/glfw.dir/includes_C.rsp -g -std=c99 -Wall -o CMakeFiles\\glfw.dir\\wgl_context.c.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glfw-src\\src\\wgl_context.c\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glfw-src/src/wgl_context.c",
+  "output": "_deps/glfw-build/src/CMakeFiles/glfw.dir/wgl_context.c.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-build/glm",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe  @CMakeFiles/glm.dir/includes_CXX.rsp -g -std=c++17 -o CMakeFiles\\glm.dir\\detail\\glm.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\glm-src\\glm\\detail\\glm.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-src/glm/detail/glm.cpp",
+  "output": "_deps/glm-build/glm/CMakeFiles/glm.dir/detail/glm.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\spdlog.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\spdlog.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/spdlog.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/spdlog.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\stdout_sinks.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\stdout_sinks.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/stdout_sinks.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/stdout_sinks.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\color_sinks.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\color_sinks.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/color_sinks.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/color_sinks.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\file_sinks.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\file_sinks.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/file_sinks.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/file_sinks.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\async.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\async.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/async.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/async.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\cfg.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\cfg.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/cfg.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/cfg.cpp.obj"
+},
+{
+  "directory": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-build",
+  "command": "C:\\msys64\\ucrt64\\bin\\g++.exe -DSPDLOG_COMPILED_LIB -DSPDLOG_FWRITE_UNLOCKED @CMakeFiles/spdlog.dir/includes_CXX.rsp -g -std=c++23 -o CMakeFiles\\spdlog.dir\\src\\bundled_fmtlib_format.cpp.obj -c \"D:\\dev\\Development\\cpp\\Trying out openGL again\\build\\_deps\\spdlog-src\\src\\bundled_fmtlib_format.cpp\"",
+  "file": "D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-src/src/bundled_fmtlib_format.cpp",
+  "output": "_deps/spdlog-build/CMakeFiles/spdlog.dir/src/bundled_fmtlib_format.cpp.obj"
+}
+]

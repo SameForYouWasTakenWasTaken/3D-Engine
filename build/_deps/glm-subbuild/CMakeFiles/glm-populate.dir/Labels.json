@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/CMakeFiles/glm-populate"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/CMakeFiles/glm-populate.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/CMakeFiles/glm-populate-complete.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-build.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-configure.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-download.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-install.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-mkdir.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-patch.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-test.rule"
+		},
+		{
+			"file" : "D:/dev/Development/cpp/Trying out openGL again/build/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"glm-populate"
+		],
+		"name" : "glm-populate"
+	}
+}

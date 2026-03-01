@@ -1,0 +1,3 @@
+D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate.dir
+D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-subbuild/CMakeFiles/edit_cache.dir
+D:/dev/Development/cpp/Trying out openGL again/build/_deps/spdlog-subbuild/CMakeFiles/rebuild_cache.dir
