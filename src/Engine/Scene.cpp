@@ -3,7 +3,8 @@
 void Scene::AddLayer(std::shared_ptr<Layer> layer)
 {
     m_Layers.push_back(layer);
-    layer->OnAttach(*this, m_Registry);
+    layer->SetScene(this);
+    layer->OnAttach();
 }
 
 void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
@@ -17,26 +18,27 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
         logger.DumpLogs();
         return;
     }
-
-    (*it)->OnDetach(m_Registry);
+    (*it)->OnDetach();
+    layer->SetScene(nullptr);
     m_Layers.erase(it);
 }
 
-void Scene::Draw(Renderer& renderer)
+void Scene::Draw()
 {
+
     for (auto& layer : m_Layers)
     {
-        layer->OnDraw(*this, m_Registry);
+        layer->OnDraw();
     }
 
-    auto view = m_Registry.view<
+    auto view = registry.view<
     COMPGeometry,
     COMPMesh,
     COMPMaterial,
     COMPTransform
     >();
 
-    auto* cam = m_Registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
+    auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
     if (cam == nullptr)
     {
         logger.AppendLogTag("SCENE", LogColors::GREEN);
@@ -58,16 +60,27 @@ void Scene::Draw(Renderer& renderer)
             glm::value_ptr(cam->projection * cam->view)
         );
         material.shader->UnuseProgram();
-        renderer.Submit(mesh.mesh.get(), &material, transform);
+
+        // Calculate the model
+        glm::mat4 model = glm::mat4(1.f);
+        model = glm::translate(model, transform.position);
+
+        model = glm::rotate(model, transform.rotation.x, glm::vec3(1.f, 0.f, 0.f));
+        model = glm::rotate(model, transform.rotation.y, glm::vec3(0.f, 1.f, 0.f));
+        model = glm::rotate(model, transform.rotation.z, glm::vec3(0.f, 0.f, 1.f));
+        
+        model = glm::scale(model, transform.scale);
+        // Put everything into the renderer
+        m_SceneManager->m_EngineContext.renderer->Submit(mesh.mesh.get(), &material, model);
     });
 }
 
 void Scene::Update(float dt)
 {
-    m_CameraManager.Update(m_Registry, dt);
+    m_CameraManager.Update(registry, dt);
     for (auto& layer : m_Layers)
     {
-        layer->OnUpdate(m_Registry, dt);
+        layer->OnUpdate(dt);
     }
 }
 
@@ -75,21 +88,21 @@ void Scene::OnEvent(Event& e)
 {
     for (auto& layer : m_Layers)
     {
-        layer->OnEvent(m_Registry, e);
+        layer->OnEvent(e);
         if (e.Handled)
             break;
     }
 
-    if (auto* resizeEvent = dynamic_cast<WindowResizeEvent*>(&e))
-    {
-        auto activeCamera = m_CameraManager.GetActiveCamera();
-        auto* cam = m_Registry.try_get<COMPCamera>(activeCamera);
-        if (cam)
-        {
-            // Set aspect ratio to new size
-            cam->SetRatio(
-                static_cast<float>(resizeEvent->Width) / static_cast<float>(resizeEvent->Height)
-            );
-        }
-    }
+    if (!e.Handled)
+        m_SceneManager->OnEvent(e);
+}
+
+void Scene::SetSceneManager(SceneManager* sceneManager)
+{
+    m_SceneManager = sceneManager;
+}
+
+EngineContext& Scene::GetContext()
+{
+    return m_SceneManager->m_EngineContext;
 }

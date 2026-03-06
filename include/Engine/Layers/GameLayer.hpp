@@ -11,6 +11,7 @@
 #include <Engine/Renderer.hpp>
 #include <Engine/LowLevel/Shader.hpp>
 #include <Engine/Events/WindowResizeEvent.hpp>
+#include <Engine/Events/TestEvent.hpp>
 
 class GameLayer : public Layer
 {
@@ -18,9 +19,9 @@ public:
     GameLayer() = default;
     ~GameLayer() = default;
 
-    void OnDraw(Scene& scene, entt::registry& registry) override;
-    void OnUpdate(entt::registry& registry, float dt) override;
-    void OnAttach(Scene& scene, entt::registry& registry) override;
-    void OnDetach(entt::registry& registry) override;
-    void OnEvent(entt::registry& registry, Event& e) override;
+    void OnDraw() override;
+    void OnUpdate(float dt) override;
+    void OnAttach() override;
+    void OnDetach() override;
+    void OnEvent(Event& e) override;
 };
