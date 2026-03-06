@@ -4,17 +4,24 @@
 #include <entt.hpp>
 #include <Engine/Scene.hpp>
 #include <Engine/Events.hpp>
+#include <Logger.hpp>
 
 class Scene; // forward declaration
 
 class Layer {
+protected:
+    Scene* m_Scene = nullptr;
 public:
+    Logger logger = Logger("LAYER_BASE");
     Layer() = default;
     ~Layer() = default;
 
-    virtual void OnDraw(Scene& scene, entt::registry& registry) {}
-    virtual void OnUpdate(entt::registry& registry, float dt) {}
-    virtual void OnEvent(entt::registry& registry, Event& e) {} //TODO: add event to arguments later
-    virtual void OnAttach(Scene& scene, entt::registry& registry) {}
-    virtual void OnDetach(entt::registry& registry) {}
+    void SetScene(Scene* scene);
+    void EmitEvent(Event& e);
+
+    virtual void OnDraw() {}
+    virtual void OnUpdate(float dt) {}
+    virtual void OnEvent(Event& e) {} //TODO: add event to arguments later
+    virtual void OnAttach() {}
+    virtual void OnDetach() {}
 };

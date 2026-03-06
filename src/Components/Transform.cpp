@@ -3,23 +3,17 @@
 void COMPTransform::Translate(const glm::vec3& translation)
 {
     position += translation;
-    model = glm::translate(model, position);
 }
 
 void COMPTransform::Rotate(const glm::vec3& rot)
 {
     this->rotation += rot;
     this->rotation = glm::mod(rotation, glm::vec3(360.f));
-
-    model = glm::rotate(model, glm::radians(rot.x), {1,0,0});
-    model = glm::rotate(model, glm::radians(rot.y), {0,1,0});
-    model = glm::rotate(model, glm::radians(rot.z), {0,0,1});
 }
 
 void COMPTransform::Scale(const glm::vec3& scale)
 {
     this->scale += scale;
-    model = glm::scale(model, scale);
 }
 
 void COMPTransform::SetPosition(const glm::vec3& position)

@@ -2,8 +2,8 @@
 
 App::App(AppSettings Settings)
 {
-    m_EngineContext.Height = Settings.Height;
-    m_EngineContext.Width = Settings.Width;
+    m_EngineContext.WindowHeight = Settings.Height;
+    m_EngineContext.WindowWidth = Settings.Width;
     auto logger = m_EngineContext.logger;
     logger.RenameLogger("APP");
 
@@ -19,7 +19,7 @@ App::App(AppSettings Settings)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
     m_EngineContext.ActiveWindow = glfwCreateWindow(
-        m_EngineContext.Width, m_EngineContext.Height, // Width, height
+        m_EngineContext.WindowWidth, m_EngineContext.WindowHeight, // Width, height
         Settings.Name.c_str(), // App name
         NULL, NULL
     );
@@ -55,12 +55,17 @@ App::App(AppSettings Settings)
 void App::Run()
 {
     renderer = std::make_unique<Renderer>(m_EngineContext);
+    m_EngineContext.renderer = renderer.get();
+
+    m_SceneManager = std::make_unique<SceneManager>(m_EngineContext);
 
     auto gameLayer = std::make_shared<GameLayer>();
-    auto scene = std::make_shared<Scene>(m_EngineContext);
+    auto scene = std::make_shared<Scene>();
+    
+    scene->SetSceneManager(m_SceneManager.get());
     scene->AddLayer(gameLayer);
 
-    renderer->m_SceneManager->AddScene(scene);
+    m_SceneManager->AddScene(scene);
     
     float dt;
     auto then = glfwGetTime();
@@ -74,7 +79,13 @@ void App::Run()
 
         
         renderer->Begin();
-        renderer->Update(dt); // TODO: Get actual delta time
+        
+        // Updating
+        renderer->Update(dt);
+        m_SceneManager->Update(dt);
+
+        // Drawing
+        m_SceneManager->Draw();
         renderer->End();
 
         glfwSwapBuffers(m_EngineContext.ActiveWindow);
@@ -94,4 +105,5 @@ void App::Shutdown()
 void App::OnEvent(Event& e)
 {
     renderer->OnEvent(e);
+    m_SceneManager->OnEvent(e);
 }

@@ -1,4 +1,5 @@
 #include <Engine/Systems/CameraManager.hpp>
+#include <Contexts/EngineContext.hpp>
 
 void CameraManager::Update(entt::registry& registry, float dt)
 {

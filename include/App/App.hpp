@@ -13,10 +13,12 @@
 #include <Engine/Renderer.hpp>
 #include <Engine/Layers/GameLayer.hpp>
 #include <Engine/Events.hpp>
+#include <Engine/Systems/SceneManager.hpp>
 
 class App final
 {
     std::unique_ptr<Renderer> renderer;
+    std::unique_ptr<SceneManager> m_SceneManager;
 public:
     App(AppSettings Settings);
 

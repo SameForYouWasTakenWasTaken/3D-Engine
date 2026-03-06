@@ -21,6 +21,7 @@
 #include <Tags.hpp>
 
 class SceneManager; // forward declaration
+class EngineContext; // forward declaration
 
 class Renderer final {
     struct InstanceData
@@ -47,12 +48,12 @@ public:
     Renderer(EngineContext& context);
     ~Renderer() = default;
 
-    [[deprecated("Use Begin() and End() instead!")]]
-    void Draw(entt::registry& registry);
-    void Update(float dt);
-
-    void Submit(Mesh* mesh, COMPMaterial* material, const COMPTransform& transform);
+    
+    void Submit(Mesh* mesh, COMPMaterial* material, const glm::mat4& model);
+    
     void Begin();
+    void Update(float dt);
     void End();
+    
     void OnEvent(Event& e);
 };
