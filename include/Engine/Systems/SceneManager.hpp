@@ -16,8 +16,9 @@ class Scene; // forward declaration
 class EngineContext; // forward declaration
 class SceneManager final
 {
+    uint32_t m_NextSceneID = 0;
     EventCallbackFn m_EventCallback;
-    std::vector<std::shared_ptr<Scene>> m_Scenes;
+    std::unordered_map<uint32_t, std::shared_ptr<Scene>> m_Scenes;
 public:
     EngineContext& m_EngineContext;
     std::shared_ptr<Scene> m_ActiveScene = nullptr;
@@ -30,10 +31,11 @@ public:
     void Draw();
     void Update(float dt);
     void AddScene(std::shared_ptr<Scene> scene);
-    void RemoveScene(std::shared_ptr<Scene> scene);
-    void ChangeScene(std::shared_ptr<Scene> scene);
+    void RemoveScene(uint32_t sceneID);
+    void ChangeScene(uint32_t sceneID);
     void NextScene();
-    void OnUpdate(Event& e);
     void OnEvent(Event& e);
     void SetEventCallback(const EventCallbackFn& callback);
+
+    std::shared_ptr<Scene> GetSceneFromID(uint32_t id);
 };

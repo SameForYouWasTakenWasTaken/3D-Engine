@@ -18,7 +18,7 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
         logger.DumpLogs();
         return;
     }
-    (*it)->OnDetach();
+    layer->OnDetach();
     layer->SetScene(nullptr);
     m_Layers.erase(it);
 }
@@ -55,33 +55,29 @@ void Scene::Draw()
     {
         material.shader->UseProgram();
         material.shader->SetMatrix4(
-            "PVmat", 
+            "projectmat", 
             1, 
-            glm::value_ptr(cam->projection * cam->view)
+            glm::value_ptr(cam->projection)
+        );
+        material.shader->SetMatrix4(
+            "viewmat", 
+            1, 
+            glm::value_ptr(cam->view)
         );
         material.shader->UnuseProgram();
 
-        // Calculate the model
-        glm::mat4 model = glm::mat4(1.f);
-        model = glm::translate(model, transform.position);
-
-        model = glm::rotate(model, transform.rotation.x, glm::vec3(1.f, 0.f, 0.f));
-        model = glm::rotate(model, transform.rotation.y, glm::vec3(0.f, 1.f, 0.f));
-        model = glm::rotate(model, transform.rotation.z, glm::vec3(0.f, 0.f, 1.f));
-        
-        model = glm::scale(model, transform.scale);
         // Put everything into the renderer
-        m_SceneManager->m_EngineContext.renderer->Submit(mesh.mesh.get(), &material, model);
+        m_SceneManager->m_EngineContext.renderer->Submit(mesh.mesh.get(), &material, transform.GetModelMatrix());
     });
 }
 
 void Scene::Update(float dt)
 {
-    m_CameraManager.Update(registry, dt);
     for (auto& layer : m_Layers)
     {
         layer->OnUpdate(dt);
     }
+    m_CameraManager.Update(registry, dt);
 }
 
 void Scene::OnEvent(Event& e)
@@ -97,11 +93,12 @@ void Scene::OnEvent(Event& e)
         m_SceneManager->OnEvent(e);
 }
 
-void Scene::OnAttach(SceneManager* sceneManager)
+void Scene::OnAttach(SceneManager* sceneManager, uint32_t id)
 {
     if (sceneManager == nullptr)
         return;
-    
+
+    SceneID = id;
     m_SceneManager = sceneManager;
 }
 
@@ -121,4 +118,9 @@ std::expected<EngineContext*, bool> Scene::GetContext()
         return std::unexpected(false);
     }
     return &m_SceneManager->m_EngineContext;
+}
+
+uint32_t Scene::GetID() const
+{
+    return SceneID;
 }

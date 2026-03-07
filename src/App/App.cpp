@@ -41,6 +41,29 @@ App::App(AppSettings Settings)
             app->OnEvent(event);
         }
     });
+
+    glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
+        GLFWwindow* window, 
+        int key, 
+        int scancode, 
+        int action, 
+        int mods) {
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            KeyInputEvent event(window, key, scancode, action, mods);
+            app->OnEvent(event);
+        }
+    });
+
+    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            MouseMoveEvent event(window, xpos, ypos);
+            app->OnEvent(event);
+        }
+    });
     
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         logger.LogError("Failed to load glad!");
@@ -49,8 +72,10 @@ App::App(AppSettings Settings)
     }
     
     enableReportGlErrors();
-    glEnable(GL_DEPTH_TEST);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
+	glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
+	glEnable(GL_BLEND); // Enables blending
+	glDepthFunc(GL_LESS); // default: pass if fragment is closer
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
 }
 void App::Run()
 {
@@ -61,10 +86,10 @@ void App::Run()
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto scene = std::make_shared<Scene>();
+    auto scene2 = std::make_shared<Scene>();
     m_SceneManager->AddScene(scene);
 
     scene->AddLayer(gameLayer);
-    
     float dt;
     auto then = glfwGetTime();
     while (!glfwWindowShouldClose(m_EngineContext.ActiveWindow) && !m_EngineContext.SafeShutdown)
@@ -104,4 +129,5 @@ void App::OnEvent(Event& e)
 {
     renderer->OnEvent(e);
     m_SceneManager->OnEvent(e);
+    m_InputSystem.OnEvent(e);
 }

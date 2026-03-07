@@ -12,6 +12,10 @@
 #include <Engine/LowLevel/Shader.hpp>
 #include <Engine/Events/WindowResizeEvent.hpp>
 #include <Engine/Events/TestEvent.hpp>
+#include <Engine/Events/KeyInputEvent.hpp>
+#include <Engine/Events/MouseMoveEvent.hpp>
+
+#include <Engine/Systems/InputSystem.hpp>
 
 class GameLayer : public Layer
 {

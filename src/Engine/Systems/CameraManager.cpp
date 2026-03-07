@@ -36,13 +36,19 @@ void CameraManager::Update(entt::registry& registry, float dt)
         return;
     }
 
-    glm::mat4 view_mat = glm::mat4(1.f);
-    view_mat = glm::translate(view_mat, transform->position);
-    view_mat = glm::rotate(view_mat, glm::radians(transform->rotation.x), {1,0,0});
-    view_mat = glm::rotate(view_mat, glm::radians(transform->rotation.y), {0,1,0});
-    view_mat = glm::rotate(view_mat, glm::radians(transform->rotation.z), {0,0,1});
+    // Build view matrix
+    camera->view = glm::lookAt(
+        transform->position,
+        transform->position + camera->GetForward(),
+        camera->GetUp()
+    );
 
-    camera->view = view_mat;
+    auto fwd = camera->GetForward();
+
+    std::cout << "Camera Rot: "
+          << transform->rotation.x << ", "
+          << transform->rotation.y << ", "
+          << transform->rotation.z << std::endl;
 }
 
 void CameraManager::SetActiveCamera(entt::entity entity)
