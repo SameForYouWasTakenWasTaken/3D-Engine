@@ -1,10 +1,27 @@
 #include <Engine/Layers/GameLayer.hpp>
 
+/**
+ * @brief Executes the layer's per-frame drawing step.
+ *
+ * This is invoked during the render phase to perform any layer-specific rendering.
+ * Currently no rendering operations are implemented in this method.
+ */
 void GameLayer::OnDraw()
 {
     int x = 1;
 }
 
+/**
+ * @brief Updates the active camera's transform from user input and elapsed time.
+ *
+ * Processes keyboard input to move and rotate the active camera:
+ * - WASD to move in the camera's local forward/right plane.
+ * - Q/E to move vertically.
+ * - Arrow keys to rotate the camera's orientation.
+ * Movement is applied to the active transform and scaled by a movement speed and the supplied delta time.
+ *
+ * @param dt Elapsed time since the last update, in seconds.
+ */
 void GameLayer::OnUpdate(float dt)
 {    
     auto view = m_Scene->registry.view<COMPGeometry>();
@@ -46,6 +63,17 @@ void GameLayer::OnUpdate(float dt)
     }
 }
 
+/**
+ * @brief Initialize scene entities, meshes, materials, and the active camera for the layer.
+ *
+ * Creates two triangle entities and one circle entity, each with geometry, transform, material,
+ * mesh components, and attaches them to the layer's tag. The circle is generated as a triangle
+ * fan approximating a circle with 100 segments and radius 2. Each entity's mesh and material
+ * are configured and positioned (triangle_1 at {0,0,0}, triangle_2 at {1,1,0}, circle at {2,2,1}).
+ * If an engine context is available, a camera entity is created, configured with a 90° FOV and
+ * the window aspect ratio, positioned at {0,0,-2}, and set as the active camera. If no context
+ * is present, an error is logged.
+ */
 void GameLayer::OnAttach()
 {
     std::vector<Vertex> vertices = {
@@ -158,6 +186,15 @@ void GameLayer::OnDetach()
     });
 }
 
+/**
+ * @brief Processes incoming events for the game layer, updating cameras, transforms, and input state.
+ *
+ * Handles WindowResizeEvent (updates camera aspect ratio), KeyInputEvent (toggles cursor/raw mouse mode on Escape;
+ * applies rotation, translation, and scale to all entities with COMPTransform+COMPGeometry on U/I), and MouseMoveEvent
+ * (applies yaw/pitch to the active camera using mouse deltas). Marks the event as handled.
+ *
+ * @param e The event to process; this function may modify e.Handled.
+ */
 void GameLayer::OnEvent(Event& e)
 {
     if (e.GetType() == WindowResizeEvent::GetStaticType())
