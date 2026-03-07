@@ -1,6 +1,6 @@
 #pragma once
 
-#include <queue>
+#include <expected>
 
 #include <Engine/Layer.hpp>
 #include <Logger.hpp>
@@ -42,7 +42,9 @@ public:
     virtual void Draw();
     virtual void Update(float dt);
     virtual void OnEvent(Event& e);
-
-    void SetSceneManager(SceneManager* sceneManager);
-    EngineContext& GetContext();
+    virtual void OnAttach(SceneManager* sceneManager); // On attach to the scene manager
+    virtual void OnDetach(); // on detach from the scene manager
+    
+    // EngineContext* because std::expected cant take reference
+    std::expected<EngineContext*, bool> GetContext();
 };

@@ -4,13 +4,14 @@
 void SceneManager::AddScene(std::shared_ptr<Scene> scene)
 {
     m_Scenes.push_back(scene);
-    scene->SetSceneManager(this);
+    scene->OnAttach(this);
     if (m_ActiveScene == nullptr)
         m_ActiveScene = scene;
 }
 
 void SceneManager::RemoveScene(std::shared_ptr<Scene> scene)
 {
+    scene->OnDetach();
     m_Scenes.erase(
         std::remove(m_Scenes.begin(), m_Scenes.end(), scene), 
         m_Scenes.end()
@@ -109,5 +110,13 @@ void SceneManager::Draw()
 
 void SceneManager::Update(float dt)
 {
+    if (m_ActiveScene == nullptr)
+    {
+        logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
+        logger.LogWarning("No active scene set, skipping update.");
+        logger.DumpLogs();
+        return;
+    }
+    
     m_ActiveScene->Update(dt);
 }

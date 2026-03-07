@@ -97,12 +97,28 @@ void Scene::OnEvent(Event& e)
         m_SceneManager->OnEvent(e);
 }
 
-void Scene::SetSceneManager(SceneManager* sceneManager)
+void Scene::OnAttach(SceneManager* sceneManager)
 {
+    if (sceneManager == nullptr)
+        return;
+    
     m_SceneManager = sceneManager;
 }
 
-EngineContext& Scene::GetContext()
+void Scene::OnDetach()
 {
-    return m_SceneManager->m_EngineContext;
+    m_SceneManager = nullptr;
+}
+
+std::expected<EngineContext*, bool> Scene::GetContext()
+{
+    if (m_SceneManager == nullptr)
+    {
+        logger.AppendLogTag("SCENE", LogColors::GREEN);
+        logger.AppendLogTag("SCENE_MANAGER", LogColors::MAGENTA);
+        logger.LogWarning("Scene has not been attached to a scene manager.");
+        logger.DumpLogs();
+        return std::unexpected(false);
+    }
+    return &m_SceneManager->m_EngineContext;
 }

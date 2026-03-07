@@ -59,16 +59,27 @@ void GameLayer::OnAttach()
 
     Transform_b.SetPosition({1.f, 1.f, 0.f});
 
-    // Camera
-    EngineContext& context = m_Scene->GetContext();
-    auto cam_entity = m_Scene->registry.create();
-    auto& cam_transform = m_Scene->registry.emplace<COMPTransform>(cam_entity);
-    cam_transform.SetPosition({0.f, 0.f, -2.f});
+    // Camera creation
+    auto context_expected = m_Scene->GetContext();
+    if (context_expected.has_value())
+    {
+        EngineContext* context = context_expected.value();
+
+        auto cam_entity = m_Scene->registry.create();
+        auto& cam_transform = m_Scene->registry.emplace<COMPTransform>(cam_entity);
+        cam_transform.SetPosition({0.f, 0.f, -2.f});
+        
+        float ratio = static_cast<float>(context->WindowWidth) / static_cast<float>(context->WindowHeight);
+        
+        m_Scene->registry.emplace<COMPCamera>(cam_entity, 90.f, ratio, 0.01f, 1000.f);
+        m_Scene->m_CameraManager.SetActiveCamera(cam_entity);
+    }else {
+        logger.AppendLogTag("GAMELAYER", LogColors::GREEN);
+        logger.LogError("Camera has not been attached, because no context had been provided!");
+        logger.DumpLogs();
+    }
+
     
-    float ratio = static_cast<float>(context.WindowWidth) / static_cast<float>(context.WindowHeight);
-    
-    m_Scene->registry.emplace<COMPCamera>(cam_entity, 90.f, ratio, 0.01f, 1000.f);
-    m_Scene->m_CameraManager.SetActiveCamera(cam_entity);
 }
 
 void GameLayer::OnDetach()
@@ -94,12 +105,12 @@ void GameLayer::OnEvent(Event& e)
         }
 
         std::cout << "Resize: " << resize.Width << ", " << resize.Height << std::endl;
-        e.Handled = true;
     }
 
     if (e.GetType() == TestEvent::GetStaticType())
     {
         auto& test = static_cast<TestEvent&>(e);
-        e.Handled = true;
     }
+
+    e.Handled = true; // Set handled to true, since the layer is the last destination
 }

@@ -61,11 +61,9 @@ void App::Run()
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto scene = std::make_shared<Scene>();
-    
-    scene->SetSceneManager(m_SceneManager.get());
-    scene->AddLayer(gameLayer);
-
     m_SceneManager->AddScene(scene);
+
+    scene->AddLayer(gameLayer);
     
     float dt;
     auto then = glfwGetTime();
