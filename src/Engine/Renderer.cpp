@@ -36,6 +36,16 @@ void Renderer::Begin()
     m_Batches.clear();
 }
 
+/**
+ * @brief Finalizes and flushes all accumulated render batches to the GPU.
+ *
+ * Iterates stored batches, skips empty ones, binds each batch's mesh VAO and
+ * instance VBO, updates the instance buffer with the batch's InstanceData,
+ * activates the material's shader, and issues an instanced draw call.
+ * For meshes marked as indexed, uses glDrawElementsInstanced with the mesh's
+ * index count; for non-indexed meshes, uses glDrawArraysInstanced with the
+ * mesh's vertex count.
+ */
 void Renderer::End()
 {
 
@@ -61,13 +71,24 @@ void Renderer::End()
         );
 
         material->shader->UseProgram();
-        glDrawElementsInstanced(
-            GL_TRIANGLES, 
-            batch.mesh->IndexCount, 
-            GL_UNSIGNED_INT, 
-            nullptr, 
-            static_cast<GLsizei>(batch.instances.size())
-        );
+
+        if (mesh->Indexed)
+        {
+            glDrawElementsInstanced(
+                mesh->Primitive, 
+                batch.mesh->IndexCount, 
+                GL_UNSIGNED_INT, 
+                nullptr, 
+                static_cast<GLsizei>(batch.instances.size())
+            );
+        }else{
+            glDrawArraysInstanced(
+                mesh->Primitive,
+                0,
+                mesh->VertexCount,
+                instanceCount
+            );
+        }
     }
 }
 

@@ -27,14 +27,26 @@ class Scene final
 {
     SceneManager* m_SceneManager;
     std::vector<std::shared_ptr<Layer>> m_Layers;
-public:
-    Logger logger = Logger("SCENE");
-    CameraManager m_CameraManager;
     
+    uint32_t SceneID;
+public:
+    CameraManager m_CameraManager;
     entt::registry registry;
 
-    Scene() = default;
-    ~Scene() = default;
+    Logger logger = Logger("SCENE");
+    /**
+ * @brief Constructs a Scene with default-initialized members.
+ *
+ * Initializes an empty scene: no layers, a default CameraManager, a fresh entity registry,
+ * and other members set to their declared default values.
+ */
+Scene() = default;
+    /**
+ * @brief Default destructor for Scene.
+ *
+ * Performs any required cleanup when a Scene instance is destroyed.
+ */
+~Scene() = default;
 
 
     virtual void AddLayer(std::shared_ptr<Layer> layer);
@@ -42,9 +54,10 @@ public:
     virtual void Draw();
     virtual void Update(float dt);
     virtual void OnEvent(Event& e);
-    virtual void OnAttach(SceneManager* sceneManager); // On attach to the scene manager
+    virtual void OnAttach(SceneManager* sceneManager, uint32_t id); // On attach to the scene manager
     virtual void OnDetach(); // on detach from the scene manager
     
     // EngineContext* because std::expected cant take reference
     std::expected<EngineContext*, bool> GetContext();
+    uint32_t GetID() const;
 };
