@@ -8,4 +8,7 @@ struct CameraContext
         float ratio;
         float near;
         float far;
+
+        float pitch;
+        float yaw;
 };

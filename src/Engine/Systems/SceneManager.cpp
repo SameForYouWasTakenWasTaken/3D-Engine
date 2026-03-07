@@ -35,19 +35,20 @@ void SceneManager::RemoveScene(uint32_t sceneID)
 
     m_Scenes.erase(sceneID);
 
-    m_ActiveScene = nullptr;
+    if (m_ActiveScene == scene)
+        m_ActiveScene = nullptr;
 }
 
-/**
- * @brief Change the active scene to the scene with the specified ID.
- *
- * If the provided ID does not exist in the manager, an error is logged and the active scene is left unchanged.
- *
- * @param sceneID ID of the scene to activate.
- */
 void SceneManager::ChangeScene(uint32_t sceneID)
 {
     auto scene = GetSceneFromID(sceneID);
+    if (scene == nullptr)
+    {
+        logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
+        logger.LogError("Scene not found in scene manager!");
+        logger.DumpLogs();
+        return;
+    }
     if (m_Scenes.find(sceneID) == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
@@ -83,8 +84,15 @@ void SceneManager::NextScene()
     }
 
     auto it = m_Scenes.find(m_ActiveScene->GetID());
+    if (it == m_Scenes.end())
+    {
+        logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
+        logger.LogWarning("Active scene is not registered in the scene manager.");
+        return;
+    }
 
-    it++; // Move to the next scene
+    ++it; // Move to the next scene
+
     if (it == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
@@ -183,5 +191,5 @@ std::shared_ptr<Scene> SceneManager::GetSceneFromID(uint32_t id)
 {
     
     auto it = m_Scenes.find(id);
-    return it->second;
+    return it == m_Scenes.end() ? nullptr : it->second;
 }
