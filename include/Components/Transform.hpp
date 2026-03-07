@@ -21,7 +21,4 @@ struct COMPTransform
     void SetScale(const glm::vec3& scale);
 
     glm::mat4 GetModelMatrix();
-    glm::vec3 GetForward();
-    glm::vec3 GetRight();
-    glm::vec3 GetUp();
 };

@@ -55,4 +55,6 @@ void Mesh::SetData(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, 
 
     IndexCount = indices.size();
     VertexCount = vertices.size();
+
+    Indexed = !indices.empty();
 }

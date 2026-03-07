@@ -37,7 +37,7 @@ App::App(AppSettings Settings)
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
-            WindowResizeEvent event(width, height);
+            WindowResizeEvent event(window, width, height);
             app->OnEvent(event);
         }
     });
@@ -86,7 +86,6 @@ void App::Run()
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto scene = std::make_shared<Scene>();
-    auto scene2 = std::make_shared<Scene>();
     m_SceneManager->AddScene(scene);
 
     scene->AddLayer(gameLayer);

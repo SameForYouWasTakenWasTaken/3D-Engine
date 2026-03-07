@@ -10,32 +10,40 @@ void GameLayer::OnUpdate(float dt)
     auto view = m_Scene->registry.view<COMPGeometry>();
     // Camera movement
     auto active_cam = m_Scene->m_CameraManager.GetActiveCamera();
-    auto& transform = m_Scene->registry.get<COMPTransform>(active_cam);
-    auto& cam = m_Scene->registry.get<COMPCamera>(active_cam);
+    auto* transform = m_Scene->registry.try_get<COMPTransform>(active_cam);
+    auto* cam = m_Scene->registry.try_get<COMPCamera>(active_cam);
 
-    float speed = 2.0f;
-    float rotate_speed = 50.f;
+    if (transform && cam)
+    {
+        float speed = 2.0f;
+        float rotate_speed = 50.f;
 
-    glm::vec3 input(0);
-    // WASD
-    if (InputSystem::IsKeyHeld(GLFW_KEY_W)) input.z += 1;
-    if (InputSystem::IsKeyHeld(GLFW_KEY_S)) input.z -= 1;
-    if (InputSystem::IsKeyHeld(GLFW_KEY_A)) input.x -= 1;
-    if (InputSystem::IsKeyHeld(GLFW_KEY_D)) input.x += 1;
-    
-    // QE
-    if (InputSystem::IsKeyHeld(GLFW_KEY_Q)) transform.Move({0.f, -speed / 100, 0.f});
-    if (InputSystem::IsKeyHeld(GLFW_KEY_E)) transform.Move({0.f, speed / 100, 0.f});
+        glm::vec3 input(0);
+        // WASD
+        if (InputSystem::IsKeyHeld(GLFW_KEY_W)) input.z += 1;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_S)) input.z -= 1;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_A)) input.x -= 1;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_D)) input.x += 1;
+        
+        // QE
+        if (InputSystem::IsKeyHeld(GLFW_KEY_Q)) input.y -= 1.f;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_E)) input.y += 1.f;
 
-    // Look around with arrow keys
-    if (InputSystem::IsKeyHeld(GLFW_KEY_UP)) cam.RotateEuler(0, rotate_speed * dt);
-    if (InputSystem::IsKeyHeld(GLFW_KEY_DOWN)) cam.RotateEuler(0, -rotate_speed * dt);
-    if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT)) cam.RotateEuler(-rotate_speed * dt, 0);
-    if (InputSystem::IsKeyHeld(GLFW_KEY_RIGHT)) cam.RotateEuler(rotate_speed * dt, 0);
-    glm::vec3 move =    input.x * cam.GetRight() + 
-                        input.z * cam.GetForward();
-    
-    transform.Move(move * speed * dt);
+        // Look around with arrow keys
+        if (InputSystem::IsKeyHeld(GLFW_KEY_UP)) cam->RotateEuler(0, rotate_speed * dt);
+        if (InputSystem::IsKeyHeld(GLFW_KEY_DOWN)) cam->RotateEuler(0, -rotate_speed * dt);
+        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT)) cam->RotateEuler(-rotate_speed * dt, 0);
+        if (InputSystem::IsKeyHeld(GLFW_KEY_RIGHT)) cam->RotateEuler(rotate_speed * dt, 0);
+        
+        glm::vec3 move = input.x * cam->GetRight() +
+                         input.y * glm::vec3(0.f, 1.f, 0.f) +
+                         input.z * cam->GetForward();
+        
+        if (glm::length(move) > 0.f)
+            move = glm::normalize(move);
+        
+        transform->Move(move * speed * dt);
+    }
 }
 
 void GameLayer::OnAttach()
@@ -92,7 +100,7 @@ void GameLayer::OnAttach()
   
     size_t iter_num = 100;
     float radius = 2.f;
-    
+
 	for (size_t i = 0; i <= iter_num; i++) {
 		float theta = (2 * 3.141592653589 * i) / iter_num;
 		float x = radius * cos(theta);
@@ -207,6 +215,8 @@ void GameLayer::OnEvent(Event& e)
 
     if (e.GetType() == MouseMoveEvent::GetStaticType())
     {
+        if (m_Scene->m_CameraManager.GetActiveCamera() == entt::null) return;
+
         auto& mouse = static_cast<MouseMoveEvent&>(e);
         auto& cam = m_Scene->registry.get<COMPCamera>(m_Scene->m_CameraManager.GetActiveCamera());
         
