@@ -50,7 +50,30 @@ App::App(AppSettings Settings)
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
-            WindowResizeEvent event(width, height);
+            WindowResizeEvent event(window, width, height);
+            app->OnEvent(event);
+        }
+    });
+
+    glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
+        GLFWwindow* window, 
+        int key, 
+        int scancode, 
+        int action, 
+        int mods) {
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            KeyInputEvent event(window, key, scancode, action, mods);
+            app->OnEvent(event);
+        }
+    });
+
+    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            MouseMoveEvent event(window, xpos, ypos);
             app->OnEvent(event);
         }
     });

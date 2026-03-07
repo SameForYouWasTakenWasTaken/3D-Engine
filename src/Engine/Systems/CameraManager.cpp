@@ -53,13 +53,6 @@ void CameraManager::Update(entt::registry& registry, float dt)
         transform->position + camera->GetForward(),
         camera->GetUp()
     );
-
-    auto fwd = camera->GetForward();
-
-    std::cout << "Camera Rot: "
-          << transform->rotation.x << ", "
-          << transform->rotation.y << ", "
-          << transform->rotation.z << std::endl;
 }
 
 /**

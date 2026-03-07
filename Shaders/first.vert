@@ -12,7 +12,8 @@ layout(location = 14) in vec4 row3;
 out vec4 vertexColor;
 out vec2 fragmentTexCoord;
 
-uniform mat4 PVmat; //Projection * View matrix
+uniform mat4 projectmat;
+uniform mat4 viewmat;
 
 void main()
 {
@@ -22,7 +23,7 @@ void main()
         row2,
         row3
     );
-    gl_Position = PVmat * instanceMatrix * vec4(position, 1.0);
+    gl_Position = projectmat * viewmat * instanceMatrix * vec4(position, 1.0);
     vertexColor = color;
     fragmentTexCoord = texCoord;
 }
