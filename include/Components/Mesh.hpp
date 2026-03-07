@@ -44,7 +44,7 @@ struct Mesh
 
     VBO instanceVBO; // For instanced rendering
 
-    bool Indexed = true;
+    bool Indexed = false;
     GLenum Primitive = GL_TRIANGLES;
     void SetData(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, GLenum draw_type = GL_STATIC_DRAW);
 };

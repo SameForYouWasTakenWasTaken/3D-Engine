@@ -2,7 +2,7 @@
 #include <iostream>
 
 COMPCamera::COMPCamera(float fov, float ratio, float near, float far)
-    : fov(fov), ratio(ratio), near(near), far(far) 
+    : fov(fov), ratio(ratio), near(near), far(far), yaw(0.f), pitch(0.f)
 {
 
     projection = glm::perspective(
