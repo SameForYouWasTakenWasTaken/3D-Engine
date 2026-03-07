@@ -1,36 +1,71 @@
 #include "Engine/Systems/SceneManager.hpp"
 
 
+/**
+ * @brief Adds a scene to the manager and assigns it a new numeric ID.
+ *
+ * The scene is stored in the manager, attached with the assigned ID via the scene's
+ * OnAttach method, and the manager's next-scene ID counter is advanced. If there
+ * is no currently active scene, the added scene becomes the active scene.
+ *
+ * @param scene Shared pointer to the scene to add; must be non-null.
+ */
 void SceneManager::AddScene(std::shared_ptr<Scene> scene)
 {
-    m_Scenes.push_back(scene);
-    scene->OnAttach(this);
+    m_Scenes.emplace(m_NextSceneID, scene);
+    scene->OnAttach(this, m_NextSceneID);
+    
+    m_NextSceneID++;
+    
     if (m_ActiveScene == nullptr)
         m_ActiveScene = scene;
 }
 
-void SceneManager::RemoveScene(std::shared_ptr<Scene> scene)
+/**
+ * @brief Remove the scene with the given ID, detach it, and clear the active scene.
+ *
+ * Calls the scene's OnDetach, erases the scene entry from the manager's internal map, and sets the active scene pointer to nullptr.
+ *
+ * @param sceneID ID of the scene to remove.
+ */
+void SceneManager::RemoveScene(uint32_t sceneID)
 {
+    auto scene = GetSceneFromID(sceneID);
     scene->OnDetach();
-    m_Scenes.erase(
-        std::remove(m_Scenes.begin(), m_Scenes.end(), scene), 
-        m_Scenes.end()
-    );
+
+    m_Scenes.erase(sceneID);
+
+    m_ActiveScene = nullptr;
 }
 
-void SceneManager::ChangeScene(std::shared_ptr<Scene> scene)
+/**
+ * @brief Change the active scene to the scene with the specified ID.
+ *
+ * If the provided ID does not exist in the manager, an error is logged and the active scene is left unchanged.
+ *
+ * @param sceneID ID of the scene to activate.
+ */
+void SceneManager::ChangeScene(uint32_t sceneID)
 {
-    if (std::find(m_Scenes.begin(), m_Scenes.end(), scene) == m_Scenes.end())
+    auto scene = GetSceneFromID(sceneID);
+    if (m_Scenes.find(sceneID) == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogError("Scene not found in scene manager!");
-        //logger.DumpLogs();
+        logger.DumpLogs();
         return;
     }
 
     m_ActiveScene = scene;
 }
 
+/**
+ * @brief Advance the active scene to the next scene in the manager's ordering.
+ *
+ * If there are no scenes, the function logs an error and does nothing.
+ * If there is no currently active scene, the first scene in the internal map becomes active.
+ * If the current active scene is the last entry or is not found in the map, the function logs a warning and leaves the active scene unchanged.
+ */
 void SceneManager::NextScene()
 {
     if (m_Scenes.empty())
@@ -42,35 +77,29 @@ void SceneManager::NextScene()
 
     if (m_ActiveScene == nullptr)
     {
-        m_ActiveScene = m_Scenes[0];
+        auto element = *m_Scenes.begin();
+        m_ActiveScene = element.second;
         return;
     }
 
-    auto it = std::find(m_Scenes.begin(), m_Scenes.end(), m_ActiveScene);
-    if (it == m_Scenes.end())
-    {
-        logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
-        logger.LogError("Active scene not found!");
-        return;
-    }
+    auto it = m_Scenes.find(m_ActiveScene->GetID());
 
     it++; // Move to the next scene
     if (it == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
-        logger.LogWarning("Active scene is the last scene in the scene manager, cannot go to next scene.");
+        logger.LogWarning("Active scene is either the last scene in the scene manager or it does not exist, cannot go to next scene.");
         return;
     }
 
-    m_ActiveScene = *it;
+    m_ActiveScene = it->second;
 }
 
-void SceneManager::OnUpdate(Event& e)
-{
-    if (!e.Handled && m_EventCallback)
-        m_EventCallback(e);
-}
-
+/**
+ * @brief Sets the function that will receive incoming events before they are forwarded to the active scene.
+ *
+ * @param callback Function called for each incoming Event; the callback may mark the event as handled to prevent further processing.
+ */
 void SceneManager::SetEventCallback(const EventCallbackFn& callback)
 {
     m_EventCallback = callback;
@@ -87,27 +116,49 @@ void SceneManager::OnEvent(Event& e)
         m_ActiveScene->OnEvent(e);
 }
 
+/**
+ * @brief Renders the currently active scene.
+ *
+ * If an active scene and a renderer are available, invokes the active scene's Draw method.
+ * If there is no active scene or no renderer, emits a one-time warning and skips rendering.
+ */
 void SceneManager::Draw()
 {
     if (m_ActiveScene == nullptr)
     {
+        static bool warned = false;
+        if (warned) return;
+
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogWarning("No active scene set, skipping render.");
         logger.DumpLogs();
+
+        warned = true;
         return;
     }
 
     if (m_EngineContext.renderer == nullptr)
     {
+        static bool warned = false;
+        if (warned) return;
+
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogWarning("No renderer set, skipping render.");
         logger.DumpLogs();
+        warned = true;
         return;
     }
 
      m_ActiveScene->Draw();
 }
 
+/**
+ * @brief Updates the currently active scene.
+ *
+ * If no active scene is set, logs a warning and returns without performing an update.
+ *
+ * @param dt Time elapsed since the last update, in seconds.
+ */
 void SceneManager::Update(float dt)
 {
     if (m_ActiveScene == nullptr)
@@ -119,4 +170,18 @@ void SceneManager::Update(float dt)
     }
     
     m_ActiveScene->Update(dt);
+}
+
+/**
+ * @brief Retrieves the scene associated with the specified scene ID.
+ *
+ * @param id Numeric identifier of the scene to retrieve.
+ * @return std::shared_ptr<Scene> Shared pointer to the scene corresponding to `id`.
+ *         Behavior is undefined if `id` is not present in the manager's scene map.
+ */
+std::shared_ptr<Scene> SceneManager::GetSceneFromID(uint32_t id)
+{
+    
+    auto it = m_Scenes.find(id);
+    return it->second;
 }
