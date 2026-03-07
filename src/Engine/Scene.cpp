@@ -7,6 +7,12 @@ void Scene::AddLayer(std::shared_ptr<Layer> layer)
     layer->OnAttach();
 }
 
+/**
+ * @brief Removes a layer from the scene, detaching it and clearing its scene pointer.
+ *
+ * If the layer is not present in the scene, a warning is logged and no changes are made.
+ *
+ * @param layer Shared pointer to the layer to remove from the scene. */
 void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
 {
     auto it = std::find(m_Layers.begin(), m_Layers.end(), layer);
@@ -23,6 +29,16 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
     m_Layers.erase(it);
 }
 
+/**
+ * @brief Renders the scene by drawing layers and submitting visible entities to the renderer.
+ *
+ * Calls OnDraw() on every attached layer, then iterates over entities that have geometry, mesh,
+ * material, and transform components. For each such entity, the material's shader receives the
+ * active camera's projection and view matrices as the "projectmat" and "viewmat" uniforms, and
+ * the mesh, material, and entity model matrix are submitted to the engine renderer.
+ *
+ * If no active camera is set, a warning is logged and the draw is skipped.
+ */
 void Scene::Draw()
 {
 
@@ -71,6 +87,14 @@ void Scene::Draw()
     });
 }
 
+/**
+ * @brief Update the scene and its subsystems for a single time step.
+ *
+ * Calls OnUpdate(dt) on each attached layer and advances the CameraManager using
+ * the scene's entity registry and the provided delta time.
+ *
+ * @param dt Time step in seconds. 
+ */
 void Scene::Update(float dt)
 {
     for (auto& layer : m_Layers)
@@ -80,6 +104,15 @@ void Scene::Update(float dt)
     m_CameraManager.Update(registry, dt);
 }
 
+/**
+ * @brief Propagates an event to the scene's layers and, if unhandled, to the scene manager.
+ *
+ * Dispatches the provided event to each layer in order by invoking their OnEvent handlers.
+ * Propagation stops as soon as a handler sets the event's Handled flag. If no layer handles
+ * the event, it is forwarded to the attached SceneManager.
+ *
+ * @param e Event to dispatch; handlers may set `e.Handled` to prevent further propagation.
+ */
 void Scene::OnEvent(Event& e)
 {
     for (auto& layer : m_Layers)
@@ -93,6 +126,14 @@ void Scene::OnEvent(Event& e)
         m_SceneManager->OnEvent(e);
 }
 
+/**
+ * @brief Attach the scene to a SceneManager and assign the scene's identifier.
+ *
+ * Associates this Scene with the given SceneManager and sets the SceneID to `id`.
+ *
+ * @param sceneManager Pointer to the SceneManager to attach; if `nullptr`, the scene is not attached.
+ * @param id Numeric identifier to assign to this scene.
+ */
 void Scene::OnAttach(SceneManager* sceneManager, uint32_t id)
 {
     if (sceneManager == nullptr)
@@ -107,6 +148,13 @@ void Scene::OnDetach()
     m_SceneManager = nullptr;
 }
 
+/**
+ * @brief Retrieve the scene's engine context when the scene is attached to a SceneManager.
+ *
+ * If the scene has not been attached to a SceneManager, a warning is logged and logs are dumped.
+ *
+ * @return EngineContext* Pointer to the EngineContext when attached; otherwise an unexpected value (`false`) indicating no context is available.
+ */
 std::expected<EngineContext*, bool> Scene::GetContext()
 {
     if (m_SceneManager == nullptr)
@@ -120,6 +168,11 @@ std::expected<EngineContext*, bool> Scene::GetContext()
     return &m_SceneManager->m_EngineContext;
 }
 
+/**
+ * @brief Retrieves the scene's identifier.
+ *
+ * @return uint32_t The numeric identifier assigned to this scene.
+ */
 uint32_t Scene::GetID() const
 {
     return SceneID;

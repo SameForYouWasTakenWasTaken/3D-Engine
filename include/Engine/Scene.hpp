@@ -34,8 +34,19 @@ public:
     entt::registry registry;
 
     Logger logger = Logger("SCENE");
-    Scene() = default;
-    ~Scene() = default;
+    /**
+ * @brief Constructs a Scene with default-initialized members.
+ *
+ * Initializes an empty scene: no layers, a default CameraManager, a fresh entity registry,
+ * and other members set to their declared default values.
+ */
+Scene() = default;
+    /**
+ * @brief Default destructor for Scene.
+ *
+ * Performs any required cleanup when a Scene instance is destroyed.
+ */
+~Scene() = default;
 
 
     virtual void AddLayer(std::shared_ptr<Layer> layer);

@@ -1,5 +1,18 @@
 #include <App/App.hpp>
 
+/**
+ * @brief Initialize the application context, create the window, and configure OpenGL and input callbacks.
+ *
+ * Initializes engine window dimensions and logger, starts GLFW, creates the primary GLFW window, binds
+ * this App instance to the window, registers framebuffer-size, key and cursor-position callbacks that
+ * translate platform events into engine events dispatched via OnEvent, loads OpenGL functions via glad,
+ * and configures basic GL state (error reporting, depth testing, blending, depth and blend functions).
+ *
+ * On failure to initialize GLFW, create the window, or load GL function pointers, an error is logged
+ * and Shutdown() is called; the constructor will return without a fully initialized rendering context.
+ *
+ * @param Settings Application settings providing Width, Height, and Name for the window.
+ */
 App::App(AppSettings Settings)
 {
     m_EngineContext.WindowHeight = Settings.Height;
@@ -64,6 +77,29 @@ App::App(AppSettings Settings)
             app->OnEvent(event);
         }
     });
+
+    glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
+        GLFWwindow* window, 
+        int key, 
+        int scancode, 
+        int action, 
+        int mods) {
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            KeyInputEvent event(window, key, scancode, action, mods);
+            app->OnEvent(event);
+        }
+    });
+
+    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
+        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+        if (app)
+        {
+            MouseMoveEvent event(window, xpos, ypos);
+            app->OnEvent(event);
+        }
+    });
     
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         logger.LogError("Failed to load glad!");
@@ -77,6 +113,15 @@ App::App(AppSettings Settings)
 	glDepthFunc(GL_LESS); // default: pass if fragment is closer
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
 }
+/**
+ * @brief Starts and runs the application's main loop, managing rendering and scene updates.
+ *
+ * Initializes the renderer and scene manager, prepares initial scenes and layers, then enters
+ * the main loop which: computes frame delta time, clears the frame, drives the renderer and
+ * scene manager update/draw phases each frame, swaps window buffers, and polls events.
+ * The loop continues until the GLFW window is flagged to close or the engine context requests
+ * a safe shutdown. Calls Shutdown() after exiting the loop.
+ */
 void App::Run()
 {
     renderer = std::make_unique<Renderer>(m_EngineContext);
@@ -86,6 +131,7 @@ void App::Run()
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto scene = std::make_shared<Scene>();
+    auto scene2 = std::make_shared<Scene>();
     m_SceneManager->AddScene(scene);
 
     scene->AddLayer(gameLayer);
@@ -124,6 +170,13 @@ void App::Shutdown()
     glfwTerminate();
 }
 
+/**
+ * @brief Dispatches an incoming event to the renderer, scene manager, and input system.
+ *
+ * Forwards the provided event to each subsystem so they can handle input, window, and scene-related events.
+ *
+ * @param e The event to dispatch to subsystems.
+ */
 void App::OnEvent(Event& e)
 {
     renderer->OnEvent(e);

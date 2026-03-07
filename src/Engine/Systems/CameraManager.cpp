@@ -1,6 +1,17 @@
 #include <Engine/Systems/CameraManager.hpp>
 #include <Contexts/EngineContext.hpp>
 
+/**
+ * @brief Update the active camera's projection and view matrices for the current frame.
+ *
+ * Recomputes the projection matrix if the camera's dirty flag is set and updates the view
+ * matrix from the active entity's transform using the camera's forward and up vectors.
+ * If no active camera or no transform component is present, emits a warning and returns
+ * without modifying camera data.
+ *
+ * @param registry The entt registry containing camera and transform components.
+ * @param dt Frame delta time in seconds.
+ */
 void CameraManager::Update(entt::registry& registry, float dt)
 {
     auto* camera = registry.try_get<COMPCamera>(m_ActiveCamera);
@@ -44,6 +55,12 @@ void CameraManager::Update(entt::registry& registry, float dt)
     );
 }
 
+/**
+ * @brief Set the currently active camera entity for the manager.
+ *
+ * @param entity The entt::entity that should become the active camera. Passing `entt::null`
+ * clears the active camera.
+ */
 void CameraManager::SetActiveCamera(entt::entity entity)
 {
     m_ActiveCamera = entity;
