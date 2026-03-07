@@ -3,28 +3,33 @@
 
 void SceneManager::AddScene(std::shared_ptr<Scene> scene)
 {
-    m_Scenes.push_back(scene);
-    scene->OnAttach(this);
+    m_Scenes.emplace(m_NextSceneID, scene);
+    scene->OnAttach(this, m_NextSceneID);
+    
+    m_NextSceneID++;
+    
     if (m_ActiveScene == nullptr)
         m_ActiveScene = scene;
 }
 
-void SceneManager::RemoveScene(std::shared_ptr<Scene> scene)
+void SceneManager::RemoveScene(uint32_t sceneID)
 {
+    auto scene = GetSceneFromID(sceneID);
     scene->OnDetach();
-    m_Scenes.erase(
-        std::remove(m_Scenes.begin(), m_Scenes.end(), scene), 
-        m_Scenes.end()
-    );
+
+    m_Scenes.erase(sceneID);
+
+    m_ActiveScene = nullptr;
 }
 
-void SceneManager::ChangeScene(std::shared_ptr<Scene> scene)
+void SceneManager::ChangeScene(uint32_t sceneID)
 {
-    if (std::find(m_Scenes.begin(), m_Scenes.end(), scene) == m_Scenes.end())
+    auto scene = GetSceneFromID(sceneID);
+    if (m_Scenes.find(sceneID) == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogError("Scene not found in scene manager!");
-        //logger.DumpLogs();
+        logger.DumpLogs();
         return;
     }
 
@@ -42,33 +47,22 @@ void SceneManager::NextScene()
 
     if (m_ActiveScene == nullptr)
     {
-        m_ActiveScene = m_Scenes[0];
+        auto element = *m_Scenes.begin();
+        m_ActiveScene = element.second;
         return;
     }
 
-    auto it = std::find(m_Scenes.begin(), m_Scenes.end(), m_ActiveScene);
-    if (it == m_Scenes.end())
-    {
-        logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
-        logger.LogError("Active scene not found!");
-        return;
-    }
+    auto it = m_Scenes.find(m_ActiveScene->GetID());
 
     it++; // Move to the next scene
     if (it == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
-        logger.LogWarning("Active scene is the last scene in the scene manager, cannot go to next scene.");
+        logger.LogWarning("Active scene is either the last scene in the scene manager or it does not exist, cannot go to next scene.");
         return;
     }
 
-    m_ActiveScene = *it;
-}
-
-void SceneManager::OnUpdate(Event& e)
-{
-    if (!e.Handled && m_EventCallback)
-        m_EventCallback(e);
+    m_ActiveScene = it->second;
 }
 
 void SceneManager::SetEventCallback(const EventCallbackFn& callback)
@@ -91,17 +85,26 @@ void SceneManager::Draw()
 {
     if (m_ActiveScene == nullptr)
     {
+        static bool warned = false;
+        if (warned) return;
+
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogWarning("No active scene set, skipping render.");
         logger.DumpLogs();
+
+        warned = true;
         return;
     }
 
     if (m_EngineContext.renderer == nullptr)
     {
+        static bool warned = false;
+        if (warned) return;
+
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogWarning("No renderer set, skipping render.");
         logger.DumpLogs();
+        warned = true;
         return;
     }
 
@@ -119,4 +122,11 @@ void SceneManager::Update(float dt)
     }
     
     m_ActiveScene->Update(dt);
+}
+
+std::shared_ptr<Scene> SceneManager::GetSceneFromID(uint32_t id)
+{
+    
+    auto it = m_Scenes.find(id);
+    return it->second;
 }

@@ -38,10 +38,14 @@ struct Mesh
     VAO vao;
     VBO vbo;
     EBO ebo;
+    
     uint32_t IndexCount;
+    uint32_t VertexCount;
 
     VBO instanceVBO; // For instanced rendering
 
+    bool Indexed = true;
+    GLenum Primitive = GL_TRIANGLES;
     void SetData(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, GLenum draw_type = GL_STATIC_DRAW);
 };
 

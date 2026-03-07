@@ -54,4 +54,5 @@ void Mesh::SetData(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, 
     ebo.Unbind();
 
     IndexCount = indices.size();
+    VertexCount = vertices.size();
 }

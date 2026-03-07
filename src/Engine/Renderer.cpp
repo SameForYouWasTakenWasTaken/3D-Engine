@@ -61,13 +61,24 @@ void Renderer::End()
         );
 
         material->shader->UseProgram();
-        glDrawElementsInstanced(
-            GL_TRIANGLES, 
-            batch.mesh->IndexCount, 
-            GL_UNSIGNED_INT, 
-            nullptr, 
-            static_cast<GLsizei>(batch.instances.size())
-        );
+
+        if (mesh->Indexed)
+        {
+            glDrawElementsInstanced(
+                mesh->Primitive, 
+                batch.mesh->IndexCount, 
+                GL_UNSIGNED_INT, 
+                nullptr, 
+                static_cast<GLsizei>(batch.instances.size())
+            );
+        }else{
+            glDrawArraysInstanced(
+                mesh->Primitive,
+                0,
+                mesh->VertexCount,
+                instanceCount
+            );
+        }
     }
 }
 
