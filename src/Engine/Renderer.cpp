@@ -10,7 +10,7 @@ void Renderer::Update(float dt)
 
 }
 
-void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model)
+void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, LightManager* lightManager)
 {
     // This is a hash that combines the mesh and material pointers to create a unique key for batching
     // It's a much faster way to batch than comparing the mesh and material pointers directly, 
@@ -25,6 +25,7 @@ void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model)
     // Assign the necessary stuff
     batch.mesh = mesh;
     batch.materialID = materialID;
+    batch.lightManager = lightManager;
 
     // Send out to the m_Batches unordered_map, which will be used for batch rendering in the End() function
     batch.instances.push_back(instanceData);
@@ -58,6 +59,7 @@ void Renderer::End()
         Material* material = m_MaterialManager.Get(batch.materialID );
         Shader* shader = m_ShaderManager.Get(material->shader);
         Texture2D* texture = m_TextureManager.Get(material->texture);
+        LightManager* lightManager = batch.lightManager;
         
         if(!shader || !material || !mesh) continue;
 
@@ -76,7 +78,6 @@ void Renderer::End()
             batch.instances.data()
         );
         
-
         shader->UseProgram();
         shader->SetMatrix4(
             "projectmat", 
@@ -88,7 +89,8 @@ void Renderer::End()
             1, 
             glm::value_ptr(m_EngineContext.cached_view)
         );
-
+        lightManager->UpdateToShader(shader);
+        
         if (mesh->Indexed)
         {
             glDrawElementsInstanced(

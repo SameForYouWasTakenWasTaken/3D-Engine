@@ -75,7 +75,7 @@ void Scene::Draw()
         COMPTransform& transform)
     {
         // Put everything into the renderer
-       renderer->Submit(mesh.mesh.get(), material.material, transform.GetModelMatrix());
+       renderer->Submit(mesh.mesh.get(), material.material, transform.GetModelMatrix(), &m_LightManager);
     });
 }
 

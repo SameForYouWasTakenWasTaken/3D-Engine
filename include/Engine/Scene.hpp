@@ -8,6 +8,7 @@
 #include <entt.hpp>
 #include <Engine/Systems/CameraManager.hpp>
 #include <Engine/Systems/SceneManager.hpp>
+#include <Engine/Systems/LightManager.hpp>
 #include <Engine/Renderer.hpp>
 
 #include <Components/Drawable.hpp>
@@ -31,6 +32,7 @@ class Scene final
 public:
     SceneManager* m_SceneManager;
     CameraManager m_CameraManager;
+    LightManager m_LightManager;
     entt::registry registry;
 
     Logger logger = Logger("SCENE");

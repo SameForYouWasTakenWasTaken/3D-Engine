@@ -77,41 +77,78 @@ void GameLayer::OnUpdate(float dt)
 void GameLayer::OnAttach()
 {
     std::vector<Vertex> vertices = {
-        // Front face
-        {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}}, // bottom left
-        {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}}, // top left
-        {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}}, // bottom right
-        {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}}, // top right
+        // Front face (normal 0,0,1)
+        {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
+        {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
+        {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
+        {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
 
-        // Back face
-        {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}}, // bottom left
-        {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}}, // top left
-        {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}}, // bottom right
-        {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}}, // top right
+        // Back face (normal 0,0,-1)
+        {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
+        {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
+        {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
 
-        // Left face
-        {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}},
-        {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}},
-        {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}},
+        // Left face (normal -1,0,0)
+        {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
 
-        // Right face
-        {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}},
-        {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}},
-        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}},
-        {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}},
+        // Right face (normal 1,0,0)
+        {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
 
-        // Top face
-        {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}},
-        {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}},
-        {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}},
+        // Top face (normal 0,1,0)
+        {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
 
-        // Bottom face
-        {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}},
-        {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}},
-        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}},
-        {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}},
+        // Bottom face (normal 0,-1,0)
+        {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
+        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
+        {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
+    };
+    std::vector<Vertex> lightVertices = {
+        // Front face (normal 0,0,1)
+        {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
+        {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
+        {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
+        {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
+
+        // Back face (normal 0,0,-1)
+        {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
+        {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
+        {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
+
+        // Left face (normal -1,0,0)
+        {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
+
+        // Right face (normal 1,0,0)
+        {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
+
+        // Top face (normal 0,1,0)
+        {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
+
+        // Bottom face (normal 0,-1,0)
+        {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
+        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
+        {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
     };
 
     std::vector<GLuint> indices;
@@ -129,11 +166,17 @@ void GameLayer::OnAttach()
         v.color = {1.f, 1.f, 1.f, 1.f};
     }
 
+    for (auto &v : lightVertices) {
+        v.color = {1.f, 0.f, 0.f, 1.f};
+    }
+
     auto& shader_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_ShaderManager;
     auto& material_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_MaterialManager;
     auto& texture_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_TextureManager;
+    auto& light_manager = m_Scene->m_LightManager;
     // shaders
     auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
+    auto sunShader = shader_manager.Load("Shaders/first.vert", "Shaders/sun.frag");
 
     // textures
     auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
@@ -141,7 +184,7 @@ void GameLayer::OnAttach()
 
     // Materials
     uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
-    uint32_t MaterialID_colorgrid = material_manager.CreateMaterial(shader, color_grid_texture);
+    uint32_t MaterialID_colorgrid = material_manager.CreateMaterial(sunShader, color_grid_texture);
 
     // first quad
     auto quad_1 = m_Scene->registry.create();
@@ -160,13 +203,20 @@ void GameLayer::OnAttach()
 
     // second quad
     auto quad_2 = m_Scene->registry.create();
-    auto& Geometry_1 = m_Scene->registry.emplace<COMPGeometry>(quad_2, vertices, indices);
-    auto& Transform_1 = m_Scene->registry.emplace<COMPTransform>(quad_2);
-    auto& Material_1 = m_Scene->registry.emplace<COMPMaterial>(quad_2, MaterialID_colorgrid);
+    auto& Geometry_a = m_Scene->registry.emplace<COMPGeometry>(quad_2, vertices, indices);
+    auto& Transform_a = m_Scene->registry.emplace<COMPTransform>(quad_2);
+    auto& Material_a = m_Scene->registry.emplace<COMPMaterial>(quad_2, MaterialID);
+    m_Scene->registry.emplace<TAG_GameLayer>(quad_2);
 
-    auto& ComponentMesh_1 = m_Scene->registry.emplace<COMPMesh>(quad_2, mesh);
+    auto& ComponentMesh_a = m_Scene->registry.emplace<COMPMesh>(quad_2, mesh);
 
-    Transform_1.SetPosition({0.f, 2.f, 0.f});
+    Transform_a.SetPosition({3.f, 1.f, -2.f});
+
+    // THE SUNS
+    auto lightID = light_manager.CreateLight();
+
+    COMPLight* compLight = light_manager.GetLight(lightID);
+    compLight->position = {0.f, 2.f, 2.f};
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();
@@ -246,23 +296,105 @@ void GameLayer::OnEvent(Event& e)
                 m_CanMoveMouse = false;
             }
         }
-        if (input.IsKey(GLFW_KEY_U) && input.IsKeyPressed())
+        
+
+        static float distance = 2.f;
+        static bool destroy = false;
+
+        if (input.IsKey(GLFW_KEY_C) && input.IsKeyPressed())
         {
-            auto view = m_Scene->registry.view<COMPTransform, COMPGeometry>();
-            view.each([&](auto entity, COMPTransform& transform, COMPGeometry& geometry){
-                transform.Rotate({0.f, 0.f, 30.f});
-                transform.Move({.5f, 0.f, 0.f});
-                transform.Scale({0.5f, 0.5f, 0.5f});
-            });
+            distance += 0.5f;
+
         }
-        if (input.IsKey(GLFW_KEY_I) && input.IsKeyPressed())
+        if (input.IsKey(GLFW_KEY_Z) && input.IsKeyPressed())
         {
-            auto view = m_Scene->registry.view<COMPTransform, COMPGeometry>();
-            view.each([&](auto entity, COMPTransform& transform, COMPGeometry& geometry){
-                transform.Rotate({0.f, 0.f, -30.f});
-                transform.Move({-.5f, 0.f, 0.f});
-                transform.Scale({-0.5f, -0.5f, -0.5f});
-            });
+            distance -= 0.5f;
+        }    
+        if (input.IsKey(GLFW_KEY_F) && input.IsKeyPressed())
+        {
+            auto cam = m_Scene->m_CameraManager.GetActiveCamera();
+            auto& camTransform = m_Scene->registry.get<COMPTransform>(cam);
+            auto& camComponent = m_Scene->registry.get<COMPCamera>(cam);
+
+             std::vector<Vertex> vertices = {
+                // Front face (normal 0,0,1)
+                {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
+                {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
+                {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
+                {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
+
+                // Back face (normal 0,0,-1)
+                {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
+                {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
+                {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
+                {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
+
+                // Left face (normal -1,0,0)
+                {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
+                {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
+                {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
+                {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
+
+                // Right face (normal 1,0,0)
+                {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
+                {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
+                {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
+                {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
+
+                // Top face (normal 0,1,0)
+                {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
+                {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
+                {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
+                {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
+
+                // Bottom face (normal 0,-1,0)
+                {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
+                {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
+                {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
+                {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
+            };
+
+            for (auto &vertex : vertices) {
+                vertex.color = {1.0f, 1.0f, 1.0f, 1.0f};
+            }
+
+            std::vector<GLuint> indices;
+            for (int i = 0; i < 6; i++) {
+                unsigned int offset = i * 4;
+                indices.push_back(offset + 0);
+                indices.push_back(offset + 1);
+                indices.push_back(offset + 2);
+                indices.push_back(offset + 2);
+                indices.push_back(offset + 1);
+                indices.push_back(offset + 3);
+            }
+
+            auto& shader_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_ShaderManager;
+            auto& material_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_MaterialManager;
+            auto& texture_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_TextureManager;
+            // shaders
+            auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
+
+            // textures
+            auto basic_texture = texture_manager.Load("Resources/Textures2D/teto_plush.jpg");
+
+            // Materials
+            uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
+            // first quad
+            auto quad_1 = m_Scene->registry.create();
+            auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
+            auto& Transform = m_Scene->registry.emplace<COMPTransform>(quad_1);
+            auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, MaterialID);
+            
+            m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
+
+            auto mesh = std::make_shared<Mesh>();
+            mesh->SetData(vertices, indices);
+
+            auto componentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, mesh);
+
+            Transform.SetPosition(camTransform.position + camComponent.GetForward() * distance);
+            Transform.Scale({2.f, 0.f, 0.f});
         }
     }
 
