@@ -77,83 +77,96 @@ void GameLayer::OnUpdate(float dt)
 void GameLayer::OnAttach()
 {
     std::vector<Vertex> vertices = {
-        {{-0.5f,0.f,0.f}, {1.f,0.f,0.f,1.f}, {1.f, 1.f}}, // bottom left
-        {{0.f,0.5f,0.f}, {0.f,1.f,0.f,1.f}, {1.f, 1.f}}, // middle top
-        {{0.5f,0.f,0.f}, {0.f,0.f,1.f,1.f}, {1.f, 1.f}} // bottom right
+        // Front face
+        {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}}, // bottom left
+        {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}}, // top left
+        {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}}, // bottom right
+        {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}}, // top right
+
+        // Back face
+        {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}}, // bottom left
+        {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}}, // top left
+        {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}}, // bottom right
+        {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}}, // top right
+
+        // Left face
+        {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}},
+        {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}},
+        {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}},
+
+        // Right face
+        {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}},
+        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}},
+
+        // Top face
+        {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}},
+        {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}},
+
+        // Bottom face
+        {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}},
+        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}},
+        {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}},
     };
 
-    std::vector<GLuint> indices = {
-        0,1,2
-    };
+    std::vector<GLuint> indices;
+    for (int i = 0; i < 6; i++) {
+        unsigned int offset = i * 4;
+        indices.push_back(offset + 0);
+        indices.push_back(offset + 1);
+        indices.push_back(offset + 2);
+        indices.push_back(offset + 2);
+        indices.push_back(offset + 1);
+        indices.push_back(offset + 3);
+    }
 
+    for (auto &v : vertices) {
+        v.color = {1.f, 1.f, 1.f, 1.f};
+    }
+
+    auto& shader_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_ShaderManager;
+    auto& material_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_MaterialManager;
+    auto& texture_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_TextureManager;
     // shaders
-    std::unique_ptr<Shader> shader = std::make_unique<Shader>("Shaders/first.vert", "Shaders/first.frag");
-    std::unique_ptr<Shader> shader_b = std::make_unique<Shader>("Shaders/first.vert", "Shaders/first.frag");
-    std::unique_ptr<Shader> shader_c = std::make_unique<Shader>("Shaders/first.vert", "Shaders/first.frag");
+    auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
 
+    // textures
+    auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
+    auto color_grid_texture = texture_manager.Load("Resources/Textures2D/color_grid.png");
 
-    // first triangle
-    auto triangle_1 = m_Scene->registry.create();
-    auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(triangle_1, vertices, indices);
-    auto& Transform = m_Scene->registry.emplace<COMPTransform>(triangle_1);
-    auto& Material = m_Scene->registry.emplace<COMPMaterial>(triangle_1, std::move(shader), glm::vec3(1.f, 0.f, 0.f));
-    m_Scene->registry.emplace<TAG_GameLayer>(triangle_1);
+    // Materials
+    uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
+    uint32_t MaterialID_colorgrid = material_manager.CreateMaterial(shader, color_grid_texture);
+
+    // first quad
+    auto quad_1 = m_Scene->registry.create();
+    auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
+    auto& Transform = m_Scene->registry.emplace<COMPTransform>(quad_1);
+    auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, MaterialID);
+    
+    m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
 
     auto mesh = std::make_shared<Mesh>();
     mesh->SetData(vertices, indices);
 
-    auto& ComponentMesh = m_Scene->registry.emplace<COMPMesh>(triangle_1, mesh);
+    auto& ComponentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, mesh);
 
     Transform.SetPosition({0.f, 0.f, 0.f});
 
-    // 2nd triangle
-    auto triangle_2 = m_Scene->registry.create();
-    auto& Geometry_b = m_Scene->registry.emplace<COMPGeometry>(triangle_2, vertices, indices);
-    auto& Transform_b = m_Scene->registry.emplace<COMPTransform>(triangle_2);
-    auto& Material_b = m_Scene->registry.emplace<COMPMaterial>(triangle_2, std::move(shader_b), glm::vec3(1.f, 0.f, 0.f));
-    m_Scene->registry.emplace<TAG_GameLayer>(triangle_2);
+    // second quad
+    auto quad_2 = m_Scene->registry.create();
+    auto& Geometry_1 = m_Scene->registry.emplace<COMPGeometry>(quad_2, vertices, indices);
+    auto& Transform_1 = m_Scene->registry.emplace<COMPTransform>(quad_2);
+    auto& Material_1 = m_Scene->registry.emplace<COMPMaterial>(quad_2, MaterialID_colorgrid);
 
-    auto mesh_b = std::make_shared<Mesh>();
-    mesh_b->SetData(vertices, indices);
+    auto& ComponentMesh_1 = m_Scene->registry.emplace<COMPMesh>(quad_2, mesh);
 
-    auto& ComponentMesh_b = m_Scene->registry.emplace<COMPMesh>(triangle_2, mesh_b);
-
-    Transform_b.SetPosition({1.f, 1.f, 0.f});
-
-    // circle
-    std::vector<Vertex> special_vertices = {};
-    std::vector<GLuint> special_indices = {};
-    glm::vec4 color = {1.f, 1.f, 1.f, 1.f};
-    special_vertices.push_back({ {0.f, 0.f, 0.f}, color }); // center
-  
-    size_t iter_num = 100;
-    float radius = 2.f;
-
-	for (size_t i = 0; i <= iter_num; i++) {
-		float theta = (2 * 3.141592653589 * i) / iter_num;
-		float x = radius * cos(theta);
-		float y = radius * sin(theta);
-		special_vertices.push_back({ {x, y, 0}, color });
-	}
-
-    auto circle = m_Scene->registry.create();
-    auto& geometry_c = m_Scene->registry.emplace<COMPGeometry>(circle, special_vertices, special_indices);
-    auto& Transform_c = m_Scene->registry.emplace<COMPTransform>(circle);
-    auto& Material_c = m_Scene->registry.emplace<COMPMaterial>(circle, std::move(shader_c), glm::vec3(1.f, 0.f, 0.f));
-    m_Scene->registry.emplace<TAG_GameLayer>(circle);
-
-    auto mesh_c = std::make_shared<Mesh>();
-    mesh_c->SetData(special_vertices, special_indices);
-    mesh_c->Primitive = GL_TRIANGLE_FAN;
-    mesh_c->Indexed = false;
-
-    auto& ComponentMesh_c = m_Scene->registry.emplace<COMPMesh>(circle, mesh_c);
-    Transform_c.SetPosition({2.f, 2.f, 1.f});
-
-    for (int i = 0; i < 50; i++)
-    {
-        int x = 10;
-    }
+    Transform_1.SetPosition({0.f, 2.f, 0.f});
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();
