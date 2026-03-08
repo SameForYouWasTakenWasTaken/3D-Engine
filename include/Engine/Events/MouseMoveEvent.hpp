@@ -6,7 +6,7 @@
 class MouseMoveEvent : public Event 
 {
 public:
-    GLFWwindow* window;
+    GLFWwindow* Window;
     double xpos, ypos;
     /**
  * @brief Create a MouseMoveEvent with the specified window pointer and coordinates.
@@ -17,7 +17,7 @@ public:
  * @param x Horizontal mouse position.
  * @param y Vertical mouse position.
  */
-MouseMoveEvent(GLFWwindow* window, double x, double y) : xpos(x), ypos(y) {}
+    MouseMoveEvent(GLFWwindow* window, double x, double y) : Window(window), xpos(x), ypos(y) {}
 
     EVENT_TYPE(MouseMoveEvent);
 };
