@@ -47,13 +47,6 @@ void Scene::Draw()
         layer->OnDraw();
     }
 
-    auto view = registry.view<
-    COMPGeometry,
-    COMPMesh,
-    COMPMaterial,
-    COMPTransform
-    >();
-
     auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
     if (cam == nullptr)
     {
@@ -62,28 +55,27 @@ void Scene::Draw()
         logger.LogWarning("No active camera set, skipping draw.");
         return;
     }
+    m_SceneManager->m_EngineContext.cached_projection = cam->projection;
+    m_SceneManager->m_EngineContext.cached_view = cam->view;
 
+    auto view = registry.view<
+    COMPGeometry,
+    COMPMesh,
+    COMPMaterial,
+    COMPTransform
+    >();
+
+
+
+    auto renderer = m_SceneManager->m_EngineContext.renderer;
     view.each([&](auto entity, 
         COMPGeometry& drawable, 
         COMPMesh& mesh, 
         COMPMaterial& material, 
         COMPTransform& transform)
     {
-        material.shader->UseProgram();
-        material.shader->SetMatrix4(
-            "projectmat", 
-            1, 
-            glm::value_ptr(cam->projection)
-        );
-        material.shader->SetMatrix4(
-            "viewmat", 
-            1, 
-            glm::value_ptr(cam->view)
-        );
-        material.shader->UnuseProgram();
-
         // Put everything into the renderer
-        m_SceneManager->m_EngineContext.renderer->Submit(mesh.mesh.get(), &material, transform.GetModelMatrix());
+       renderer->Submit(mesh.mesh.get(), material.material, transform.GetModelMatrix());
     });
 }
 
