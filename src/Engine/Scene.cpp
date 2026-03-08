@@ -121,9 +121,6 @@ void Scene::OnEvent(Event& e)
         if (e.Handled)
             break;
     }
-
-    if (!e.Handled)
-        m_SceneManager->OnEvent(e);
 }
 
 /**

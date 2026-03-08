@@ -19,6 +19,7 @@
 
 class GameLayer : public Layer
 {
+    bool m_CanMoveMouse = false;
 public:
     GameLayer() = default;
     ~GameLayer() = default;

@@ -10,7 +10,7 @@ void Layer::EmitEvent(Event& e)
         return;
     }
 
-    m_Scene->OnEvent(e);
+    m_Scene->m_SceneManager->OnEvent(e);
 }
 
 void Layer::SetScene(Scene* scene)

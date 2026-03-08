@@ -197,6 +197,7 @@ void GameLayer::OnDetach()
  */
 void GameLayer::OnEvent(Event& e)
 {
+
     if (e.GetType() == WindowResizeEvent::GetStaticType())
     {
         auto& resize = static_cast<WindowResizeEvent&>(e);
@@ -224,10 +225,12 @@ void GameLayer::OnEvent(Event& e)
                 clicked = true;
                 glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
                 glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE); 
+                m_CanMoveMouse = true;
             }else {
                 clicked = false;
                 glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+                m_CanMoveMouse = false;
             }
         }
         if (input.IsKey(GLFW_KEY_U) && input.IsKeyPressed())
@@ -252,6 +255,7 @@ void GameLayer::OnEvent(Event& e)
 
     if (e.GetType() == MouseMoveEvent::GetStaticType())
     {
+        if (!m_CanMoveMouse) return;
         if (m_Scene->m_CameraManager.GetActiveCamera() == entt::null) return;
 
         auto& mouse = static_cast<MouseMoveEvent&>(e);

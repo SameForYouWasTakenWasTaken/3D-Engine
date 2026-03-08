@@ -25,11 +25,11 @@ class CameraManager;
 
 class Scene final
 {
-    SceneManager* m_SceneManager;
     std::vector<std::shared_ptr<Layer>> m_Layers;
     
     uint32_t SceneID = -1;
 public:
+    SceneManager* m_SceneManager;
     CameraManager m_CameraManager;
     entt::registry registry;
 
