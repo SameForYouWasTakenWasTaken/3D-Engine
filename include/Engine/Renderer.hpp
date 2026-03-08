@@ -9,6 +9,7 @@
 #include <Engine/Systems/SceneManager.hpp>
 #include <Engine/Systems/ShaderManager.hpp>
 #include <Engine/Systems/MaterialManager.hpp>
+#include <Engine/Systems/LightManager.hpp>
 #include <Engine/Systems/Texture2DManager.hpp>
 #include <Engine/LowLevel/VAO.hpp>
 #include <Engine/LowLevel/VBO.hpp>
@@ -36,6 +37,7 @@ class Renderer final {
     struct Batch
     {
         Mesh* mesh;
+        LightManager* lightManager;
         uint32_t materialID;
         
         std::vector<InstanceData> instances;
@@ -49,15 +51,14 @@ public:
     ShaderManager m_ShaderManager;
     MaterialManager m_MaterialManager = MaterialManager(m_ShaderManager);
     Texture2DManager m_TextureManager;
-    
+
     EngineContext& m_EngineContext;
     Logger logger = Logger("RENDERER");
 
     Renderer(EngineContext& context);
     ~Renderer() = default;
 
-    
-    void Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model);
+    void Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, LightManager* lightManager);
     
     void Begin();
     void Update(float dt);

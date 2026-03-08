@@ -33,6 +33,16 @@ inline const AttributePointer GetAttribPointerTex()
     return tex;
 }
 
+inline const AttributePointer GetAttribPointerNormal()
+{
+    AttributePointer normal_;
+    normal_.index = 3;
+    normal_.size = 3;
+    normal_.offset = (void*)offsetof(Vertex, normal);
+    return normal_;
+}
+
+
 struct Mesh
 {
     VAO vao;
