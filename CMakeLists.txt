@@ -37,8 +37,16 @@ FetchContent_Declare(
 	GIT_REPOSITORY https://github.com/gabime/spdlog.git
 	GIT_TAG v1.15.3
 )
+# Google Test
+FetchContent_Declare(
+	googletest
+	GIT_REPOSITORY https://github.com/google/googletest.git
+	GIT_TAG v1.15.2
+)
+# Prevent overriding the parent project's compiler/linker settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(glfw glm spdlog)
+FetchContent_MakeAvailable(glfw glm spdlog googletest)
 
 set(PROJECT_INCLUDES
 	"${CMAKE_SOURCE_DIR}/include"
@@ -67,3 +75,9 @@ add_custom_command(TARGET main POST_BUILD
 	"${CMAKE_SOURCE_DIR}/Resources"
 	$<TARGET_FILE_DIR:main>/Resources
 )
+
+# Enable testing
+enable_testing()
+
+# Add tests subdirectory
+add_subdirectory(tests)
