@@ -16,5 +16,5 @@ struct Light
 
 struct COMPLight 
 {
-    LightID id;
+    LightID id = static_cast<LightID>(-1);
 };
