@@ -9,7 +9,8 @@ struct Vertex
 {
     glm::vec3 position;
     glm::vec4 color;
-    glm::vec2 tex_coords = {};
+    glm::vec2 tex_coords = {1.f, 1.f};
+	glm::vec3 normal;
 
 	static constexpr GLsizei stride() noexcept {
 		return static_cast<GLsizei>(

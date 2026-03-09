@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 #include <GLFW/glfw3.h>
 #include <entt.hpp>
+#include <glm/mat4x4.hpp>
 #include <Engine/Renderer.hpp>
 
 #include <Logger.hpp>
@@ -29,6 +30,10 @@ struct EngineContext
     
     // Events
     entt::dispatcher EventDispatcher;
+
+    // Camera
+    glm::mat4 cached_view = glm::mat4(1.f);
+    glm::mat4 cached_projection = glm::mat4(1.f);
     // Logging related stuff
     Logger logger = Logger("EngineContext");
 };

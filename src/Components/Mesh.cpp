@@ -26,7 +26,7 @@ void Mesh::SetData(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, 
     vao.LinkAttrib(GetAttribPointerPos());
     vao.LinkAttrib(GetAttribPointerCol());
     vao.LinkAttrib(GetAttribPointerTex());
-
+    vao.LinkAttrib(GetAttribPointerNormal());
     
 
     instanceVBO.Bind();
