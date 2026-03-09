@@ -24,7 +24,6 @@ void GameLayer::OnDraw()
  */
 void GameLayer::OnUpdate(float dt)
 {    
-    auto view = m_Scene->registry.view<COMPGeometry>();
     // Camera movement
     auto active_cam = m_Scene->m_CameraManager.GetActiveCamera();
     auto* transform = m_Scene->registry.try_get<COMPTransform>(active_cam);
@@ -33,7 +32,6 @@ void GameLayer::OnUpdate(float dt)
     if (transform && cam)
     {
         float speed = 2.0f;
-        float rotate_speed = 50.f;
 
         glm::vec3 input(0);
         // WASD
@@ -185,8 +183,7 @@ void GameLayer::OnAttach()
 
     // THE SUNS
     auto lightID = light_manager.CreateLight();
-    Light* light = light_manager.GetLight(lightID);
-
+    
     // Camera creation
     auto context_expected = m_Scene->GetContext();
     if (context_expected.has_value())
@@ -232,12 +229,11 @@ void GameLayer::OnEvent(Event& e)
 
     if (e.GetType() == WindowResizeEvent::GetStaticType())
     {
-        auto& resize = static_cast<WindowResizeEvent&>(e);
+        const auto& resize = static_cast<WindowResizeEvent&>(e);
 
-        float ratio = static_cast<float>(resize.Width) / static_cast<float>(resize.Height);
+        const float ratio = static_cast<float>(resize.Width) / static_cast<float>(resize.Height);
         auto view = m_Scene->registry.view<COMPCamera>();
-        auto* cam = m_Scene->registry.try_get<COMPCamera>(view.front());
-        if (cam)
+        if (auto* cam = m_Scene->registry.try_get<COMPCamera>(view.front()))
         {
             cam->SetRatio(ratio);
         }
@@ -344,7 +340,7 @@ void GameLayer::OnEvent(Event& e)
             auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
 
             // textures
-            auto basic_texture = texture_manager.Load("Resources/Textures2D/teto_plush.jpg");
+            auto basic_texture = texture_manager.Load("Resources/Textures2D/spider.jpg");
 
             // Materials
             uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
