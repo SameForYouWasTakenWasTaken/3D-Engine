@@ -14,7 +14,7 @@ protected:
 public:
     Logger logger = Logger("LAYER_BASE");
     Layer() = default;
-    ~Layer() = default;
+    virtual ~Layer() = default;
 
     void SetScene(Scene* scene);
     void EmitEvent(Event& e);
