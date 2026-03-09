@@ -32,6 +32,7 @@ struct EngineContext
     entt::dispatcher EventDispatcher;
 
     // Camera
+    glm::vec3 cached_activeCam_position = {0.f, 0.f, 0.f};
     glm::mat4 cached_view = glm::mat4(1.f);
     glm::mat4 cached_projection = glm::mat4(1.f);
     // Logging related stuff

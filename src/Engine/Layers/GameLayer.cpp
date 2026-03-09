@@ -45,12 +45,6 @@ void GameLayer::OnUpdate(float dt)
         // QE
         if (InputSystem::IsKeyHeld(GLFW_KEY_Q)) input.y -= 1.f;
         if (InputSystem::IsKeyHeld(GLFW_KEY_E)) input.y += 1.f;
-
-        // Look around with arrow keys
-        if (InputSystem::IsKeyHeld(GLFW_KEY_UP)) cam->RotateEuler(0, rotate_speed * dt);
-        if (InputSystem::IsKeyHeld(GLFW_KEY_DOWN)) cam->RotateEuler(0, -rotate_speed * dt);
-        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT)) cam->RotateEuler(-rotate_speed * dt, 0);
-        if (InputSystem::IsKeyHeld(GLFW_KEY_RIGHT)) cam->RotateEuler(rotate_speed * dt, 0);
         
         glm::vec3 move = input.x * cam->GetRight() +
                          input.y * glm::vec3(0.f, 1.f, 0.f) +
@@ -60,6 +54,14 @@ void GameLayer::OnUpdate(float dt)
             move = glm::normalize(move);
         
         transform->Move(move * speed * dt);
+
+        auto light = m_Scene->m_LightManager.GetLight(0);
+        light->position = {
+            sin(glfwGetTime() * 5),
+            light->position.y,
+            cos(glfwGetTime() * 5)
+        };
+
     }
 }
 
@@ -113,43 +115,6 @@ void GameLayer::OnAttach()
         {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
         {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
     };
-    std::vector<Vertex> lightVertices = {
-        // Front face (normal 0,0,1)
-        {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
-        {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
-        {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
-        {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
-
-        // Back face (normal 0,0,-1)
-        {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
-        {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
-        {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
-
-        // Left face (normal -1,0,0)
-        {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
-        {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
-        {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
-
-        // Right face (normal 1,0,0)
-        {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
-        {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
-        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
-        {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
-
-        // Top face (normal 0,1,0)
-        {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
-        {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
-        {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
-
-        // Bottom face (normal 0,-1,0)
-        {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
-        {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
-        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
-        {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
-    };
 
     std::vector<GLuint> indices;
     for (int i = 0; i < 6; i++) {
@@ -166,13 +131,19 @@ void GameLayer::OnAttach()
         v.color = {1.f, 1.f, 1.f, 1.f};
     }
 
-    for (auto &v : lightVertices) {
-        v.color = {1.f, 0.f, 0.f, 1.f};
+    auto context_result = m_Scene->GetContext();
+    if (!context_result.has_value() || !context_result.value()->renderer)
+    {
+        logger.AppendLogTag("GAMELAYER", LogColors::GREEN);
+        logger.LogError("Cannot initialize: missing context or renderer!");
+        logger.DumpLogs();
+        return;
     }
+    auto* renderer = context_result.value()->renderer;
 
-    auto& shader_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_ShaderManager;
-    auto& material_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_MaterialManager;
-    auto& texture_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_TextureManager;
+    auto& shader_manager = renderer->m_ShaderManager;
+    auto& material_manager = renderer->m_MaterialManager;
+    auto& texture_manager = renderer->m_TextureManager;
     auto& light_manager = m_Scene->m_LightManager;
     // shaders
     auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
@@ -214,9 +185,7 @@ void GameLayer::OnAttach()
 
     // THE SUNS
     auto lightID = light_manager.CreateLight();
-
-    COMPLight* compLight = light_manager.GetLight(lightID);
-    compLight->position = {0.f, 2.f, 2.f};
+    Light* light = light_manager.GetLight(lightID);
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();
@@ -299,7 +268,6 @@ void GameLayer::OnEvent(Event& e)
         
 
         static float distance = 2.f;
-        static bool destroy = false;
 
         if (input.IsKey(GLFW_KEY_C) && input.IsKeyPressed())
         {
@@ -380,6 +348,10 @@ void GameLayer::OnEvent(Event& e)
 
             // Materials
             uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
+            Material* compMaterial = material_manager.Get(MaterialID);
+            // Gold material
+            compMaterial->ambient = {0.24725, 0.1995, 0.0745};
+            compMaterial->shininess = 0.4;
             // first quad
             auto quad_1 = m_Scene->registry.create();
             auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
@@ -394,7 +366,6 @@ void GameLayer::OnEvent(Event& e)
             auto componentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, mesh);
 
             Transform.SetPosition(camTransform.position + camComponent.GetForward() * distance);
-            Transform.Scale({2.f, 0.f, 0.f});
         }
     }
 

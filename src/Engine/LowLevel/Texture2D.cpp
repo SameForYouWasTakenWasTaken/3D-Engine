@@ -4,6 +4,7 @@ void UploadTexture(unsigned char* data, int width, int height, int nrChannels)
 {
     GLenum format, internal;
     if (nrChannels == 1) { format = internal = GL_RED; }
+    else if (nrChannels == 2) { format = GL_RG; internal = GL_RG8; }
     else if (nrChannels == 3) { format = GL_RGB; internal = GL_RGB8; }
     else if (nrChannels == 4) { format = GL_RGBA; internal = GL_RGBA8; }
 
@@ -19,11 +20,11 @@ void UploadTexture(unsigned char* data, int width, int height, int nrChannels)
 }
 
 
-Texture2D::Texture2D(const char* path, TextureSettings s)
-: texture_filepath(path), settings(s)
+Texture2D::Texture2D(const std::string& filepath, TextureSettings s)
+: texture_filepath(filepath), settings(s)
 {
     glGenTextures(1, &id);
-    Recreate(path); // Functionality already present
+    Recreate(filepath); // Functionality already present
 }
 
 Texture2D::Texture2D()
@@ -42,6 +43,7 @@ void Texture2D::Bind()
         logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
         logger.LogError("Texture not bound!");
         logger.DumpLogs();
+        loaded = false;
         return;
     }
 }
@@ -50,9 +52,9 @@ void Texture2D::Unbind(){
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture2D::Recreate(const char* path)
+void Texture2D::Recreate(const std::string& filepath)
 {
-    texture_filepath = path; // Set new path then continue recreation proccess
+    texture_filepath = filepath; // Set new path then continue recreation proccess
     Recreate();
 }
 
@@ -61,7 +63,7 @@ void Texture2D::Recreate()
     Bind();
     if (!glIsTexture(id))
     {
-        if (texture_filepath == nullptr)
+        if (texture_filepath.empty())
         {
             logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
             logger.LogError("Provide a path for your texture!");
@@ -79,12 +81,13 @@ void Texture2D::Recreate()
 
     //                            ->            Private member variables           <-
     stbi_set_flip_vertically_on_load(true);
-    unsigned char *data = stbi_load(texture_filepath, &width, &height, &nrChannels, 0);
+    unsigned char *data = stbi_load(texture_filepath.c_str(), &width, &height, &nrChannels, 0);
 
     if (data)
     {
        Bind();
        UploadTexture(data, width, height, nrChannels);
+       if (glIsTexture(id) == GL_TRUE) loaded = true;
     }
     else {
         logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
