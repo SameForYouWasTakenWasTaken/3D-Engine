@@ -7,9 +7,14 @@
 #include <entt.hpp>
 
 #include <Engine/Systems/SceneManager.hpp>
+#include <Engine/Systems/ShaderManager.hpp>
+#include <Engine/Systems/MaterialManager.hpp>
+#include <Engine/Systems/LightManager.hpp>
+#include <Engine/Systems/Texture2DManager.hpp>
 #include <Engine/LowLevel/VAO.hpp>
 #include <Engine/LowLevel/VBO.hpp>
 #include <Engine/LowLevel/EBO.hpp>
+#include <Engine/LowLevel/Texture2D.hpp>
 #include <Engine/LowLevel/Shader.hpp>
 #include <Components/Drawable.hpp>
 #include <Components/Transform.hpp>
@@ -32,7 +37,8 @@ class Renderer final {
     struct Batch
     {
         Mesh* mesh;
-        COMPMaterial* material;
+        LightManager* lightManager;
+        uint32_t materialID;
         
         std::vector<InstanceData> instances;
 
@@ -40,16 +46,19 @@ class Renderer final {
     };
 
     std::unordered_map<size_t, Batch> m_Batches;
+
 public:
+    ShaderManager m_ShaderManager;
+    MaterialManager m_MaterialManager = MaterialManager(m_ShaderManager);
+    Texture2DManager m_TextureManager;
+
     EngineContext& m_EngineContext;
-    std::unique_ptr<SceneManager> m_SceneManager;
     Logger logger = Logger("RENDERER");
 
     Renderer(EngineContext& context);
     ~Renderer() = default;
 
-    
-    void Submit(Mesh* mesh, COMPMaterial* material, const glm::mat4& model);
+    void Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, LightManager* lightManager);
     
     void Begin();
     void Update(float dt);

@@ -1,7 +1,7 @@
 #include <Engine/Renderer.hpp>
 
 Renderer::Renderer(EngineContext& context) 
-    : m_EngineContext(context), m_SceneManager(std::make_unique<SceneManager>(context)) 
+    : m_EngineContext(context) 
 { };
 
 // TODO: Batch updating
@@ -10,21 +10,22 @@ void Renderer::Update(float dt)
 
 }
 
-void Renderer::Submit(Mesh* mesh, COMPMaterial* material, const glm::mat4& model)
+void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, LightManager* lightManager)
 {
     // This is a hash that combines the mesh and material pointers to create a unique key for batching
     // It's a much faster way to batch than comparing the mesh and material pointers directly, 
     // and it allows us to easily store batches in an unordered_map
     size_t batchKey =
     std::hash<Mesh*>{}(mesh) ^
-    (std::hash<COMPMaterial*>{}(material) << 1);
+    (std::hash<uint32_t>{}(materialID) << 1);
 
     InstanceData instanceData {model};
     auto& batch = m_Batches[batchKey];
     
     // Assign the necessary stuff
     batch.mesh = mesh;
-    batch.material = material;
+    batch.materialID = materialID;
+    batch.lightManager = lightManager;
 
     // Send out to the m_Batches unordered_map, which will be used for batch rendering in the End() function
     batch.instances.push_back(instanceData);
@@ -55,8 +56,15 @@ void Renderer::End()
         if (batch.instances.empty())
             continue;
         Mesh* mesh = batch.mesh;
-        COMPMaterial* material = batch.material;
+        Material* material = m_MaterialManager.Get(batch.materialID );
+        Shader* shader = m_ShaderManager.Get(material->shader);
+        Texture2D* texture = m_TextureManager.Get(material->texture);
+        LightManager* lightManager = batch.lightManager;
+        
+        if(!shader || !material || !mesh) continue;
 
+        if(texture) 
+            texture->Use();
         mesh->vao.Bind();
         mesh->instanceVBO.Bind();
 
@@ -69,9 +77,20 @@ void Renderer::End()
             instanceCount * sizeof(InstanceData), 
             batch.instances.data()
         );
-
-        material->shader->UseProgram();
-
+        
+        shader->UseProgram();
+        shader->SetMatrix4(
+            "projectmat", 
+            1, 
+            glm::value_ptr(m_EngineContext.cached_projection)
+        );
+        shader->SetMatrix4(
+            "viewmat", 
+            1, 
+            glm::value_ptr(m_EngineContext.cached_view)
+        );
+        lightManager->UpdateToShader(shader);
+        
         if (mesh->Indexed)
         {
             glDrawElementsInstanced(
@@ -89,6 +108,9 @@ void Renderer::End()
                 instanceCount
             );
         }
+
+        if(texture) 
+            texture->Unbind();
     }
 }
 

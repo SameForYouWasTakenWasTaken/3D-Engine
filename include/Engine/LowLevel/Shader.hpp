@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include <glm/glm.hpp>
 #include <Logger.hpp>
 
 std::expected<std::pair<std::string, std::string>, int>
@@ -26,6 +27,7 @@ public:
     // ? Uniform functions ?
     void SetInt(const std::string& name, int n);
     void SetFloat(const std::string& name, float n);
+    void SetVec3(const std::string& name, const glm::vec3& vec);
     
     void SetMatrix4(const std::string& name, int amount, const GLfloat* value);
     void SetMatrix4(int loc, int amount, const GLfloat* value);

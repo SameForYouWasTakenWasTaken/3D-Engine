@@ -174,12 +174,18 @@ void Shader::SetMatrix4(const std::string& name, int amount, const GLfloat* valu
     if (loc != -1)
         glUniformMatrix4fv(loc, amount, GL_FALSE, value);
 }
-
 // Typically reserved if you already have a location and simply don't want to rewrite the whole function.
 // Either way, looks prettier. Totally optional, of course.
 void Shader::SetMatrix4(int loc, int amount, const GLfloat* value)
 {
     glUniformMatrix4fv(loc, amount, GL_FALSE, value);
+}
+
+void Shader::SetVec3(const std::string& name, const glm::vec3& vec)
+{
+    int loc = GetUniformLocation(name);
+    if (loc != -1)
+        glUniform3f(loc, vec.x, vec.y, vec.z);
 }
 
 
