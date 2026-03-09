@@ -1,3 +1,4 @@
+#include <ranges>
 #include <Engine/Systems/LightManager.hpp>
 
 LightID LightManager::CreateLight()
@@ -34,14 +35,14 @@ constexpr int MAX_LIGHTS = 16;
     int numLights = std::min(static_cast<int>(m_Lights.size()), MAX_LIGHTS);
 
     int count = 0;
-    for (auto& light : m_Lights)
+    for (const auto& val : m_Lights | std::views::values)
     {
-        shader->SetVec3("lights[" + std::to_string(count) + "].position", light.second.position);
-        shader->SetVec3("lights[" + std::to_string(count) + "].color", light.second.color);
+        shader->SetVec3("lights[" + std::to_string(count) + "].position", val.position);
+        shader->SetVec3("lights[" + std::to_string(count) + "].color", val.color);
 
-        shader->SetVec3("lights[" + std::to_string(count) + "].ambient", light.second.ambient);
-        shader->SetVec3("lights[" + std::to_string(count) + "].diffuse", light.second.diffuse);
-        shader->SetVec3("lights[" + std::to_string(count) + "].specular", light.second.specular);
+        shader->SetVec3("lights[" + std::to_string(count) + "].ambient", val.ambient);
+        shader->SetVec3("lights[" + std::to_string(count) + "].diffuse", val.diffuse);
+        shader->SetVec3("lights[" + std::to_string(count) + "].specular", val.specular);
 
         ++count;
         if (count >= numLights)
