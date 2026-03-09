@@ -10,14 +10,15 @@ void Renderer::Update(float dt)
 
 }
 
-void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, LightManager* lightManager)
+void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, std::shared_ptr<LightManager> lightManager)
 {
     // This is a hash that combines the mesh and material pointers to create a unique key for batching
     // It's a much faster way to batch than comparing the mesh and material pointers directly, 
     // and it allows us to easily store batches in an unordered_map
     size_t batchKey =
     std::hash<Mesh*>{}(mesh) ^
-    (std::hash<uint32_t>{}(materialID) << 1);
+    (std::hash<uint32_t>{}(materialID) << 1)^
+    (std::hash<std::shared_ptr<LightManager>>{}(lightManager) << 2);
 
     InstanceData instanceData {model};
     auto& batch = m_Batches[batchKey];
@@ -58,17 +59,36 @@ void Renderer::End()
         Mesh* mesh = batch.mesh;
         Material* material = m_MaterialManager.Get(batch.materialID );
         Shader* shader = m_ShaderManager.Get(material->shader);
-        Texture2D* texture = m_TextureManager.Get(material->texture);
-        LightManager* lightManager = batch.lightManager;
+        Texture2D* diffuseTexture = m_TextureManager.Get(material->diffuse);
+        Texture2D* specularTexture = m_TextureManager.Get(material->specular);
+        std::shared_ptr<LightManager> lightManager = batch.lightManager;
         
-        if(!shader || !material || !mesh) continue;
+        if(!material || !shader || !mesh) continue;
 
-        if(texture) 
-            texture->Use();
+        // Create a default specular texure if none exists
+        if (!specularTexture)
+        {
+            auto id = m_TextureManager.Load("Resources/Textures2D/default_spec.png");
+            specularTexture = m_TextureManager.Get(id);
+
+            if (!specularTexture || id == -1)
+                continue; // atp code is trolling and sum went wrong, too tired for this bs
+
+            // Assign specular texture to the material to prevent repeat of this if statement
+            material->specular = id;
+        }
+
+        // TODO: Make sure you use default textures if none provided
+        diffuseTexture->Use();
         mesh->vao.Bind();
         mesh->instanceVBO.Bind();
 
         size_t instanceCount = batch.instances.size();
+
+        auto normalMat3 = glm::mat3(1.f);
+        normalMat3 = glm::transpose(glm::inverse(glm::mat3(batch.instances[0].model)));
+
+        glm::vec3 camPos = m_EngineContext.cached_activeCam_position;
         
         // Update buffer data allocated inside the mesh, not reallocate
         glBufferSubData(
@@ -89,6 +109,20 @@ void Renderer::End()
             1, 
             glm::value_ptr(m_EngineContext.cached_view)
         );
+        shader->SetMatrix3(
+            "mNormal", 
+            1, 
+            glm::value_ptr(normalMat3)
+        );
+        shader->SetVec3(
+            "viewPos", 
+            camPos
+        );
+
+        shader->SetVec3("material.ambient", material->ambient);
+        shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() above
+        shader->SetInt("material.specular", 1); // Slot 1
+        shader->SetFloat("material.shininess", material->shininess);
         lightManager->UpdateToShader(shader);
         
         if (mesh->Indexed)
@@ -109,8 +143,8 @@ void Renderer::End()
             );
         }
 
-        if(texture) 
-            texture->Unbind();
+        if(diffuseTexture)
+            diffuseTexture->Unbind();
     }
 }
 

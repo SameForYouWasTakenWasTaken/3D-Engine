@@ -18,6 +18,8 @@ out vec3 Normal;
 uniform mat4 projectmat;
 uniform mat4 viewmat;
 
+uniform mat3 mNormal;
+
 void main()
 {
     mat4 instanceMatrix = mat4(
@@ -31,5 +33,6 @@ void main()
     fragmentTexCoord = texCoord;
 
     FragPos = vec3(instanceMatrix * vec4(position, 1.0));
-    Normal = mat3(transpose(inverse(instanceMatrix))) * aNormal;
+    Normal = normalize(mNormal * aNormal); // See if it works
+
 }

@@ -30,6 +30,7 @@ class Scene final
     
     uint32_t SceneID = -1;
 public:
+//    Make friend????
     SceneManager* m_SceneManager;
     CameraManager m_CameraManager;
     LightManager m_LightManager;

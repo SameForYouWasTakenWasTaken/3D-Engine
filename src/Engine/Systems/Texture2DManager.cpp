@@ -9,8 +9,14 @@ TextureID Texture2DManager::Load(const std::string& path)
     TextureID id = Hash(path);
     if (m_Textures.find(id) != m_Textures.end()) return id;
 
-    m_Textures[id] = std::make_shared<Texture2D>(path.c_str());
-    return id;
+    auto texture = std::make_shared<Texture2D>(path);
+    if (texture->IsLoaded())
+    { 
+        m_Textures[id] = texture;
+        return id;
+    }
+
+    return -1;
 }
 
 Texture2D* Texture2DManager::Get(TextureID id)
