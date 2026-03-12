@@ -56,7 +56,7 @@ set(REQUIRED_LIBRARIES glm::glm spdlog::spdlog glfw)
 
 add_executable(main ${SRC_FILES} ${HEADER_FILES})
 
-# Include directories 
+# Include directories
 
 target_include_directories(main PRIVATE ${PROJECT_INCLUDES})
 

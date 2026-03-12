@@ -3,8 +3,7 @@
 
 // Test Material struct default construction
 TEST(MaterialTest, DefaultConstruction) {
-    Material material{};
-    material.shader = 0;  // shader must be initialized
+    Material material;
 
     // Check default texture IDs (should be -1 cast to size_t)
     EXPECT_EQ(material.diffuse, static_cast<TextureID>(-1));

@@ -1,15 +1,13 @@
 #pragma once
 #include <glad/glad.h>
-#include <fstream>
 #include <expected>
-#include <sstream>
 #include <string>
 
 #include <glm/glm.hpp>
 #include <Logger.hpp>
 
-std::expected<std::pair<std::string, std::string>, int>
-ParseShaderFiles(const char* FragmentSourceFilePath, const char* VertexSourceFilePath);
+std::expected<std::pair<std::string, std::string>, bool>
+ParseShaderFiles(const std::string&  FragmentSourceFilePath, const std::string&  VertexSourceFilePath);
 
 class Shader final
 {

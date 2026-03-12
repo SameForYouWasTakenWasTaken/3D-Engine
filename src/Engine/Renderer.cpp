@@ -71,13 +71,13 @@ void Renderer::End()
         if (!specularTexture)
         {
             auto id = m_TextureManager.Load("Resources/Textures2D/default_spec.png");
-            specularTexture = m_TextureManager.Get(id);
+            specularTexture = m_TextureManager.Get(id.value());
 
-            if (!specularTexture || id == -1)
+            if (!specularTexture || !id)
                 continue; // atp code is trolling and sum went wrong, too tired for this bs
 
             // Assign specular texture to the material to prevent repeat of this if statement
-            material->specular = id;
+            material->specular = id.value();
         }
 
         //TODO: Calculate normals on the CPU
