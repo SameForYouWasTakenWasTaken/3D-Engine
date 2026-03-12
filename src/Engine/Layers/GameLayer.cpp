@@ -183,7 +183,7 @@ void GameLayer::OnAttach()
 
     // THE SUNS
     auto lightID = light_manager.CreateLight();
-    
+
     // Camera creation
     auto context_expected = m_Scene->GetContext();
     if (context_expected.has_value())
