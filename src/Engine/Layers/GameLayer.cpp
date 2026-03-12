@@ -53,13 +53,6 @@ void GameLayer::OnUpdate(float dt)
         
         transform->Move(move * speed * dt);
 
-        auto light = m_Scene->m_LightManager.GetLight(0);
-        light->position = {
-            sin(glfwGetTime() * 5),
-            light->position.y,
-            cos(glfwGetTime() * 5)
-        };
-
     }
 }
 
@@ -185,7 +178,13 @@ void GameLayer::OnAttach()
     Transform_a.SetPosition({3.f, 1.f, -2.f});
 
     // THE SUNS
-    auto lightID = light_manager.CreateLight();
+    auto lightID = light_manager.CreateLight(LightType::DIRECTIONAL);
+    if (!lightID.has_value()) return;
+    auto light = light_manager.GetDirectionalLight(lightID.value());
+    glm::vec3 position = {0.f, 2.f, 0.f};
+    glm::vec3 target(0.f);
+
+    light->direction = glm::normalize(target - position);
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();

@@ -122,7 +122,7 @@ void Renderer::End()
         shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() above
         shader->SetInt("material.specular", 1); // Slot 1
         shader->SetFloat("material.shininess", material->shininess);
-        lightManager->UpdateToShader(shader);
+        lightManager->UploadToShader(shader);
         
         if (mesh->Indexed)
         {

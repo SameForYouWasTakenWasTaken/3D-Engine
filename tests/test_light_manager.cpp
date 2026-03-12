@@ -6,15 +6,15 @@ TEST(LightManagerTest, CreateLight) {
     LightManager manager;
 
     // Create first light
-    LightID id1 = manager.CreateLight().value();
+    LightID id1 = manager.CreateLight(TODO).value();
     EXPECT_EQ(id1, 0u);
 
     // Create second light
-    LightID id2 = manager.CreateLight().value();
+    LightID id2 = manager.CreateLight(TODO).value();
     EXPECT_EQ(id2, 1u);
 
     // Create third light
-    LightID id3 = manager.CreateLight().value();
+    LightID id3 = manager.CreateLight(TODO).value();
     EXPECT_EQ(id3, 2u);
 
     // Verify IDs are sequential
@@ -27,7 +27,7 @@ TEST(LightManagerTest, AddLight) {
     LightManager manager;
 
     // Create a light with custom properties
-    Light light;
+    DirectionalLight light;
     light.position = glm::vec3(1.0f, 2.0f, 3.0f);
     light.color = glm::vec3(1.0f, 0.0f, 0.0f);
     light.intensity = 0.8f;
@@ -37,7 +37,7 @@ TEST(LightManagerTest, AddLight) {
     EXPECT_EQ(id, 0u);
 
     // Retrieve the light and verify properties
-    Light* retrieved = manager.GetLight(id);
+    DirectionalLight* retrieved = manager.GetLight(id);
     ASSERT_NE(retrieved, nullptr);
     EXPECT_EQ(retrieved->position, light.position);
     EXPECT_EQ(retrieved->color, light.color);
@@ -49,10 +49,10 @@ TEST(LightManagerTest, GetLight) {
     LightManager manager;
 
     // Create a light
-    LightID id = manager.CreateLight().value();
+    LightID id = manager.CreateLight(TODO).value();
 
     // Get the light
-    Light* light = manager.GetLight(id);
+    DirectionalLight* light = manager.GetLight(id);
     ASSERT_NE(light, nullptr);
 
     // Verify default light properties
@@ -65,7 +65,7 @@ TEST(LightManagerTest, GetLightInvalidID) {
     LightManager manager;
 
     // Try to get a light that doesn't exist
-    Light* light = manager.GetLight(999);
+    DirectionalLight* light = manager.GetLight(999);
     EXPECT_EQ(light, nullptr);
 }
 
@@ -74,10 +74,10 @@ TEST(LightManagerTest, RemoveLight) {
     LightManager manager;
 
     // Create a light
-    LightID id = manager.CreateLight().value();
+    LightID id = manager.CreateLight(TODO).value();
 
     // Verify it exists
-    Light* light = manager.GetLight(id);
+    DirectionalLight* light = manager.GetLight(id);
     ASSERT_NE(light, nullptr);
 
     // Remove the light
@@ -96,7 +96,7 @@ TEST(LightManagerTest, RemoveLightInvalidID) {
     manager.RemoveLight(999);
 
     // Manager should still work after attempting to remove non-existent light
-    LightID id = manager.CreateLight().value();
+    LightID id = manager.CreateLight(TODO).value();
     EXPECT_EQ(id, 0u);
 }
 
@@ -105,8 +105,8 @@ TEST(LightManagerTest, ModifyLightProperties) {
     LightManager manager;
 
     // Create a light
-    LightID id = manager.CreateLight().value();
-    Light* light = manager.GetLight(id);
+    LightID id = manager.CreateLight(TODO).value();
+    DirectionalLight* light = manager.GetLight(id);
     ASSERT_NE(light, nullptr);
 
     // Modify properties
@@ -115,7 +115,7 @@ TEST(LightManagerTest, ModifyLightProperties) {
     light->intensity = 0.9f;
 
     // Retrieve again and verify changes persisted
-    Light* modified = manager.GetLight(id);
+    DirectionalLight* modified = manager.GetLight(id);
     ASSERT_NE(modified, nullptr);
     EXPECT_EQ(modified->position, glm::vec3(5.0f, 10.0f, 15.0f));
     EXPECT_EQ(modified->color, glm::vec3(0.5f, 0.5f, 1.0f));
@@ -127,7 +127,7 @@ TEST(LightManagerTest, MultipleLights) {
     LightManager manager;
 
     // Create multiple lights with different properties
-    Light light1, light2, light3;
+    DirectionalLight light1, light2, light3;
     light1.position = glm::vec3(1.0f, 0.0f, 0.0f);
     light1.color = glm::vec3(1.0f, 0.0f, 0.0f);
 
@@ -147,9 +147,9 @@ TEST(LightManagerTest, MultipleLights) {
     EXPECT_NE(id1, id3);
 
     // Verify each light has correct properties
-    Light* retrieved1 = manager.GetLight(id1);
-    Light* retrieved2 = manager.GetLight(id2);
-    Light* retrieved3 = manager.GetLight(id3);
+    DirectionalLight* retrieved1 = manager.GetLight(id1);
+    DirectionalLight* retrieved2 = manager.GetLight(id2);
+    DirectionalLight* retrieved3 = manager.GetLight(id3);
 
     ASSERT_NE(retrieved1, nullptr);
     ASSERT_NE(retrieved2, nullptr);
@@ -165,15 +165,15 @@ TEST(LightManagerTest, CreateAfterRemove) {
     LightManager manager;
 
     // Create three lights
-    LightID id1 = manager.CreateLight().value();
-    LightID id2 = manager.CreateLight().value();
-    LightID id3 = manager.CreateLight().value();
+    LightID id1 = manager.CreateLight(TODO).value();
+    LightID id2 = manager.CreateLight(TODO).value();
+    LightID id3 = manager.CreateLight(TODO).value();
 
     // Remove middle light
     manager.RemoveLight(id2);
 
     // Create a new light (should get ID 3, not reuse ID 2)
-    LightID id4 = manager.CreateLight().value();
+    LightID id4 = manager.CreateLight(TODO).value();
     EXPECT_EQ(id4, 3u);
 
     // Verify id2 still doesn't exist
@@ -194,7 +194,7 @@ TEST(LightManagerTest, ManyLights) {
 
     // Create many lights
     for (int i = 0; i < NUM_LIGHTS; ++i) {
-        Light light;
+        DirectionalLight light;
         light.position = glm::vec3(i * 1.0f, i * 2.0f, i * 3.0f);
         light.intensity = i / 100.0f;
         LightID id = manager.AddLight(light).value();
@@ -203,7 +203,7 @@ TEST(LightManagerTest, ManyLights) {
 
     // Verify all lights exist with correct properties
     for (int i = 0; i < NUM_LIGHTS; ++i) {
-        Light* light = manager.GetLight(ids[i]);
+        DirectionalLight* light = manager.GetLight(ids[i]);
         ASSERT_NE(light, nullptr);
         EXPECT_FLOAT_EQ(light->position.x, i * 1.0f);
         EXPECT_FLOAT_EQ(light->position.y, i * 2.0f);
@@ -232,7 +232,7 @@ TEST(LightManagerTest, CompleteLight) {
     LightManager manager;
 
     // Create a light with all properties customized
-    Light light;
+    DirectionalLight light;
     light.position = glm::vec3(10.0f, 20.0f, 30.0f);
     light.color = glm::vec3(0.8f, 0.6f, 0.4f);
     light.diffuse = glm::vec3(0.9f, 0.8f, 0.7f);
@@ -241,7 +241,7 @@ TEST(LightManagerTest, CompleteLight) {
     light.intensity = 0.85f;
 
     LightID id = manager.AddLight(light).value();
-    Light* retrieved = manager.GetLight(id);
+    DirectionalLight* retrieved = manager.GetLight(id);
 
     ASSERT_NE(retrieved, nullptr);
     EXPECT_EQ(retrieved->position, light.position);
@@ -258,7 +258,7 @@ TEST(LightManagerTest, AddRemoveCycle) {
 
     for (int cycle = 0; cycle < 5; ++cycle) {
         // Create a light
-        LightID id = manager.CreateLight().value();
+        LightID id = manager.CreateLight(TODO).value();
         EXPECT_NE(manager.GetLight(id), nullptr);
 
         // Remove it
@@ -267,6 +267,6 @@ TEST(LightManagerTest, AddRemoveCycle) {
     }
 
     // Manager should still be functional
-    LightID final_id = manager.CreateLight().value();
+    LightID final_id = manager.CreateLight(TODO).value();
     EXPECT_NE(manager.GetLight(final_id), nullptr);
 }

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <Components/Light.hpp>
+#include <Components/DirectionalLight.hpp>
 
 // Test Light struct default construction
 TEST(LightTest, DefaultConstruction) {
-    Light light;
+    DirectionalLight light;
 
     // Check default position
     EXPECT_FLOAT_EQ(light.position.x, 0.0f);
@@ -36,7 +36,7 @@ TEST(LightTest, DefaultConstruction) {
 
 // Test Light struct custom construction
 TEST(LightTest, CustomConstruction) {
-    Light light;
+    DirectionalLight light;
     light.position = glm::vec3(1.0f, 2.0f, 3.0f);
     light.color = glm::vec3(0.5f, 0.6f, 0.7f);
     light.diffuse = glm::vec3(0.8f, 0.9f, 1.0f);
@@ -70,13 +70,13 @@ TEST(LightTest, CustomConstruction) {
 
 // Test Light copy semantics
 TEST(LightTest, CopySemantics) {
-    Light light1;
+    DirectionalLight light1;
     light1.position = glm::vec3(5.0f, 6.0f, 7.0f);
     light1.color = glm::vec3(0.1f, 0.2f, 0.3f);
     light1.intensity = 0.9f;
 
     // Copy construct
-    Light light2 = light1;
+    DirectionalLight light2 = light1;
 
     // Verify copy has same values
     EXPECT_FLOAT_EQ(light2.position.x, 5.0f);
@@ -120,7 +120,7 @@ TEST(COMPLightTest, Assignment) {
 
 // Test edge cases for Light properties
 TEST(LightTest, EdgeCases) {
-    Light light;
+    DirectionalLight light;
 
     // Test zero intensity
     light.intensity = 0.0f;
@@ -146,19 +146,19 @@ TEST(LightTest, EdgeCases) {
 // Test realistic lighting scenarios
 TEST(LightTest, RealisticLightingScenarios) {
     // Test a warm white light
-    Light warmLight;
+    DirectionalLight warmLight;
     warmLight.color = glm::vec3(1.0f, 0.9f, 0.7f);
     warmLight.intensity = 0.8f;
     EXPECT_GT(warmLight.color.x, warmLight.color.z);
 
     // Test a cool white light
-    Light coolLight;
+    DirectionalLight coolLight;
     coolLight.color = glm::vec3(0.7f, 0.8f, 1.0f);
     coolLight.intensity = 0.6f;
     EXPECT_GT(coolLight.color.z, coolLight.color.x);
 
     // Test colored light (red)
-    Light redLight;
+    DirectionalLight redLight;
     redLight.color = glm::vec3(1.0f, 0.0f, 0.0f);
     EXPECT_FLOAT_EQ(redLight.color.x, 1.0f);
     EXPECT_FLOAT_EQ(redLight.color.y, 0.0f);
