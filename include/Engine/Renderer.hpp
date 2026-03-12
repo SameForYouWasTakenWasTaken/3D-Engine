@@ -32,12 +32,13 @@ class Renderer final {
     struct InstanceData
     {
         glm::mat4 model;
+        glm::mat3 normal;
     };
 
     struct Batch
     {
         Mesh* mesh;
-        LightManager* lightManager;
+        std::shared_ptr<LightManager> lightManager;
         uint32_t materialID;
         
         std::vector<InstanceData> instances;
@@ -58,7 +59,7 @@ public:
     Renderer(EngineContext& context);
     ~Renderer() = default;
 
-    void Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, LightManager* lightManager);
+    void Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, std::shared_ptr<LightManager> lightManager);
     
     void Begin();
     void Update(float dt);

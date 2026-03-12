@@ -30,6 +30,7 @@ public:
     void SetVec3(const std::string& name, const glm::vec3& vec);
     
     void SetMatrix4(const std::string& name, int amount, const GLfloat* value);
+    void SetMatrix3(const std::string& name, int amount, const GLfloat* value);
     void SetMatrix4(int loc, int amount, const GLfloat* value);
 
     int GetUniformLocation(const std::string& name);

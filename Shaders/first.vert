@@ -31,5 +31,6 @@ void main()
     fragmentTexCoord = texCoord;
 
     FragPos = vec3(instanceMatrix * vec4(position, 1.0));
-    Normal = mat3(transpose(inverse(instanceMatrix))) * aNormal;
+    Normal = normalize(mat3(transpose(inverse(instanceMatrix))) * aNormal); // See if it works
+
 }

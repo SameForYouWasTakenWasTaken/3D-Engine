@@ -1,46 +1,53 @@
+#include <ranges>
 #include <Engine/Systems/LightManager.hpp>
 
-uint32_t LightManager::CreateLight()
+std::optional<LightID> LightManager::CreateLight()
 {
-    COMPLight light;
-    uint32_t id = AddLight(light);
+    Light light;
+    LightID id = AddLight(light).value();
     return id;
 }
-uint32_t LightManager::AddLight(COMPLight light)
+std::optional<LightID> LightManager::AddLight(Light light)
 {
-    uint32_t id = m_NextLightID++;
-    if (m_Lights.find(id) != m_Lights.end()) return -1;
+    LightID id = m_NextLightID++;
+    if (m_Lights.contains(id)) return -1;
     m_Lights.emplace(id, light);
     return id;
 }
 
-void LightManager::RemoveLight(uint32_t id)
+void LightManager::RemoveLight(LightID id)
 {
-    if (m_Lights.find(id) == m_Lights.end()) return;
+    if (!m_Lights.contains(id)) return;
     m_Lights.erase(id);
 }
 
-COMPLight* LightManager::GetLight(uint32_t id)
+Light* LightManager::GetLight(LightID id)
 {
-    auto it = m_Lights.find(id);
+    const auto it = m_Lights.find(id);
     if (it == m_Lights.end()) return nullptr;
     return &it->second;
 }
 
-void LightManager::UpdateToShader(Shader* shader)
+void LightManager::UpdateToShader(Shader* shader) const
 {   
     constexpr int MAX_LIGHTS = 16;
-    int numLights = std::min((int)m_Lights.size(), MAX_LIGHTS);
-    
-    shader->SetInt("numLights", numLights);
+
+    const int numLights = std::min(static_cast<int>(m_Lights.size()), MAX_LIGHTS);
 
     int count = 0;
-    for (auto& light : m_Lights)
+    for (const auto& val : m_Lights | std::views::values)
     {
-        ++count;
-        shader->SetVec3("lightPositions[" + std::to_string(light.first) + "]", light.second.position);
-        shader->SetVec3("lightColors[" + std::to_string(light.first) + "]", light.second.color);
+        shader->SetVec3("lights[" + std::to_string(count) + "].position", val.position);
+        shader->SetVec3("lights[" + std::to_string(count) + "].color", val.color);
 
-        if (count >= numLights) break;
+        shader->SetVec3("lights[" + std::to_string(count) + "].ambient", val.ambient);
+        shader->SetVec3("lights[" + std::to_string(count) + "].diffuse", val.diffuse);
+        shader->SetVec3("lights[" + std::to_string(count) + "].specular", val.specular);
+
+        ++count;
+        if (count >= numLights)
+            break;
     }
+
+    shader->SetInt("numLights", count);
 }
