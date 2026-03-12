@@ -48,15 +48,18 @@ void Scene::Draw()
     }
 
     auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
-    if (cam == nullptr)
+    auto* camTransform = registry.try_get<COMPTransform>(m_CameraManager.GetActiveCamera());
+    if (cam == nullptr || camTransform == nullptr)
     {
         logger.AppendLogTag("SCENE", LogColors::GREEN);
         logger.AppendLogTag("CAMERA_MANAGER", LogColors::YELLOW);
         logger.LogWarning("No active camera set, skipping draw.");
         return;
     }
-    m_SceneManager->m_EngineContext.cached_projection = cam->projection;
-    m_SceneManager->m_EngineContext.cached_view = cam->view;
+    auto& context = m_SceneManager->m_EngineContext;
+    context.cached_projection = cam->projection;
+    context.cached_view = cam->view;
+    context.cached_activeCam_position = camTransform->position;
 
     auto view = registry.view<
     COMPGeometry,
@@ -68,6 +71,15 @@ void Scene::Draw()
 
 
     auto renderer = m_SceneManager->m_EngineContext.renderer;
+    if (!renderer)
+    {
+        logger.AppendLogTag("SCENE", LogColors::GREEN);
+        logger.AppendLogTag("ENGINE_CONTEXT", LogColors::YELLOW);
+        logger.LogWarning("No renderer set, skipping draw.");
+        return;
+    }
+
+    auto lightManager = std::make_shared<LightManager>(m_LightManager);
     view.each([&](auto entity, 
         COMPGeometry& drawable, 
         COMPMesh& mesh, 
@@ -75,7 +87,10 @@ void Scene::Draw()
         COMPTransform& transform)
     {
         // Put everything into the renderer
-       renderer->Submit(mesh.mesh.get(), material.material, transform.GetModelMatrix(), &m_LightManager);
+       renderer->Submit(
+        mesh.mesh.get(), 
+        material.material, 
+        transform.GetModelMatrix(), lightManager);
     });
 }
 

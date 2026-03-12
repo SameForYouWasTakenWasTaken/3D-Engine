@@ -17,17 +17,18 @@ struct TextureSettings {
 class Texture2D final {
     GLuint id;    
     TextureSettings settings;
-    const char* texture_filepath;
+    std::string texture_filepath;
     int width, height, nrChannels;
+    bool loaded = false;
 public:
     Logger logger = Logger("TEXTURE_2D");
-    Texture2D(const char* filepath, TextureSettings s = TextureSettings()); // Default texture settings already provided
+    Texture2D(const std::string& filepath, TextureSettings s = TextureSettings()); // Default texture settings already provided
     Texture2D();
     ~Texture2D();
 
     
     void SetSettings(TextureSettings s);
-    void Recreate(const char* filepath);
+    void Recreate(const std::string& filepath);
     void Recreate();
     void Bind();
     void Unbind();
@@ -40,4 +41,5 @@ public:
     void Use(GLenum type = GL_TEXTURE0);
 
     GLuint GetTexture() const {return id;}
+    bool IsLoaded() const {return loaded;}
 };
