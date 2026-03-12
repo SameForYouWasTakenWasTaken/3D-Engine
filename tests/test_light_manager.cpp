@@ -6,15 +6,15 @@ TEST(LightManagerTest, CreateLight) {
     LightManager manager;
 
     // Create first light
-    LightID id1 = manager.CreateLight();
+    LightID id1 = manager.CreateLight().value();
     EXPECT_EQ(id1, 0u);
 
     // Create second light
-    LightID id2 = manager.CreateLight();
+    LightID id2 = manager.CreateLight().value();
     EXPECT_EQ(id2, 1u);
 
     // Create third light
-    LightID id3 = manager.CreateLight();
+    LightID id3 = manager.CreateLight().value();
     EXPECT_EQ(id3, 2u);
 
     // Verify IDs are sequential
@@ -33,7 +33,7 @@ TEST(LightManagerTest, AddLight) {
     light.intensity = 0.8f;
 
     // Add the light
-    LightID id = manager.AddLight(light);
+    LightID id = manager.AddLight(light).value();
     EXPECT_EQ(id, 0u);
 
     // Retrieve the light and verify properties
@@ -49,7 +49,7 @@ TEST(LightManagerTest, GetLight) {
     LightManager manager;
 
     // Create a light
-    LightID id = manager.CreateLight();
+    LightID id = manager.CreateLight().value();
 
     // Get the light
     Light* light = manager.GetLight(id);
@@ -74,7 +74,7 @@ TEST(LightManagerTest, RemoveLight) {
     LightManager manager;
 
     // Create a light
-    LightID id = manager.CreateLight();
+    LightID id = manager.CreateLight().value();
 
     // Verify it exists
     Light* light = manager.GetLight(id);
@@ -96,7 +96,7 @@ TEST(LightManagerTest, RemoveLightInvalidID) {
     manager.RemoveLight(999);
 
     // Manager should still work after attempting to remove non-existent light
-    LightID id = manager.CreateLight();
+    LightID id = manager.CreateLight().value();
     EXPECT_EQ(id, 0u);
 }
 
@@ -105,7 +105,7 @@ TEST(LightManagerTest, ModifyLightProperties) {
     LightManager manager;
 
     // Create a light
-    LightID id = manager.CreateLight();
+    LightID id = manager.CreateLight().value();
     Light* light = manager.GetLight(id);
     ASSERT_NE(light, nullptr);
 
@@ -137,9 +137,9 @@ TEST(LightManagerTest, MultipleLights) {
     light3.position = glm::vec3(0.0f, 0.0f, 1.0f);
     light3.color = glm::vec3(0.0f, 0.0f, 1.0f);
 
-    LightID id1 = manager.AddLight(light1);
-    LightID id2 = manager.AddLight(light2);
-    LightID id3 = manager.AddLight(light3);
+    LightID id1 = manager.AddLight(light1).value();
+    LightID id2 = manager.AddLight(light2).value();
+    LightID id3 = manager.AddLight(light3).value();
 
     // Verify all lights are different
     EXPECT_NE(id1, id2);
@@ -165,15 +165,15 @@ TEST(LightManagerTest, CreateAfterRemove) {
     LightManager manager;
 
     // Create three lights
-    LightID id1 = manager.CreateLight();
-    LightID id2 = manager.CreateLight();
-    LightID id3 = manager.CreateLight();
+    LightID id1 = manager.CreateLight().value();
+    LightID id2 = manager.CreateLight().value();
+    LightID id3 = manager.CreateLight().value();
 
     // Remove middle light
     manager.RemoveLight(id2);
 
     // Create a new light (should get ID 3, not reuse ID 2)
-    LightID id4 = manager.CreateLight();
+    LightID id4 = manager.CreateLight().value();
     EXPECT_EQ(id4, 3u);
 
     // Verify id2 still doesn't exist
@@ -197,7 +197,7 @@ TEST(LightManagerTest, ManyLights) {
         Light light;
         light.position = glm::vec3(i * 1.0f, i * 2.0f, i * 3.0f);
         light.intensity = i / 100.0f;
-        LightID id = manager.AddLight(light);
+        LightID id = manager.AddLight(light).value();
         ids.push_back(id);
     }
 
@@ -240,7 +240,7 @@ TEST(LightManagerTest, CompleteLight) {
     light.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     light.intensity = 0.85f;
 
-    LightID id = manager.AddLight(light);
+    LightID id = manager.AddLight(light).value();
     Light* retrieved = manager.GetLight(id);
 
     ASSERT_NE(retrieved, nullptr);
@@ -258,7 +258,7 @@ TEST(LightManagerTest, AddRemoveCycle) {
 
     for (int cycle = 0; cycle < 5; ++cycle) {
         // Create a light
-        LightID id = manager.CreateLight();
+        LightID id = manager.CreateLight().value();
         EXPECT_NE(manager.GetLight(id), nullptr);
 
         // Remove it
@@ -267,6 +267,6 @@ TEST(LightManagerTest, AddRemoveCycle) {
     }
 
     // Manager should still be functional
-    LightID final_id = manager.CreateLight();
+    LightID final_id = manager.CreateLight().value();
     EXPECT_NE(manager.GetLight(final_id), nullptr);
 }

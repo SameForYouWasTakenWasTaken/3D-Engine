@@ -5,7 +5,7 @@
 
 #include <Engine/LowLevel/Texture2D.hpp>
 
-using TextureID = size_t;
+using TextureID = uint32_t;
 
 class Texture2DManager final 
 {

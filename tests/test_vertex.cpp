@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <Engine/LowLevel/Vertex.hpp>
 
+#include "glad/glad.h"
+
 // Test Vertex struct default construction
 TEST(VertexTest, DefaultConstruction) {
     Vertex vertex{};

@@ -152,15 +152,15 @@ void GameLayer::OnAttach()
     auto color_grid_texture = texture_manager.Load("Resources/Textures2D/color_grid.png");
 
     // Materials
-    uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
-    uint32_t MaterialID_colorgrid = material_manager.CreateMaterial(sunShader, color_grid_texture);
+    uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture.value());
+    uint32_t MaterialID_colorgrid = material_manager.CreateMaterial(sunShader, color_grid_texture.value());
 
     // first quad
     auto quad_1 = m_Scene->registry.create();
     auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
     auto& Transform = m_Scene->registry.emplace<COMPTransform>(quad_1);
     auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, MaterialID);
-    
+
     m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
 
     auto mesh = std::make_shared<Mesh>();
@@ -177,7 +177,10 @@ void GameLayer::OnAttach()
     auto& Material_a = m_Scene->registry.emplace<COMPMaterial>(quad_2, MaterialID);
     m_Scene->registry.emplace<TAG_GameLayer>(quad_2);
 
-    auto& ComponentMesh_a = m_Scene->registry.emplace<COMPMesh>(quad_2, mesh);
+    // TODO: Let meshes be reusable
+    auto mesh_b = std::make_shared<Mesh>();
+    mesh_b->SetData(vertices, indices);
+    auto& ComponentMesh_a = m_Scene->registry.emplace<COMPMesh>(quad_2, mesh_b);
 
     Transform_a.SetPosition({3.f, 1.f, -2.f});
 
@@ -343,7 +346,7 @@ void GameLayer::OnEvent(Event& e)
             auto basic_texture = texture_manager.Load("Resources/Textures2D/spider.jpg");
 
             // Materials
-            uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture);
+            uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture.value());
             Material* compMaterial = material_manager.Get(MaterialID);
             // Gold material
             compMaterial->ambient = {0.24725, 0.1995, 0.0745};
