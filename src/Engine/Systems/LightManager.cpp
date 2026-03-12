@@ -1,13 +1,13 @@
 #include <ranges>
 #include <Engine/Systems/LightManager.hpp>
 
-LightID LightManager::CreateLight()
+std::optional<LightID> LightManager::CreateLight()
 {
     Light light;
-    LightID id = AddLight(light);
+    LightID id = AddLight(light).value();
     return id;
 }
-LightID LightManager::AddLight(Light light)
+std::optional<LightID> LightManager::AddLight(Light light)
 {
     LightID id = m_NextLightID++;
     if (m_Lights.contains(id)) return -1;
@@ -30,9 +30,9 @@ Light* LightManager::GetLight(LightID id)
 
 void LightManager::UpdateToShader(Shader* shader) const
 {   
-constexpr int MAX_LIGHTS = 16;
+    constexpr int MAX_LIGHTS = 16;
 
-    int numLights = std::min(static_cast<int>(m_Lights.size()), MAX_LIGHTS);
+    const int numLights = std::min(static_cast<int>(m_Lights.size()), MAX_LIGHTS);
 
     int count = 0;
     for (const auto& val : m_Lights | std::views::values)

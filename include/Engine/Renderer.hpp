@@ -32,6 +32,7 @@ class Renderer final {
     struct InstanceData
     {
         glm::mat4 model;
+        glm::mat3 normal;
     };
 
     struct Batch

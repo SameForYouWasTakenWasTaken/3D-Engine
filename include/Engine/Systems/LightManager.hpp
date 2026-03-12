@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <optional>
 
 #include <Components/Light.hpp>
 #include <Engine/LowLevel/Shader.hpp>
@@ -11,8 +12,8 @@ class LightManager final
     LightID m_NextLightID = 0;
 public:
 
-    LightID CreateLight();
-    LightID AddLight(Light light);
+    std::optional<LightID> CreateLight();
+    std::optional<LightID> AddLight(Light light);
 
     void RemoveLight(LightID id);
 
