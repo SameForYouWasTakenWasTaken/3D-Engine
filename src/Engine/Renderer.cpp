@@ -20,7 +20,9 @@ void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, s
     (std::hash<uint32_t>{}(materialID) << 1)^
     (std::hash<std::shared_ptr<LightManager>>{}(lightManager) << 2);
 
-    InstanceData instanceData {model};
+    InstanceData instanceData;
+    instanceData.model = model;
+
     auto& batch = m_Batches[batchKey];
     
     // Assign the necessary stuff
@@ -78,6 +80,8 @@ void Renderer::End()
             material->specular = id;
         }
 
+        //TODO: Calculate normals on the CPU
+
         // TODO: Make sure you use default textures if none provided
         diffuseTexture->Use();
         mesh->vao.Bind();
@@ -108,11 +112,6 @@ void Renderer::End()
             "viewmat", 
             1, 
             glm::value_ptr(m_EngineContext.cached_view)
-        );
-        shader->SetMatrix3(
-            "mNormal", 
-            1, 
-            glm::value_ptr(normalMat3)
         );
         shader->SetVec3(
             "viewPos", 
