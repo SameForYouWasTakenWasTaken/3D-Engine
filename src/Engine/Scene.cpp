@@ -78,6 +78,8 @@ void Scene::Draw()
         logger.LogWarning("No renderer set, skipping draw.");
         return;
     }
+
+    auto lightManager = std::make_shared<LightManager>(m_LightManager);
     view.each([&](auto entity, 
         COMPGeometry& drawable, 
         COMPMesh& mesh, 
@@ -88,7 +90,7 @@ void Scene::Draw()
        renderer->Submit(
         mesh.mesh.get(), 
         material.material, 
-        transform.GetModelMatrix(), std::make_shared<LightManager>(m_LightManager));
+        transform.GetModelMatrix(), lightManager);
     });
 }
 

@@ -5,8 +5,7 @@
 #include <string>
 
 #include <Engine/LowLevel/Shader.hpp>
-
-using ShaderID = uint32_t;
+#include <Components/Material.hpp> // For ShaderID val
 
 class ShaderManager final 
 {

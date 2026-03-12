@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
+#include <optional>
 
 #include <Engine/LowLevel/Texture2D.hpp>
 
@@ -15,7 +16,7 @@ public:
     static TextureID Hash(const std::string& path);
 
     [[nodiscard]]
-    TextureID Load(const std::string& path);
+    std::optional<TextureID> Load(const std::string& path);
     [[nodiscard]]
     Texture2D* Get(TextureID id);
 };
