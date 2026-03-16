@@ -10,7 +10,7 @@ void Layer::EmitEvent(Event& e)
         return;
     }
 
-    m_Scene->m_SceneManager->OnEvent(e);
+    Services::Get().GetService<SceneManager>().OnEvent(e);
 }
 
 void Layer::SetScene(Scene* scene)

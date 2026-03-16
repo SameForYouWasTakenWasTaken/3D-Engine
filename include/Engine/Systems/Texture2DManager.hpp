@@ -3,13 +3,13 @@
 #include <memory>
 #include <optional>
 
+#include <App/Services.hpp>
 #include <Engine/LowLevel/Texture2D.hpp>
+#include <Components/Texture.hpp>
 
-using TextureID = uint32_t;
 
-class Texture2DManager final 
+class Texture2DManager : public IService
 {
-private:
     std::unordered_map<TextureID, std::shared_ptr<Texture2D>> m_Textures;
 public:
     Texture2DManager() = default;

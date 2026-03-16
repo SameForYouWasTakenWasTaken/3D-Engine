@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <entt.hpp>
+
 #include <Engine/Scene.hpp>
 #include <Engine/Events.hpp>
 #include <Logger.hpp>

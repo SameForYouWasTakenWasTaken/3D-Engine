@@ -13,17 +13,16 @@
 #include <Engine/Renderer.hpp>
 #include <Engine/Layers/GameLayer.hpp>
 #include <Engine/Events.hpp>
+#include <Engine/Systems/ShaderManager.hpp>
 #include <Engine/Systems/SceneManager.hpp>
 #include <Engine/Systems/InputSystem.hpp>
+#include <App/Services.hpp>
 
 #include <Engine/Events/KeyInputEvent.hpp>
 #include <Engine/Events/MouseMoveEvent.hpp>
 
 class App final
 {
-    std::unique_ptr<Renderer> renderer;
-    std::unique_ptr<SceneManager> m_SceneManager;
-    InputSystem m_InputSystem;
 public:
     App(AppSettings Settings);
 

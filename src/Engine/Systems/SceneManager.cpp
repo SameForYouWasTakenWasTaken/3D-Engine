@@ -1,5 +1,7 @@
 #include "Engine/Systems/SceneManager.hpp"
 
+#include "App/Services.hpp"
+
 
 /**
  * @brief Adds a scene to the manager and assigns it a new numeric ID.
@@ -13,7 +15,7 @@
 void SceneManager::AddScene(std::shared_ptr<Scene> scene)
 {
     m_Scenes.emplace(m_NextSceneID, scene);
-    scene->OnAttach(this, m_NextSceneID);
+    scene->OnAttach(m_NextSceneID);
     
     m_NextSceneID++;
     
@@ -145,7 +147,7 @@ void SceneManager::Draw()
         return;
     }
 
-    if (m_EngineContext.renderer == nullptr)
+    if (!Services::Get().ServiceExists<Renderer>())
     {
         static bool warned = false;
         if (warned) return;
