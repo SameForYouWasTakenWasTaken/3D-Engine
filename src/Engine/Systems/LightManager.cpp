@@ -24,14 +24,13 @@ void LightManager::RemoveLight(LightID id)
  */
 void LightManager::UploadToShader(Shader* shader)
 {
-    constexpr int MAX_LIGHTS = 16;
-
     int countDir = 0;
     int countPoint = 0;
     int countSpot = 0;
 
     for (auto& [id, light] : m_Lights)
     {
+        constexpr int MAX_LIGHTS = 16;
         auto base = light.get();
 
         switch (base->GetType())

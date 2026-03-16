@@ -66,17 +66,16 @@ void Renderer::Begin()
  */
 void Renderer::End()
 {
+    auto& services = Services::Get();
+    auto& materialManager = services.GetService<MaterialManager>();
+    auto& textureManager = services.GetService<Texture2DManager>();
+    auto& shaderManager = services.GetService<ShaderManager>();
 
     // Loop through each batch and render it
     for (auto& [batchKey, batch] : m_Batches)
     {
         if (batch.instances.empty())
             continue;
-
-        auto& services = Services::Get();
-        auto& materialManager = services.GetService<MaterialManager>();
-        auto& textureManager = services.GetService<Texture2DManager>();
-        auto& shaderManager = services.GetService<ShaderManager>();
 
         Mesh* mesh = batch.mesh;
 

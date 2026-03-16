@@ -6,6 +6,7 @@
 #include <Components/Camera.hpp>
 #include <Components/Transform.hpp>
 #include <Components/Material.hpp>
+#include <Components/Light.hpp>
 #include <Components/Mesh.hpp>
 #include <Tags.hpp>
 #include <Engine/Renderer.hpp>

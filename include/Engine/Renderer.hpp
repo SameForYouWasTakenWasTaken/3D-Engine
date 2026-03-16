@@ -2,38 +2,22 @@
 
 #include <unordered_map>
 #include <vector>
-#include <ranges>
 
-#include <entt.hpp>
-
+#include <App/Services.hpp>
 #include <Engine/Systems/SceneManager.hpp>
 #include <Engine/Systems/ShaderManager.hpp>
 #include <Engine/Systems/MaterialManager.hpp>
 #include <Engine/Systems/LightManager.hpp>
 #include <Engine/Systems/Texture2DManager.hpp>
-#include <Engine/LowLevel/VAO.hpp>
-#include <Engine/LowLevel/VBO.hpp>
-#include <Engine/LowLevel/EBO.hpp>
 #include <Engine/LowLevel/Texture2D.hpp>
-#include <Engine/LowLevel/Shader.hpp>
-#include <Components/Drawable.hpp>
-#include <Components/Transform.hpp>
-#include <Components/Material.hpp>
 #include <Components/Mesh.hpp>
-#include <Engine/Layer.hpp>
 #include <Engine/Events.hpp>
 #include <Contexts/EngineContext.hpp>
-#include <Tags.hpp>
 
 class SceneManager; // forward declaration
 class EngineContext; // forward declaration
 
-class Renderer final {
-    struct InstanceData
-    {
-        glm::mat4 model;
-        glm::mat3 normal;
-    };
+class Renderer : public IService {
 
     struct Batch
     {
@@ -49,10 +33,6 @@ class Renderer final {
     std::unordered_map<size_t, Batch> m_Batches;
 
 public:
-    ShaderManager m_ShaderManager;
-    MaterialManager m_MaterialManager = MaterialManager(m_ShaderManager);
-    Texture2DManager m_TextureManager;
-
     EngineContext& m_EngineContext;
     Logger logger = Logger("RENDERER");
 

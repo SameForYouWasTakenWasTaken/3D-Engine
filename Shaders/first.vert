@@ -5,10 +5,15 @@ layout(location = 1) in vec4 color;
 layout(location = 2) in vec2 texCoord;
 layout(location = 3) in vec3 aNormal;
 
-layout(location = 11) in vec4 row0;
-layout(location = 12) in vec4 row1;
-layout(location = 13) in vec4 row2;
-layout(location = 14) in vec4 row3;
+// Move instance data to 4-10 (was 11-17)
+layout(location = 4) in vec4 row0;
+layout(location = 5) in vec4 row1;
+layout(location = 6) in vec4 row2;
+layout(location = 7) in vec4 row3;
+
+layout(location = 8) in vec4 normalRow0;
+layout(location = 9) in vec4 normalRow1;
+layout(location = 10) in vec4 normalRow2;
 
 out vec4 vertexColor;
 out vec2 fragmentTexCoord;
@@ -31,6 +36,8 @@ void main()
     fragmentTexCoord = texCoord;
 
     FragPos = vec3(instanceMatrix * vec4(position, 1.0));
-    Normal = normalize(mat3(transpose(inverse(instanceMatrix))) * aNormal); // See if it works
+
+    mat3 normalMatrix = mat3(normalRow0.xyz, normalRow1.xyz, normalRow2.xyz);
+    Normal = normalize(normalMatrix * aNormal);
 
 }

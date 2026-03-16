@@ -10,8 +10,10 @@ class InputSystem : public IService
     static std::bitset<1024> m_Keys;
 public:
         /**
- * @brief Creates an InputSystem with default-initialized state.
- */
+     * @brief Constructs a new InputSystem instance.
+     *
+     * Initializes an InputSystem object; all state is default-initialized.
+     */
     InputSystem() = default;
         /**
      * @brief Default destructor for InputSystem.

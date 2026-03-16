@@ -13,9 +13,6 @@
 class Renderer; // Forward declaration
 struct EngineContext 
 {
-    // Requirements
-    Renderer* renderer = nullptr;
-
     // Window properties
     GLFWwindow* ActiveWindow = nullptr;
     int WindowWidth, WindowHeight;
