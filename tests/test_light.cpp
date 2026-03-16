@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Components/DirectionalLight.hpp>
+#include <Components/Light.hpp>
 
 // Test Light struct default construction
 TEST(LightTest, DefaultConstruction) {

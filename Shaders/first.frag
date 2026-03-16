@@ -18,9 +18,30 @@ struct DirectionLight {
 struct PointLight {
     vec3 color;
     vec3 position;
+
     float constant;
     float linear;
     float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct SpotLight {
+    vec3 color;
+    vec3 position;
+    vec3 direction;
+
+    float cutOff;
+    float outerCutOff;
+    float dist;
+
+    // point light variables
+    float constant;
+    float linear;
+    float quadratic;
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -33,11 +54,15 @@ in vec3 FragPos;
 
 uniform Material material;
 
+// numDirLights is configured in LightManager UploadShader, same for numPointLights
 uniform DirectionLight dirLights[16];
 uniform int numDirLights;
 
 uniform PointLight pointLights[16];
 uniform int numPointLights;
+
+uniform SpotLight spotLights[16];
+uniform int numSpotLights;
 
 uniform vec3 viewPos;
 
@@ -88,11 +113,52 @@ vec3 calculatePoint(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 texColor)
         light.linear * distance +
         light.quadratic * distance * distance);
 
-        vec3 ambient = light.ambient * texColor * attenuation;
-        vec3 diffuse = light.diffuse * diff * texColor * attenuation;
+        vec3 ambient  = light.ambient * texColor;
+        vec3 diffuse  = light.diffuse * diff * texColor * attenuation;
         vec3 specular = light.specular * spec * attenuation;
 
         result += ambient + diffuse + specular;
+    }
+
+    return result;
+}
+
+vec3 calculateSpot(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 texColor)
+{
+    vec3 result = vec3(0.0);
+
+    for (int i = 0; i < numSpotLights; i++)
+    {
+        SpotLight light = spotLights[i];
+
+
+        float distance = length(light.position - fragPos);
+
+
+        if(distance > light.dist)
+        {
+            continue;
+        }
+
+        vec3 lightDir = normalize(light.position - fragPos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+
+        float diff = max(dot(norm, lightDir), 0.0);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        float attenuation = 1.0 / (light.constant +
+        light.linear * distance +
+        light.quadratic * distance * distance);
+
+        float theta = dot(lightDir, normalize(-light.direction));
+
+        float epsilon = light.cutOff - light.outerCutOff;
+        float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
+        vec3 ambient  = light.ambient * texColor;
+        vec3 diffuse  = light.diffuse * diff * texColor;
+        vec3 specular = light.specular * spec;
+
+        result += (ambient + diffuse + specular) * attenuation * intensity;
     }
 
     return result;
@@ -107,12 +173,15 @@ void main()
     // Calculate contributions per light type
     vec3 resultDirectional = calculateDirectional(norm, viewDir, texColor);
     vec3 resultPoint = calculatePoint(norm, viewDir, FragPos, texColor);
+    vec3 resultSpot = calculateSpot(norm, viewDir, FragPos, texColor);
 
     // Combine all contributions
-    vec3 result = resultDirectional + resultPoint;
+    vec3 result = resultDirectional + resultPoint + resultSpot;
 
     // Apply vertex color
     result *= vertexColor.rgb;
 
     FragColor = vec4(result, texture(material.diffuse, fragmentTexCoord).a * vertexColor.a);
+
 }
+

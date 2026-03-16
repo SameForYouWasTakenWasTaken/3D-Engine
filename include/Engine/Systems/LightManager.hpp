@@ -3,39 +3,50 @@
 #include <unordered_map>
 #include <optional>
 
-#include <Components/DirectionalLight.hpp>
+#include <Components/Light.hpp>
 #include <Engine/LowLevel/Shader.hpp>
 
 
 class LightManager final
 {
-    std::unordered_map<LightID, LightBase> m_Lights;
-    std::unordered_map<LightID, DirectionalLight> m_DirectionalLights;
-    std::unordered_map<LightID, PointLight> m_PointLights;
-
+    std::unordered_map<LightID, std::unique_ptr<LightBase>> m_Lights;
     LightID m_NextLightID = 0;
-
-    struct IsLightStr
-    {
-        bool Exists = false;
-        LightType type = LightType::NONE;
-    };
 public:
 
-    std::optional<LightID> CreateLight(LightType type);
 
-    std::optional<LightID> AddLight(DirectionalLight& light);
-    std::optional<LightID> AddLight(PointLight light);
+    template <typename T, typename... Args>
+    std::optional<LightID> CreateLight(Args&&... args)
+    {
+        LightID id = m_NextLightID++;
+        const auto [it, inserted] = m_Lights.try_emplace(
+            id,
+            std::make_unique<T>(std::forward<Args>(args)...)
+        );
+
+        if (inserted)
+        {
+            return id;
+        }
+
+        return std::nullopt;
+    }
+
+    template <typename T>
+    T* GetLight(LightID id)
+    {
+        auto it = m_Lights.find(id);
+        const bool exists = it != m_Lights.end();
+
+        if (exists)
+        {
+            LightBase* light = it->second.get();
+            return dynamic_cast<T*>(light);
+        }
+
+        return nullptr;
+    }
 
     void RemoveLight(LightID id);
-
     void UploadToShader(Shader* shader);
 
-    LightBase* GetLight(LightID id);
-
-    DirectionalLight* GetDirectionalLight(LightID id);
-    PointLight* GetPointLight(LightID id);
-
-    LightType GetLightType(LightID id);
-    IsLightStr IsLight(LightID id);
 };

@@ -49,6 +49,8 @@ void Scene::Draw()
 
     auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
     auto* camTransform = registry.try_get<COMPTransform>(m_CameraManager.GetActiveCamera());
+    auto& renderer = Services::Get().GetService<Renderer>();
+
     if (cam == nullptr || camTransform == nullptr)
     {
         logger.AppendLogTag("SCENE", LogColors::GREEN);
@@ -56,7 +58,7 @@ void Scene::Draw()
         logger.LogWarning("No active camera set, skipping draw.");
         return;
     }
-    auto& context = m_SceneManager->m_EngineContext;
+    auto& context = renderer.m_EngineContext;
     context.cached_projection = cam->projection;
     context.cached_view = cam->view;
     context.cached_activeCam_position = camTransform->position;
@@ -68,18 +70,6 @@ void Scene::Draw()
     COMPTransform
     >();
 
-
-
-    auto renderer = m_SceneManager->m_EngineContext.renderer;
-    if (!renderer)
-    {
-        logger.AppendLogTag("SCENE", LogColors::GREEN);
-        logger.AppendLogTag("ENGINE_CONTEXT", LogColors::YELLOW);
-        logger.LogWarning("No renderer set, skipping draw.");
-        return;
-    }
-
-    auto lightManager = std::make_shared<LightManager>(m_LightManager);
     view.each([&](auto entity, 
         COMPGeometry& drawable, 
         COMPMesh& mesh, 
@@ -87,10 +77,10 @@ void Scene::Draw()
         COMPTransform& transform)
     {
         // Put everything into the renderer
-       renderer->Submit(
+       renderer.Submit(
         mesh.mesh.get(), 
         material.material, 
-        transform.GetModelMatrix(), lightManager);
+        transform.GetModelMatrix(), m_LightManager);
     });
 }
 
@@ -138,18 +128,14 @@ void Scene::OnEvent(Event& e)
  * @param sceneManager Pointer to the SceneManager to attach; if `nullptr`, the scene is not attached.
  * @param id Numeric identifier to assign to this scene.
  */
-void Scene::OnAttach(SceneManager* sceneManager, uint32_t id)
+void Scene::OnAttach(uint32_t id)
 {
-    if (sceneManager == nullptr)
-        return;
-
     SceneID = id;
-    m_SceneManager = sceneManager;
 }
 
 void Scene::OnDetach()
 {
-    m_SceneManager = nullptr;
+
 }
 
 /**
@@ -161,15 +147,7 @@ void Scene::OnDetach()
  */
 std::expected<EngineContext*, bool> Scene::GetContext()
 {
-    if (m_SceneManager == nullptr)
-    {
-        logger.AppendLogTag("SCENE", LogColors::GREEN);
-        logger.AppendLogTag("SCENE_MANAGER", LogColors::MAGENTA);
-        logger.LogWarning("Scene has not been attached to a scene manager.");
-        logger.DumpLogs();
-        return std::unexpected(false);
-    }
-    return &m_SceneManager->m_EngineContext;
+    return &Services::Get().GetService<Renderer>().m_EngineContext;
 }
 
 /**
