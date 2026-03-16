@@ -56,7 +56,7 @@ inline const AttributePointer GetAttribPointerNormal0()
 {
     AttributePointer attr{};
     attr.index = 8; // matches shader layout location
-    attr.size = 3;  // vec3
+    attr.size = 4;  // vec4
     attr.offset = reinterpret_cast<void*>(offsetof(InstanceData, normal0));
     return attr;
 }
@@ -65,7 +65,7 @@ inline const AttributePointer GetAttribPointerNormal1()
 {
     AttributePointer attr{};
     attr.index = 9;
-    attr.size = 3;
+    attr.size = 4;
     attr.offset = reinterpret_cast<void*>(offsetof(InstanceData, normal1));
     return attr;
 }
@@ -74,7 +74,7 @@ inline const AttributePointer GetAttribPointerNormal2()
 {
     AttributePointer attr{};
     attr.index = 10;
-    attr.size = 3;
+    attr.size = 4;
     attr.offset = reinterpret_cast<void*>(offsetof(InstanceData, normal2));
     return attr;
 }
@@ -85,21 +85,23 @@ class Mesh
 public:
     std::vector<Vertex>& vertices;
     std::vector<GLuint>& indices;
+    
+    uint32_t IndexCount;
+    uint32_t VertexCount;
 
     VAO vao;
     VBO vbo;
     EBO ebo;
     VBO instanceVBO; // For instanced rendering
 
-    uint32_t IndexCount;
-    uint32_t VertexCount;
 
     bool Indexed = false;
     GLenum Primitive = GL_TRIANGLES;
 
     void SetData(GLenum draw_type = GL_STATIC_DRAW);
     Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
-        : vertices(vertices), indices(indices) {}
+    : vertices(vertices), indices(indices),
+    IndexCount(indices.size()), VertexCount(vertices.size()) {}
 };
 
 struct COMPMesh

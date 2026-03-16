@@ -5,10 +5,9 @@ void LightManager::RemoveLight(LightID id)
     m_Lights.erase(id);
 }
 
-// TODO: Complete
 void LightManager::UploadToShader(Shader* shader)
 {
-    constexpr int MAX_LIGHTS = 16;
+    if (!shader) return;
 
     int countDir = 0;
     int countPoint = 0;
@@ -16,6 +15,7 @@ void LightManager::UploadToShader(Shader* shader)
 
     for (auto& [id, light] : m_Lights)
     {
+        constexpr int MAX_LIGHTS = 16;
         auto base = light.get();
 
         switch (base->GetType())

@@ -32,7 +32,7 @@ public:
     }
 
     template <typename T>
-    T& GetService() const
+    [[nodiscard]] T& GetService() const
     {
         auto it = m_Services.find(typeid(T));
 
@@ -43,7 +43,7 @@ public:
     }
 
     template <typename T>
-    bool ServiceExists() const
+    [[nodiscard]] bool ServiceExists() const
     {
         auto it = m_Services.find(typeid(T));
 
