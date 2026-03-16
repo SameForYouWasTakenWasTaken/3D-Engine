@@ -1,53 +1,62 @@
-#include <ranges>
 #include <Engine/Systems/LightManager.hpp>
 
-std::optional<LightID> LightManager::CreateLight()
-{
-    Light light;
-    LightID id = AddLight(light).value();
-    return id;
-}
-std::optional<LightID> LightManager::AddLight(Light light)
-{
-    LightID id = m_NextLightID++;
-    if (m_Lights.contains(id)) return -1;
-    m_Lights.emplace(id, light);
-    return id;
-}
-
+/**
+ * @brief Remove the light with the given identifier from the manager.
+ *
+ * Removes the light associated with the provided LightID from the internal
+ * collection. If no light exists for the given id, the call has no effect.
+ *
+ * @param id Identifier of the light to remove.
+ */
 void LightManager::RemoveLight(LightID id)
 {
-    if (!m_Lights.contains(id)) return;
     m_Lights.erase(id);
 }
 
-Light* LightManager::GetLight(LightID id)
+/**
+ * @brief Uploads managed lights into the given shader and records per-type counts.
+ *
+ * Uploads up to 16 lights per light type (directional, point, spot) by invoking each light's
+ * Upload(shader, index) with a sequential index for its type, and then writes the resulting
+ * counts into the shader uniforms "numDirLights", "numPointLights", and "numSpotLights".
+ *
+ * @param shader Pointer to the shader that will receive per-light data and the three count uniforms.
+ */
+void LightManager::UploadToShader(Shader* shader)
 {
-    const auto it = m_Lights.find(id);
-    if (it == m_Lights.end()) return nullptr;
-    return &it->second;
-}
-
-void LightManager::UpdateToShader(Shader* shader) const
-{   
     constexpr int MAX_LIGHTS = 16;
 
-    const int numLights = std::min(static_cast<int>(m_Lights.size()), MAX_LIGHTS);
+    int countDir = 0;
+    int countPoint = 0;
+    int countSpot = 0;
 
-    int count = 0;
-    for (const auto& val : m_Lights | std::views::values)
+    for (auto& [id, light] : m_Lights)
     {
-        shader->SetVec3("lights[" + std::to_string(count) + "].position", val.position);
-        shader->SetVec3("lights[" + std::to_string(count) + "].color", val.color);
+        auto base = light.get();
 
-        shader->SetVec3("lights[" + std::to_string(count) + "].ambient", val.ambient);
-        shader->SetVec3("lights[" + std::to_string(count) + "].diffuse", val.diffuse);
-        shader->SetVec3("lights[" + std::to_string(count) + "].specular", val.specular);
-
-        ++count;
-        if (count >= numLights)
+        switch (base->GetType())
+        {
+        case LightType::DIRECTIONAL:
+            if (countDir >= MAX_LIGHTS) continue; // Max lights?
+            base->Upload(shader, countDir++);
             break;
+
+        case LightType::POINT:
+            if (countPoint >= MAX_LIGHTS) continue; // Max lights?
+            base->Upload(shader, countPoint++);
+            break;
+
+        case LightType::SPOT:
+            if (countSpot >= MAX_LIGHTS) continue; // Max lights?
+            base->Upload(shader, countSpot++);
+            break;
+
+        default:
+            break;
+        }
     }
 
-    shader->SetInt("numLights", count);
+    shader->SetInt("numDirLights", countDir);
+    shader->SetInt("numPointLights", countPoint);
+    shader->SetInt("numSpotLights", countSpot);
 }

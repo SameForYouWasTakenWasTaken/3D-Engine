@@ -1,5 +1,7 @@
 #include <Engine/Layers/GameLayer.hpp>
 
+#include "App/Services.hpp"
+
 /**
  * @brief Executes the layer's per-frame drawing step.
  *
@@ -12,13 +14,10 @@ void GameLayer::OnDraw()
 }
 
 /**
- * @brief Updates the active camera's transform from user input and elapsed time.
+ * @brief Updates the active camera's transform based on keyboard input.
  *
- * Processes keyboard input to move and rotate the active camera:
- * - WASD to move in the camera's local forward/right plane.
- * - Q/E to move vertically.
- * - Arrow keys to rotate the camera's orientation.
- * Movement is applied to the active transform and scaled by a movement speed and the supplied delta time.
+ * Reads WASD for movement in the camera's local forward/right plane and Q/E for vertical movement,
+ * computes a normalized movement direction if non-zero, and applies it to the active camera transform scaled by a fixed speed and the supplied delta time.
  *
  * @param dt Elapsed time since the last update, in seconds.
  */
@@ -52,27 +51,17 @@ void GameLayer::OnUpdate(float dt)
             move = glm::normalize(move);
         
         transform->Move(move * speed * dt);
-
-        auto light = m_Scene->m_LightManager.GetLight(0);
-        light->position = {
-            sin(glfwGetTime() * 5),
-            light->position.y,
-            cos(glfwGetTime() * 5)
-        };
-
     }
 }
 
 /**
- * @brief Initialize scene entities, meshes, materials, and the active camera for the layer.
+ * @brief Initialize the layer's scene: load assets, create entities, lights, and an active camera.
  *
- * Creates two triangle entities and one circle entity, each with geometry, transform, material,
- * mesh components, and attaches them to the layer's tag. The circle is generated as a triangle
- * fan approximating a circle with 100 segments and radius 2. Each entity's mesh and material
- * are configured and positioned (triangle_1 at {0,0,0}, triangle_2 at {1,1,0}, circle at {2,2,1}).
- * If an engine context is available, a camera entity is created, configured with a 90° FOV and
- * the window aspect ratio, positioned at {0,0,-2}, and set as the active camera. If no context
- * is present, an error is logged.
+ * Loads shaders and textures, creates materials and a shared mesh, and instantiates two quad entities
+ * (each with geometry, transform, material, and mesh components) tagged for the GameLayer. Configures
+ * a spotlight and, if an EngineContext is available, creates a camera positioned at {0,0,-2} with
+ * a 90° field of view and the window aspect ratio, then sets it as the active camera. If no context
+ * is present, an error is logged and camera creation is skipped.
  */
 void GameLayer::OnAttach()
 {
@@ -130,22 +119,22 @@ void GameLayer::OnAttach()
     }
 
     auto context_result = m_Scene->GetContext();
-    if (!context_result.has_value() || !context_result.value()->renderer)
+    if (!context_result.has_value())
     {
         logger.AppendLogTag("GAMELAYER", LogColors::GREEN);
-        logger.LogError("Cannot initialize: missing context or renderer!");
+        logger.LogError("Cannot initialize: missing context!");
         logger.DumpLogs();
         return;
     }
-    auto* renderer = context_result.value()->renderer;
+    auto&services = Services::Get();
 
-    auto& shader_manager = renderer->m_ShaderManager;
-    auto& material_manager = renderer->m_MaterialManager;
-    auto& texture_manager = renderer->m_TextureManager;
+    auto& shader_manager = services.GetService<ShaderManager>();
+    auto& material_manager = services.GetService<MaterialManager>();
+    auto& texture_manager = services.GetService<Texture2DManager>();
     auto& light_manager = m_Scene->m_LightManager;
     // shaders
-    auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
-    auto sunShader = shader_manager.Load("Shaders/first.vert", "Shaders/sun.frag");
+    auto shader = shader_manager.Load("../Shaders/first.vert", "../Shaders/first.frag");
+    auto sunShader = shader_manager.Load("../Shaders/first.vert", "../Shaders/sun.frag");
 
     // textures
     auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
@@ -162,11 +151,14 @@ void GameLayer::OnAttach()
     auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, MaterialID);
 
     m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
+    std::vector<COMPTexture> textures;
+    textures.push_back(COMPTexture{basic_texture.value()});
 
-    auto mesh = std::make_shared<Mesh>();
-    mesh->SetData(vertices, indices);
+    auto mesh = std::make_shared<Mesh>(vertices, indices);
+    mesh->SetData();
 
     auto& ComponentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, mesh);
+
 
     Transform.SetPosition({0.f, 0.f, 0.f});
 
@@ -178,14 +170,20 @@ void GameLayer::OnAttach()
     m_Scene->registry.emplace<TAG_GameLayer>(quad_2);
 
     // TODO: Let meshes be reusable
-    auto mesh_b = std::make_shared<Mesh>();
-    mesh_b->SetData(vertices, indices);
-    auto& ComponentMesh_a = m_Scene->registry.emplace<COMPMesh>(quad_2, mesh_b);
+    m_Scene->registry.emplace<COMPMesh>(quad_2, mesh);
 
     Transform_a.SetPosition({3.f, 1.f, -2.f});
 
     // THE SUNS
-    auto lightID = light_manager.CreateLight();
+    // i dont need many if checks, fairly confident this'll work
+    auto lightID = light_manager->CreateLight<SpotLight>();
+    auto light = light_manager->GetLight<SpotLight>(lightID.value());
+    light->cutOff = 80.f;
+    light->outerCutOff = 120.f;
+
+    glm::vec3 target = {0.f, 0.f, 0.f};
+    light->position = {2.f, 0.f, 0.f};
+    light->direction = glm::normalize(target - light->position);
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();
@@ -219,11 +217,14 @@ void GameLayer::OnDetach()
 }
 
 /**
- * @brief Processes incoming events for the game layer, updating cameras, transforms, and input state.
+ * @brief Handle window, keyboard, and mouse events for the game layer, updating cameras, transforms, and input state.
  *
- * Handles WindowResizeEvent (updates camera aspect ratio), KeyInputEvent (toggles cursor/raw mouse mode on Escape;
- * applies rotation, translation, and scale to all entities with COMPTransform+COMPGeometry on U/I), and MouseMoveEvent
- * (applies yaw/pitch to the active camera using mouse deltas). Marks the event as handled.
+ * Processes:
+ * - WindowResizeEvent: recomputes and applies the new aspect ratio to the active camera.
+ * - KeyInputEvent: toggles cursor/raw-mouse mode on Escape, adjusts an internal placement distance with C/Z, and on F constructs and positions a new geometry entity relative to the active camera.
+ * - MouseMoveEvent: when mouse control is enabled and an active camera exists, applies yaw/pitch rotation to the active camera from mouse deltas.
+ *
+ * The function marks the incoming event as handled (e.Handled = true) when complete.
  *
  * @param e The event to process; this function may modify e.Handled.
  */
@@ -336,21 +337,19 @@ void GameLayer::OnEvent(Event& e)
                 indices.push_back(offset + 3);
             }
 
-            auto& shader_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_ShaderManager;
-            auto& material_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_MaterialManager;
-            auto& texture_manager = m_Scene->m_SceneManager->m_EngineContext.renderer->m_TextureManager;
+            auto& renderer = Services::Get().GetService<Renderer>();
+            auto& shader_manager = Services::Get().GetService<ShaderManager>();
+            auto& material_manager = Services::Get().GetService<MaterialManager>();
+            auto& texture_manager = Services::Get().GetService<Texture2DManager>();
+            
             // shaders
-            auto shader = shader_manager.Load("Shaders/first.vert", "Shaders/first.frag");
+            auto shader = shader_manager.Load("../Shaders/first.vert", "../Shaders/first.frag");
 
             // textures
-            auto basic_texture = texture_manager.Load("Resources/Textures2D/spider.jpg");
+            auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
 
             // Materials
-            uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture.value());
-            Material* compMaterial = material_manager.Get(MaterialID);
-            // Gold material
-            compMaterial->ambient = {0.24725, 0.1995, 0.0745};
-            compMaterial->shininess = 0.4;
+            uint32_t MaterialID = 0;
             // first quad
             auto quad_1 = m_Scene->registry.create();
             auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
@@ -359,10 +358,10 @@ void GameLayer::OnEvent(Event& e)
             
             m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
 
-            auto mesh = std::make_shared<Mesh>();
-            mesh->SetData(vertices, indices);
+            auto view = m_Scene->registry.view<COMPMesh>();
+            auto& otherMesh = m_Scene->registry.get<COMPMesh>(view.front());
 
-            auto componentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, mesh);
+            auto& componentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, otherMesh.mesh);
 
             Transform.SetPosition(camTransform.position + camComponent.GetForward() * distance);
         }

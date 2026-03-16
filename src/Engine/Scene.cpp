@@ -30,14 +30,13 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
 }
 
 /**
- * @brief Renders the scene by drawing layers and submitting visible entities to the renderer.
+ * @brief Draws the scene by invoking layer draw callbacks and submitting renderable entities.
  *
- * Calls OnDraw() on every attached layer, then iterates over entities that have geometry, mesh,
- * material, and transform components. For each such entity, the material's shader receives the
- * active camera's projection and view matrices as the "projectmat" and "viewmat" uniforms, and
- * the mesh, material, and entity model matrix are submitted to the engine renderer.
- *
- * If no active camera is set, a warning is logged and the draw is skipped.
+ * Calls OnDraw() on every attached layer, updates the renderer engine context with the active
+ * camera's projection, view, and camera position, then iterates entities with geometry, mesh,
+ * material, and transform components and submits each mesh, material, model matrix, and the
+ * scene's light manager to the renderer. If no active camera or its transform is available,
+ * a warning is logged and drawing is skipped.
  */
 void Scene::Draw()
 {
@@ -49,6 +48,8 @@ void Scene::Draw()
 
     auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
     auto* camTransform = registry.try_get<COMPTransform>(m_CameraManager.GetActiveCamera());
+    auto& renderer = Services::Get().GetService<Renderer>();
+
     if (cam == nullptr || camTransform == nullptr)
     {
         logger.AppendLogTag("SCENE", LogColors::GREEN);
@@ -56,7 +57,7 @@ void Scene::Draw()
         logger.LogWarning("No active camera set, skipping draw.");
         return;
     }
-    auto& context = m_SceneManager->m_EngineContext;
+    auto& context = renderer.m_EngineContext;
     context.cached_projection = cam->projection;
     context.cached_view = cam->view;
     context.cached_activeCam_position = camTransform->position;
@@ -68,18 +69,6 @@ void Scene::Draw()
     COMPTransform
     >();
 
-
-
-    auto renderer = m_SceneManager->m_EngineContext.renderer;
-    if (!renderer)
-    {
-        logger.AppendLogTag("SCENE", LogColors::GREEN);
-        logger.AppendLogTag("ENGINE_CONTEXT", LogColors::YELLOW);
-        logger.LogWarning("No renderer set, skipping draw.");
-        return;
-    }
-
-    auto lightManager = std::make_shared<LightManager>(m_LightManager);
     view.each([&](auto entity, 
         COMPGeometry& drawable, 
         COMPMesh& mesh, 
@@ -87,10 +76,10 @@ void Scene::Draw()
         COMPTransform& transform)
     {
         // Put everything into the renderer
-       renderer->Submit(
+       renderer.Submit(
         mesh.mesh.get(), 
         material.material, 
-        transform.GetModelMatrix(), lightManager);
+        transform.GetModelMatrix(), m_LightManager);
     });
 }
 
@@ -131,45 +120,35 @@ void Scene::OnEvent(Event& e)
 }
 
 /**
- * @brief Attach the scene to a SceneManager and assign the scene's identifier.
+ * @brief Set the scene's identifier.
  *
- * Associates this Scene with the given SceneManager and sets the SceneID to `id`.
+ * Assigns the provided numeric id to this Scene's SceneID.
  *
- * @param sceneManager Pointer to the SceneManager to attach; if `nullptr`, the scene is not attached.
- * @param id Numeric identifier to assign to this scene.
+ * @param id The numeric identifier to assign to the scene.
  */
-void Scene::OnAttach(SceneManager* sceneManager, uint32_t id)
+void Scene::OnAttach(uint32_t id)
 {
-    if (sceneManager == nullptr)
-        return;
-
     SceneID = id;
-    m_SceneManager = sceneManager;
-}
-
-void Scene::OnDetach()
-{
-    m_SceneManager = nullptr;
 }
 
 /**
- * @brief Retrieve the scene's engine context when the scene is attached to a SceneManager.
+ * @brief Called when the scene is detached.
  *
- * If the scene has not been attached to a SceneManager, a warning is logged and logs are dumped.
+ * Default no-op implementation. Override in derived classes to perform teardown or cleanup when the scene is detached.
+ */
+void Scene::OnDetach()
+{
+
+}
+
+/**
+ * @brief Retrieve the Renderer service's EngineContext for this scene.
  *
- * @return EngineContext* Pointer to the EngineContext when attached; otherwise an unexpected value (`false`) indicating no context is available.
+ * @return std::expected<EngineContext*, bool> `EngineContext*` pointing to the Renderer service's engine context on success; `std::unexpected(false)` when the context is not available.
  */
 std::expected<EngineContext*, bool> Scene::GetContext()
 {
-    if (m_SceneManager == nullptr)
-    {
-        logger.AppendLogTag("SCENE", LogColors::GREEN);
-        logger.AppendLogTag("SCENE_MANAGER", LogColors::MAGENTA);
-        logger.LogWarning("Scene has not been attached to a scene manager.");
-        logger.DumpLogs();
-        return std::unexpected(false);
-    }
-    return &m_SceneManager->m_EngineContext;
+    return &Services::Get().GetService<Renderer>().m_EngineContext;
 }
 
 /**
