@@ -54,8 +54,7 @@ set(PROJECT_INCLUDES
 
 set(REQUIRED_LIBRARIES glm::glm spdlog::spdlog glfw)
 
-add_executable(main ${SRC_FILES} ${HEADER_FILES}
-		src/Components/Light.cpp)
+add_executable(main ${SRC_FILES} ${HEADER_FILES})
 
 # Include directories
 

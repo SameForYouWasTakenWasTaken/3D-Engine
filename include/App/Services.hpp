@@ -3,6 +3,9 @@
 #include <memory>
 #include <unordered_map>
 #include <typeindex>
+#include <stdexcept>
+#include <utility>
+#include <typeinfo>
 
 class IService
 {
