@@ -5,6 +5,7 @@
 `#include` <typeindex>
 `#include` <stdexcept>
 `#include` <utility>
+`#include` <typeinfo>
 
 class IService
 {
