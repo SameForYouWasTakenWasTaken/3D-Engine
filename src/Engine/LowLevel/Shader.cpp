@@ -98,19 +98,6 @@ void Shader::ResetShaders()
 
     glLinkProgram(m_Program);
 
-    // glBindAttribLocation(m_Program, 0, "position");
-    // glBindAttribLocation(m_Program, 1, "color");
-    // glBindAttribLocation(m_Program, 2, "texCoord");
-    //
-    // glBindAttribLocation(m_Program, 11, "row0"); // match your shader's names
-    // glBindAttribLocation(m_Program, 12, "row1");
-    // glBindAttribLocation(m_Program, 13, "row2");
-    // glBindAttribLocation(m_Program, 14, "row3");
-    //
-    // glBindAttribLocation(m_Program, 15, "normalRow0");
-    // glBindAttribLocation(m_Program, 16, "normalRow1");
-    // glBindAttribLocation(m_Program, 17, "normalRow2");
-
     // Debug    
     int success;
     char infoLog[512];
