@@ -10,6 +10,18 @@ void Renderer::Update(float dt)
 
 }
 
+/**
+ * @brief Queues a renderable instance for instanced batching.
+ *
+ * Computes a batch key from the mesh pointer, material ID, and the raw pointer of the provided LightManager,
+ * ensures a batch entry exists for that key, stores mesh/material/lightManager on the batch, and appends
+ * the instance's model transform for later rendering.
+ *
+ * @param mesh Pointer to the mesh to render.
+ * @param materialID Identifier of the material to use.
+ * @param model Model transform matrix for the instance.
+ * @param lightManager Shared pointer to the LightManager used by the instance's batch.
+ */
 void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, std::shared_ptr<LightManager> lightManager)
 {
     // This is a hash that combines the mesh and material pointers to create a unique key for batching

@@ -30,14 +30,13 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
 }
 
 /**
- * @brief Renders the scene by drawing layers and submitting visible entities to the renderer.
+ * @brief Draws the scene by invoking layer draw callbacks and submitting renderable entities.
  *
- * Calls OnDraw() on every attached layer, then iterates over entities that have geometry, mesh,
- * material, and transform components. For each such entity, the material's shader receives the
- * active camera's projection and view matrices as the "projectmat" and "viewmat" uniforms, and
- * the mesh, material, and entity model matrix are submitted to the engine renderer.
- *
- * If no active camera is set, a warning is logged and the draw is skipped.
+ * Calls OnDraw() on every attached layer, updates the renderer engine context with the active
+ * camera's projection, view, and camera position, then iterates entities with geometry, mesh,
+ * material, and transform components and submits each mesh, material, model matrix, and the
+ * scene's light manager to the renderer. If no active camera or its transform is available,
+ * a warning is logged and drawing is skipped.
  */
 void Scene::Draw()
 {
@@ -121,29 +120,31 @@ void Scene::OnEvent(Event& e)
 }
 
 /**
- * @brief Attach the scene to a SceneManager and assign the scene's identifier.
+ * @brief Set the scene's identifier.
  *
- * Associates this Scene with the given SceneManager and sets the SceneID to `id`.
+ * Assigns the provided numeric id to this Scene's SceneID.
  *
- * @param sceneManager Pointer to the SceneManager to attach; if `nullptr`, the scene is not attached.
- * @param id Numeric identifier to assign to this scene.
+ * @param id The numeric identifier to assign to the scene.
  */
 void Scene::OnAttach(uint32_t id)
 {
     SceneID = id;
 }
 
+/**
+ * @brief Called when the scene is detached.
+ *
+ * Default no-op implementation. Override in derived classes to perform teardown or cleanup when the scene is detached.
+ */
 void Scene::OnDetach()
 {
 
 }
 
 /**
- * @brief Retrieve the scene's engine context when the scene is attached to a SceneManager.
+ * @brief Retrieve the Renderer service's EngineContext for this scene.
  *
- * If the scene has not been attached to a SceneManager, a warning is logged and logs are dumped.
- *
- * @return EngineContext* Pointer to the EngineContext when attached; otherwise an unexpected value (`false`) indicating no context is available.
+ * @return std::expected<EngineContext*, bool> `EngineContext*` pointing to the Renderer service's engine context on success; `std::unexpected(false)` when the context is not available.
  */
 std::expected<EngineContext*, bool> Scene::GetContext()
 {

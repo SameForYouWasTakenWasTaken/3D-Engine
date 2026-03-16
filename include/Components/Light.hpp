@@ -19,7 +19,12 @@ enum class LightType
 class LightBase
 {
 public:
-    virtual ~LightBase() = default;
+    /**
+ * @brief Virtual destructor to allow proper cleanup of derived light objects.
+ *
+ * Ensures that destroying a LightBase pointer invokes the destructor of the concrete derived class.
+ */
+virtual ~LightBase() = default;
     virtual void Upload(Shader* shader, int at) const = 0;
     [[nodiscard]] virtual LightType GetType() const = 0;
 

@@ -88,7 +88,12 @@ TEST(LightManagerTest, RemoveLight) {
     EXPECT_EQ(light, nullptr);
 }
 
-// Test LightManager RemoveLight with invalid ID
+/**
+ * @brief Verifies that removing a non-existent light ID does not crash and leaves the manager usable.
+ *
+ * Calls RemoveLight with an invalid ID and then creates a new light to confirm the manager still
+ * returns a valid ID (expected 0).
+ */
 TEST(LightManagerTest, RemoveLightInvalidID) {
     LightManager manager;
 

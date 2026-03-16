@@ -34,7 +34,12 @@ TEST(LightTest, DefaultConstruction) {
     EXPECT_FLOAT_EQ(light.intensity, 0.5f);
 }
 
-// Test Light struct custom construction
+/**
+ * @brief Verifies that a DirectionalLight's fields accept and retain explicitly assigned values.
+ *
+ * Checks that position, color, diffuse, specular, ambient, and intensity match the provided values
+ * after assignment (component-wise comparisons for vec3 fields and exact comparison for intensity).
+ */
 TEST(LightTest, CustomConstruction) {
     DirectionalLight light;
     light.position = glm::vec3(1.0f, 2.0f, 3.0f);

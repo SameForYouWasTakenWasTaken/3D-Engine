@@ -12,7 +12,12 @@ class Texture2DManager : public IService
 {
     std::unordered_map<TextureID, std::shared_ptr<Texture2D>> m_Textures;
 public:
-    Texture2DManager() = default;
+    /**
+ * @brief Constructs a Texture2DManager with no loaded textures.
+ *
+ * Initializes the manager in a ready state; the internal texture map is empty.
+ */
+Texture2DManager() = default;
     static TextureID Hash(const std::string& path);
 
     [[nodiscard]]
