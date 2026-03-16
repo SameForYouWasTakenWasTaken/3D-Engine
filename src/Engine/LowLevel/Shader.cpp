@@ -119,8 +119,6 @@ void Shader::ResetShaders()
 
     glDeleteShader(m_VertexShader);
     glDeleteShader(m_FragmentShader);
-
-    //SetInt("ShaderTexture", 0);
 }
 
 void Shader::UseProgram()

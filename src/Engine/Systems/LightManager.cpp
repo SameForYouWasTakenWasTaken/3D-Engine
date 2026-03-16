@@ -1,53 +1,46 @@
-#include <ranges>
 #include <Engine/Systems/LightManager.hpp>
-
-std::optional<LightID> LightManager::CreateLight()
-{
-    Light light;
-    LightID id = AddLight(light).value();
-    return id;
-}
-std::optional<LightID> LightManager::AddLight(Light light)
-{
-    LightID id = m_NextLightID++;
-    if (m_Lights.contains(id)) return -1;
-    m_Lights.emplace(id, light);
-    return id;
-}
 
 void LightManager::RemoveLight(LightID id)
 {
-    if (!m_Lights.contains(id)) return;
     m_Lights.erase(id);
 }
 
-Light* LightManager::GetLight(LightID id)
+void LightManager::UploadToShader(Shader* shader)
 {
-    const auto it = m_Lights.find(id);
-    if (it == m_Lights.end()) return nullptr;
-    return &it->second;
-}
+    if (!shader) return;
 
-void LightManager::UpdateToShader(Shader* shader) const
-{   
-    constexpr int MAX_LIGHTS = 16;
+    int countDir = 0;
+    int countPoint = 0;
+    int countSpot = 0;
 
-    const int numLights = std::min(static_cast<int>(m_Lights.size()), MAX_LIGHTS);
-
-    int count = 0;
-    for (const auto& val : m_Lights | std::views::values)
+    for (auto& [id, light] : m_Lights)
     {
-        shader->SetVec3("lights[" + std::to_string(count) + "].position", val.position);
-        shader->SetVec3("lights[" + std::to_string(count) + "].color", val.color);
+        constexpr int MAX_LIGHTS = 16;
+        auto base = light.get();
 
-        shader->SetVec3("lights[" + std::to_string(count) + "].ambient", val.ambient);
-        shader->SetVec3("lights[" + std::to_string(count) + "].diffuse", val.diffuse);
-        shader->SetVec3("lights[" + std::to_string(count) + "].specular", val.specular);
-
-        ++count;
-        if (count >= numLights)
+        switch (base->GetType())
+        {
+        case LightType::DIRECTIONAL:
+            if (countDir >= MAX_LIGHTS) continue; // Max lights?
+            base->Upload(shader, countDir++);
             break;
+
+        case LightType::POINT:
+            if (countPoint >= MAX_LIGHTS) continue; // Max lights?
+            base->Upload(shader, countPoint++);
+            break;
+
+        case LightType::SPOT:
+            if (countSpot >= MAX_LIGHTS) continue; // Max lights?
+            base->Upload(shader, countSpot++);
+            break;
+
+        default:
+            break;
+        }
     }
 
-    shader->SetInt("numLights", count);
+    shader->SetInt("numDirLights", countDir);
+    shader->SetInt("numPointLights", countPoint);
+    shader->SetInt("numSpotLights", countSpot);
 }

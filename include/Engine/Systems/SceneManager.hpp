@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <functional>
 
+#include <App/Services.hpp>
 #include <entt.hpp>
 #include <Engine/Scene.hpp>
 #include <Contexts/EngineContext.hpp>
@@ -14,7 +15,8 @@
 using EventCallbackFn = std::function<void(Event&)>;
 class Scene; // forward declaration
 class EngineContext; // forward declaration
-class SceneManager final
+
+class SceneManager : public IService
 {
     uint32_t m_NextSceneID = 0;
     EventCallbackFn m_EventCallback;
