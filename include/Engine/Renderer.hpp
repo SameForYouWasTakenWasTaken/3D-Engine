@@ -16,17 +16,17 @@
 
 class SceneManager; // forward declaration
 class EngineContext; // forward declaration
+class Scene; // forward declaration
 
 class Renderer : public IService {
 
     struct Batch
     {
         Mesh* mesh;
-        std::shared_ptr<LightManager> lightManager;
+        Scene* active_scene;
         uint32_t materialID;
         
         std::vector<InstanceData> instances;
-
         GLuint instanceVBO = 0;
     };
 
@@ -39,7 +39,7 @@ public:
     Renderer(EngineContext& context);
     ~Renderer() = default;
 
-    void Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, std::shared_ptr<LightManager> lightManager);
+    void Submit(Mesh* mesh, uint32_t materialID, COMPTransform* transform, Scene* active_scene);
     
     void Begin();
     void Update(float dt);

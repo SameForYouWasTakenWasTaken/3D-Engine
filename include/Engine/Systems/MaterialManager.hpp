@@ -10,6 +10,7 @@ class MaterialManager : public IService
     uint32_t m_NextMaterialID = 0;
 public:
     MaterialManager() = default;
-    MaterialID CreateMaterial(ShaderID shader, TextureID texture);
+    MaterialID Load(ShaderID shader, TextureID diffuse);
+    MaterialID Load(const Material& material);
     Material* Get(MaterialID id);
 };

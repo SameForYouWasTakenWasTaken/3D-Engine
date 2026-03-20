@@ -16,6 +16,7 @@
 #include <Engine/Systems/ShaderManager.hpp>
 #include <Engine/Systems/SceneManager.hpp>
 #include <Engine/Systems/InputSystem.hpp>
+#include <Engine/Systems/AssetManager.hpp>
 #include <App/Services.hpp>
 
 #include <Engine/Events/KeyInputEvent.hpp>

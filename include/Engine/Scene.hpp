@@ -60,6 +60,6 @@ Scene() = default;
     virtual void OnDetach(); // on detach from the scene manager
     
     // EngineContext* because std::expected cant take reference
-    std::expected<EngineContext*, bool> GetContext();
+    std::optional<EngineContext*> GetContext();
     uint32_t GetID() const;
 };

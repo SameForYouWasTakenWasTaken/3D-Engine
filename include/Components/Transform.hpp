@@ -10,6 +10,7 @@ struct COMPTransform
     glm::vec3 position = glm::vec3(0.f);
     glm::vec3 scale = glm::vec3(1.f);
     glm::vec3 rotation = glm::vec3(0.f);
+    bool IsUniform = true;
 
     void Move(const glm::vec3& translation);
     void Rotate(const glm::vec3& rotation);
@@ -21,4 +22,5 @@ struct COMPTransform
     void SetScale(const glm::vec3& scale);
 
     glm::mat4 GetModelMatrix();
+    glm::mat3 GetNormalMatrix();
 };

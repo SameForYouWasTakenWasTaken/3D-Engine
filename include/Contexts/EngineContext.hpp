@@ -5,6 +5,7 @@
 #include <entt.hpp>
 #include <glm/mat4x4.hpp>
 #include <Engine/Renderer.hpp>
+#include <Components/Camera.hpp>
 
 #include <Logger.hpp>
 
@@ -28,10 +29,6 @@ struct EngineContext
     // Events
     entt::dispatcher EventDispatcher;
 
-    // Camera
-    glm::vec3 cached_activeCam_position = {0.f, 0.f, 0.f};
-    glm::mat4 cached_view = glm::mat4(1.f);
-    glm::mat4 cached_projection = glm::mat4(1.f);
     // Logging related stuff
     Logger logger = Logger("EngineContext");
 };

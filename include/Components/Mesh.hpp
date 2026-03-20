@@ -83,8 +83,8 @@ inline const AttributePointer GetAttribPointerNormal2()
 class Mesh
 {
 public:
-    std::vector<Vertex>& vertices;
-    std::vector<GLuint>& indices;
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
     
     uint32_t IndexCount;
     uint32_t VertexCount;
@@ -96,12 +96,18 @@ public:
 
 
     bool Indexed = false;
+    bool InModel = false; // Is this mesh apart of a model?
+
     GLenum Primitive = GL_TRIANGLES;
 
     void SetData(GLenum draw_type = GL_STATIC_DRAW);
-    Mesh(std::vector<Vertex>& vertices, std::vector<GLuint>& indices)
-    : vertices(vertices), indices(indices),
-    IndexCount(indices.size()), VertexCount(vertices.size()) {}
+
+    Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
+        :
+    vertices(std::move(vertices)), indices(std::move(indices)),
+    IndexCount(0), VertexCount(0)
+    {
+    } 
 };
 
 struct COMPMesh

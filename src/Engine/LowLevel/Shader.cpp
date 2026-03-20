@@ -1,13 +1,13 @@
 #include <Engine/LowLevel/Shader.hpp>
 
-std::expected<std::pair<std::string, std::string>, bool>
+std::optional<std::pair<std::string, std::string>>
 ParseShaderFiles(const std::string& VertexSourceFilePath, const std::string& FragmentSourceFilePath)
 {
     std::ifstream vertex(VertexSourceFilePath); // vertex contents
     std::ifstream fragment(FragmentSourceFilePath); // fragment contents
 
     if (!fragment.is_open() || !vertex.is_open()) {
-        return std::unexpected(false);
+        return std::nullopt;
     }
 
     std::stringstream frag_buffer;
@@ -23,7 +23,7 @@ ParseShaderFiles(const std::string& VertexSourceFilePath, const std::string& Fra
 Shader::Shader(const std::string& VertexSourceFilePath, const std::string& FragmentSourceFilePath)
 {
     auto result = ParseShaderFiles(VertexSourceFilePath, FragmentSourceFilePath);
-    if(!result)
+    if(!result.has_value())
     {
         logger.AppendLogTag("SHADER", LogColors::CYAN);
         logger.LogError("Couldn't retrieve fragment/vertex source files!");
@@ -62,6 +62,7 @@ void Shader::ResetShaders(const std::string& VertexSourceFilepath, const std::st
     auto ShaderSources = result.value();
     SetShaderSources(ShaderSources.first.c_str(), ShaderSources.second.c_str());
     ResetShaders(); // Forward to resetshaders, since it already handles all of the shader creation
+    int x;
 }
 
 void Shader::ResetShaders()

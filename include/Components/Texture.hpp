@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 using TextureID = uint32_t;
 
 struct COMPTexture

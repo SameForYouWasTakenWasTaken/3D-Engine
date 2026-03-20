@@ -17,5 +17,5 @@ public:
 
     void Update(entt::registry& registry, float dt);
     void SetActiveCamera(entt::entity entity);
-    entt::entity GetActiveCamera() const;
+    [[nodiscard]] entt::entity GetActiveCamera() const;
 }; 

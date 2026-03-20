@@ -9,12 +9,13 @@ using MaterialID = uint32_t;
 
 struct Material
 {
-    ShaderID shader = -1;
-    TextureID diffuse = -1;
-    TextureID specular = -1;
+    ShaderID shader = static_cast<TextureID>(-1);
+    TextureID diffuse = static_cast<TextureID>(-1);
+    TextureID specular = static_cast<TextureID>(-1);
 
     glm::vec3 ambient  = glm::vec3(0.1f, 0.1f, 0.1f);  // low ambient contribution
 
+    float transparency = 1.0f;
     float shininess = 32.0f;
 };
 

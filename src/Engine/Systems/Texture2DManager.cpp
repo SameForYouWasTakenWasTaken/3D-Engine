@@ -15,6 +15,8 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path)
         m_Textures[id] = texture;
         return id;
     }
+
+    return std::nullopt;
 }
 
 Texture2D* Texture2DManager::Get(TextureID id)

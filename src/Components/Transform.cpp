@@ -23,7 +23,7 @@ void COMPTransform::Rotate(const glm::vec3& rot)
 
 void COMPTransform::Scale(const glm::vec3& scale)
 {
-    this->scale += scale;
+    this->scale *= scale;
 }
 
 /**
@@ -86,4 +86,20 @@ glm::mat4 COMPTransform::GetModelMatrix()
     model = glm::scale(model, scale);
 
     return model;
+}
+
+glm::mat3 COMPTransform::GetNormalMatrix()
+{
+    glm::mat4 model = GetModelMatrix();
+
+    constexpr float uniformTolerance = 0.0001f;
+
+    bool isUniform =
+        std::abs(scale.x - scale.y) < uniformTolerance &&
+        std::abs(scale.y - scale.z) < uniformTolerance;
+
+    if (isUniform)
+        return glm::mat3(model);
+
+    return glm::transpose(glm::inverse(glm::mat3(model)));
 }

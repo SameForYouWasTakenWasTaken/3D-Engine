@@ -1,6 +1,9 @@
 #include <Engine/Layers/GameLayer.hpp>
 
 #include "App/Services.hpp"
+#include <Components/Model.hpp>
+
+#include "Engine/Systems/AssetManager.hpp"
 
 /**
  * @brief Executes the layer's per-frame drawing step.
@@ -34,6 +37,7 @@ void GameLayer::OnUpdate(float dt)
     if (transform && cam)
     {
         float speed = 2.0f;
+        float zoomSpeed = 100.f;
 
         glm::vec3 input(0);
         // WASD
@@ -45,11 +49,17 @@ void GameLayer::OnUpdate(float dt)
         // QE
         if (InputSystem::IsKeyHeld(GLFW_KEY_Q)) input.y -= 1.f;
         if (InputSystem::IsKeyHeld(GLFW_KEY_E)) input.y += 1.f;
-        
+
+
         glm::vec3 move = input.x * cam->GetRight() +
                          input.y * glm::vec3(0.f, 1.f, 0.f) +
                          input.z * cam->GetForward();
-        
+
+        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_SHIFT))
+        {
+            move *= zoomSpeed;
+        }
+
         if (glm::length(move) > 0.f)
             move = glm::normalize(move);
         
@@ -136,6 +146,7 @@ void GameLayer::OnAttach()
     auto& shader_manager = services.GetService<ShaderManager>();
     auto& material_manager = services.GetService<MaterialManager>();
     auto& texture_manager = services.GetService<Texture2DManager>();
+    auto& asset_manager = services.GetService<AssetManager>();
     auto& light_manager = m_Scene->m_LightManager;
     // shaders
     auto shader = shader_manager.Load("../Shaders/first.vert", "../Shaders/first.frag");
@@ -143,11 +154,11 @@ void GameLayer::OnAttach()
 
     // textures
     auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
-    auto color_grid_texture = texture_manager.Load("Resources/Textures2D/color_grid.png");
+    auto color_grid_texture = texture_manager.Load("Resources/Textures2D/default.png");
 
     // Materials
-    uint32_t MaterialID = material_manager.CreateMaterial(shader, basic_texture.value());
-    uint32_t MaterialID_colorgrid = material_manager.CreateMaterial(sunShader, color_grid_texture.value());
+    uint32_t MaterialID = material_manager.Load(shader, basic_texture.value());
+    uint32_t MaterialID_colorgrid = material_manager.Load(sunShader, color_grid_texture.value());
 
     // first quad
     auto quad_1 = m_Scene->registry.create();
@@ -179,16 +190,22 @@ void GameLayer::OnAttach()
 
     Transform_a.SetPosition({3.f, 1.f, -2.f});
 
+    // MODELS
+    auto defModelID = asset_manager.Load("Resources/Objects/Spiderman/scene.gltf");
+
+    auto ironman = m_Scene->registry.create();
+
+    auto& Transf = m_Scene->registry.emplace<COMPTransform>(ironman);
+    auto& model = m_Scene->registry.emplace<COMPModel>(ironman, defModelID);
+    Transf.Scale({0.5, 0.5f, 0.5f});
+
     // THE SUNS
     // i dont need many if checks, fairly confident this'll work
-    auto lightID = light_manager->CreateLight<SpotLight>();
-    auto light = light_manager->GetLight<SpotLight>(lightID.value());
-    light->cutOff = 80.f;
-    light->outerCutOff = 120.f;
+    auto lightID = light_manager->Load<PointLight>();
+    auto light = light_manager->GetLight<PointLight>(lightID.value());
 
     glm::vec3 target = {0.f, 0.f, 0.f};
-    light->position = {2.f, 0.f, 0.f};
-    light->direction = glm::normalize(target - light->position);
+    light->position = {0.f, 5.f, 0.f};
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();
@@ -286,86 +303,18 @@ void GameLayer::OnEvent(Event& e)
             auto& camTransform = m_Scene->registry.get<COMPTransform>(cam);
             auto& camComponent = m_Scene->registry.get<COMPCamera>(cam);
 
-             std::vector<Vertex> vertices = {
-                // Front face (normal 0,0,1)
-                {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
-                {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
-                {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
-                {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
+            auto& asset_manager = Services::Get().GetService<AssetManager>();
 
-                // Back face (normal 0,0,-1)
-                {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
-                {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
-                {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
-                {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
-
-                // Left face (normal -1,0,0)
-                {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
-                {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
-                {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
-                {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
-
-                // Right face (normal 1,0,0)
-                {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
-                {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
-                {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
-                {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
-
-                // Top face (normal 0,1,0)
-                {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
-                {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
-                {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
-                {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
-
-                // Bottom face (normal 0,-1,0)
-                {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
-                {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
-                {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
-                {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
-            };
-
-            for (auto &vertex : vertices) {
-                vertex.color = {1.0f, 1.0f, 1.0f, 1.0f};
-            }
-
-            std::vector<GLuint> indices;
-            for (int i = 0; i < 6; i++) {
-                unsigned int offset = i * 4;
-                indices.push_back(offset + 0);
-                indices.push_back(offset + 1);
-                indices.push_back(offset + 2);
-                indices.push_back(offset + 2);
-                indices.push_back(offset + 1);
-                indices.push_back(offset + 3);
-            }
-
-            auto& renderer = Services::Get().GetService<Renderer>();
-            auto& shader_manager = Services::Get().GetService<ShaderManager>();
-            auto& material_manager = Services::Get().GetService<MaterialManager>();
-            auto& texture_manager = Services::Get().GetService<Texture2DManager>();
-            
-            // shaders
-            auto shader = shader_manager.Load("../Shaders/first.vert", "../Shaders/first.frag");
-
-            // textures
-            auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
-
-            // Materials
-            uint32_t MaterialID = 0;
+            ModelID model_id = asset_manager.Load("Resources/Objects/Spiderman/scene.gltf");
             // first quad
-            auto quad_1 = m_Scene->registry.create();
-            auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
-            auto& Transform = m_Scene->registry.emplace<COMPTransform>(quad_1);
-            auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, MaterialID);
+            auto ModelEntity = m_Scene->registry.create();
+            auto& Model = m_Scene->registry.emplace<COMPModel>(ModelEntity, model_id);
+            auto& Transform = m_Scene->registry.emplace<COMPTransform>(ModelEntity);
             
-            m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
-
-            auto view = m_Scene->registry.view<COMPMesh>();
-            auto& otherMesh = m_Scene->registry.get<COMPMesh>(view.front());
-
-            auto& componentMesh = m_Scene->registry.emplace<COMPMesh>(quad_1, otherMesh.mesh);
+            m_Scene->registry.emplace<TAG_GameLayer>(ModelEntity);
 
             Transform.SetPosition(camTransform.position + camComponent.GetForward() * distance);
+            Transform.Scale({0.5f, 0.5f, 0.5f});
         }
     }
 

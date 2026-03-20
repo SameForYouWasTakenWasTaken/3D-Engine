@@ -1,5 +1,8 @@
 #include <Engine/Scene.hpp>
 
+#include "Components/Model.hpp"
+#include "Engine/Systems/AssetManager.hpp"
+
 void Scene::AddLayer(std::shared_ptr<Layer> layer)
 {
     m_Layers.push_back(layer);
@@ -49,7 +52,9 @@ void Scene::Draw()
 
     auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
     auto* camTransform = registry.try_get<COMPTransform>(m_CameraManager.GetActiveCamera());
+
     auto& renderer = Services::Get().GetService<Renderer>();
+    auto& assetManager = Services::Get().GetService<AssetManager>();
 
     if (cam == nullptr || camTransform == nullptr)
     {
@@ -59,18 +64,17 @@ void Scene::Draw()
         return;
     }
     auto& context = renderer.m_EngineContext;
-    context.cached_projection = cam->projection;
-    context.cached_view = cam->view;
-    context.cached_activeCam_position = camTransform->position;
 
-    auto view = registry.view<
+    auto generalView = registry.view<
     COMPGeometry,
     COMPMesh,
     COMPMaterial,
     COMPTransform
     >();
 
-    view.each([&](auto entity, 
+    auto modelView = registry.view<COMPModel, COMPTransform>();
+
+    generalView.each([&](auto entity,
         COMPGeometry& drawable, 
         COMPMesh& mesh, 
         COMPMaterial& material, 
@@ -78,9 +82,25 @@ void Scene::Draw()
     {
         // Put everything into the renderer
        renderer.Submit(
-        mesh.mesh.get(), 
-        material.material, 
-        transform.GetModelMatrix(), m_LightManager);
+           mesh.mesh.get(),
+           material.material,
+           &transform, this);
+    });
+
+    modelView.each([&](auto entity, COMPModel& compModel, COMPTransform& transform)
+    {
+        auto* model = assetManager.Get(compModel.id);
+        if (model == nullptr)
+            return;
+        for (const auto& subMesh : model->GetSubMeshes())
+        {
+            renderer.Submit(
+                subMesh.mesh.get(),
+                subMesh.material,
+                &transform,
+                this
+            );
+        }
     });
 }
 
@@ -145,9 +165,12 @@ void Scene::OnDetach()
  *
  * @return EngineContext* Pointer to the EngineContext when attached; otherwise an unexpected value (`false`) indicating no context is available.
  */
-std::expected<EngineContext*, bool> Scene::GetContext()
+std::optional<EngineContext*> Scene::GetContext()
 {
-    return &Services::Get().GetService<Renderer>().m_EngineContext;
+    auto* context = &Services::Get().GetService<Renderer>().m_EngineContext;
+    if (context)
+        return context;
+    return std::nullopt;
 }
 
 /**

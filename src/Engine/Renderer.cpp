@@ -1,36 +1,46 @@
 #include <Engine/Renderer.hpp>
 
-Renderer::Renderer(EngineContext& context) 
-    : m_EngineContext(context) 
-{ };
+Renderer::Renderer(EngineContext& context)
+    : m_EngineContext(context)
+{
+};
 
 // TODO: Batch updating
 void Renderer::Update(float dt)
 {
-
 }
 
-void Renderer::Submit(Mesh* mesh, uint32_t materialID, const glm::mat4& model, std::shared_ptr<LightManager> lightManager)
+void Renderer::Submit(Mesh* mesh, uint32_t materialID, COMPTransform* transform,
+                      Scene* active_scene)
 {
-    // This is a hash that combines the mesh and material pointers to create a unique key for batching
-    // It's a much faster way to batch than comparing the mesh and material pointers directly, 
+    // It's a much faster way to batch than comparing the mesh and material pointers directly,
     // and it allows us to easily store batches in an unordered_map
     size_t batchKey =
         std::hash<Mesh*>{}(mesh) ^
         (std::hash<uint32_t>{}(materialID) << 1) ^
-        (std::hash<LightManager*>{}(lightManager.get()) << 2);
+        (std::hash<Scene*>{}(active_scene) << 2);
 
+
+    glm::mat4 model = transform->GetModelMatrix();
+    glm::mat3 normalMat = transform->GetNormalMatrix();
 
     InstanceData instanceData{};
     instanceData.model = model;
+    instanceData.normal0 = glm::vec4(normalMat[0], 0.0f);
+    instanceData.normal1 = glm::vec4(normalMat[1], 0.0f);
+    instanceData.normal2 = glm::vec4(normalMat[2], 0.0f);
+
     // prevent unnecessary initialization
     auto [it, inserted] = m_Batches.try_emplace(batchKey);
     auto& batch = it->second;
-    
+
     // Assign the necessary stuff
-    batch.mesh = mesh;
-    batch.materialID = materialID;
-    batch.lightManager = lightManager;
+    if (inserted)
+    {
+        batch.mesh = mesh;
+        batch.materialID = materialID;
+        batch.active_scene = active_scene;
+    }
 
     // Send out to the m_Batches unordered_map, which will be used for batch rendering in the End() function
     batch.instances.push_back(instanceData);
@@ -60,25 +70,31 @@ void Renderer::End()
     auto& shaderManager = services.GetService<ShaderManager>();
 
     // Loop through each batch and render it
+    int totalVertices = 0;
     for (auto& [batchKey, batch] : m_Batches)
     {
         if (batch.instances.empty())
             continue;
 
+        // Iterate through each mesh. If it's just one, it'll be just one.
+        // Primary use is just because models have multiple meshes, so this needs to be done
         Mesh* mesh = batch.mesh;
-
-        Material* material = materialManager.Get(batch.materialID );
+        Material* material = materialManager.Get(batch.materialID);
 
         Shader* shader = shaderManager.Get(material->shader);
 
         Texture2D* diffuseTexture = textureManager.Get(material->diffuse);
         Texture2D* specularTexture = textureManager.Get(material->specular);
 
-        std::shared_ptr<LightManager> lightManager = batch.lightManager;
+        std::shared_ptr<LightManager> lightManager = batch.active_scene->m_LightManager;
 
-        glm::vec3 camPos = m_EngineContext.cached_activeCam_position;
+        entt::entity cam = batch.active_scene->m_CameraManager.GetActiveCamera();
+        auto* TransformCam = batch.active_scene->registry.try_get<COMPTransform>(cam);
+        auto* Camera = batch.active_scene->registry.try_get<COMPCamera>(cam);
 
-        if(!material || !shader || !mesh) continue;
+        if (!material || !shader || !mesh || !TransformCam || !Camera) continue;
+
+        CameraContext camContext = Camera->GetCameraContext();
 
         // Create a default specular texure if none exists
         if (!specularTexture)
@@ -93,62 +109,60 @@ void Renderer::End()
             material->specular = id.value();
         }
 
-        //Calculate normals on the CPU
-        for (auto& instData : batch.instances)
+        if (!diffuseTexture)
         {
-            glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(instData.model)));
+            auto id = textureManager.Load("Resources/Textures2D/default_diffuse.png");
+            diffuseTexture = textureManager.Get(id.value());
 
-            instData.normal0 = glm::vec4(normalMat[0], 0.0f);
-            instData.normal1 = glm::vec4(normalMat[1], 0.0f);
-            instData.normal2 = glm::vec4(normalMat[2], 0.0f);
+            if (!diffuseTexture || !id)
+                continue; // atp code is trolling and sum went wrong, too tired for this bs
+
+            // Assign diffuse texture to the material to prevent repeat of this if statement
+            material->diffuse = id.value();
         }
 
-        // TODO: Make sure you use default textures if none provided
-        diffuseTexture->Use();
-        mesh->vao.Bind();
         mesh->instanceVBO.Bind();
 
         size_t instanceCount = batch.instances.size();
         // Update buffer data allocated inside the mesh, not reallocate
         glBufferSubData(
-            GL_ARRAY_BUFFER, 
-            0, 
-            instanceCount * sizeof(InstanceData), 
+            GL_ARRAY_BUFFER,
+            0,
+            instanceCount * sizeof(InstanceData),
             batch.instances.data()
         );
-        
+
         shader->UseProgram();
-        shader->SetMatrix4(
-            "projectmat", 
-            1, 
-            glm::value_ptr(m_EngineContext.cached_projection)
-        );
-        shader->SetMatrix4(
-            "viewmat", 
-            1, 
-            glm::value_ptr(m_EngineContext.cached_view)
-        );
-        shader->SetVec3(
-            "viewPos", 
-            camPos
-        );
+        shader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
+        shader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
+        shader->SetVec3("cam.viewPos",TransformCam->position);
+        shader->SetFloat("cam.near", camContext.near);
+        shader->SetFloat("cam.far",camContext.far);
 
         shader->SetVec3("material.ambient", material->ambient);
         shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() above
         shader->SetInt("material.specular", 1); // Slot 1
         shader->SetFloat("material.shininess", material->shininess);
+        shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
+        shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
         lightManager->UploadToShader(shader);
-        
+
+
+        diffuseTexture->Use();
+        mesh->vao.Bind();
+
         if (mesh->Indexed)
         {
             glDrawElementsInstanced(
-                mesh->Primitive, 
-                batch.mesh->IndexCount, 
-                GL_UNSIGNED_INT, 
-                nullptr, 
+                mesh->Primitive,
+                mesh->IndexCount,
+                GL_UNSIGNED_INT,
+                nullptr,
                 static_cast<GLsizei>(batch.instances.size())
             );
-        }else{
+        }
+        else
+        {
             glDrawArraysInstanced(
                 mesh->Primitive,
                 0,
@@ -158,14 +172,17 @@ void Renderer::End()
         }
 
         diffuseTexture->Unbind();
+
+        totalVertices += mesh->VertexCount;
     }
 }
 
 void Renderer::OnEvent(Event& e)
-{;
+{
+    ;
     if (e.GetType() == WindowResizeEvent::GetStaticType())
     {
         auto& resize = static_cast<WindowResizeEvent&>(e);
-        glViewport(0, 0,resize.Width,resize.Height);
+        glViewport(0, 0, resize.Width, resize.Height);
     }
 }

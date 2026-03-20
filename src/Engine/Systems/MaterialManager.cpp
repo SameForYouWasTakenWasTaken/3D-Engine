@@ -1,16 +1,23 @@
 #include <Engine/Systems/MaterialManager.hpp>
 
-MaterialID MaterialManager::CreateMaterial(
+MaterialID MaterialManager::Load(
     ShaderID shader,  
-    TextureID texture)
+    TextureID diffuse)
 {
     MaterialID id = m_NextMaterialID++;
 
     m_Materials.emplace(id, Material{
         shader,
-        texture
+        diffuse
     });
 
+    return id;
+}
+
+MaterialID MaterialManager::Load(const Material& material)
+{
+    MaterialID id = m_NextMaterialID++;
+    m_Materials.emplace(id, material);
     return id;
 }
 

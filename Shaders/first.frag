@@ -5,6 +5,7 @@ struct Material {
     vec3 ambient;
     vec3 specular;
     float shininess;
+    float transparency;
 };
 
 struct DirectionLight {
@@ -47,10 +48,19 @@ struct SpotLight {
     vec3 specular;
 };
 
+struct Camera
+{
+    vec3 viewPos;
+    float near;
+    float far;
+};
+
 in vec4 vertexColor;
 in vec2 fragmentTexCoord;
 in vec3 Normal;
 in vec3 FragPos;
+
+uniform Camera cam;
 
 uniform Material material;
 
@@ -63,8 +73,6 @@ uniform int numPointLights;
 
 uniform SpotLight spotLights[16];
 uniform int numSpotLights;
-
-uniform vec3 viewPos;
 
 out vec4 FragColor;
 
@@ -167,7 +175,7 @@ vec3 calculateSpot(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 texColor)
 void main()
 {
     vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(cam.viewPos - FragPos);
     vec3 texColor = texture(material.diffuse, fragmentTexCoord).rgb;
 
     // Calculate contributions per light type
@@ -181,7 +189,11 @@ void main()
     // Apply vertex color
     result *= vertexColor.rgb;
 
-    FragColor = vec4(result, texture(material.diffuse, fragmentTexCoord).a * vertexColor.a);
+    float alpha = 1;
+    alpha *= texture(material.diffuse, fragmentTexCoord).a;
+    alpha *= vertexColor.a;
+    alpha *= material.transparency;
 
+    FragColor = vec4(result, alpha);
 }
 

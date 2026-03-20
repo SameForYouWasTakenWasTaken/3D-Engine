@@ -15,7 +15,7 @@ public:
 
 
     template <typename T, typename... Args>
-    std::optional<LightID> CreateLight(Args&&... args)
+    std::optional<LightID> Load(Args&&... args)
     {
         LightID id = m_NextLightID++;
         const auto [it, inserted] = m_Lights.try_emplace(

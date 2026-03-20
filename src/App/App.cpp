@@ -30,13 +30,13 @@ App::App(AppSettings Settings)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
+
     m_EngineContext.ActiveWindow = glfwCreateWindow(
         m_EngineContext.WindowWidth, m_EngineContext.WindowHeight, // Width, height
         Settings.Name.c_str(), // App name
         NULL, NULL
     );
-    
+
     if (!m_EngineContext.ActiveWindow)
     {
         logger.LogError("Active window does not exist!");
@@ -45,8 +45,9 @@ App::App(AppSettings Settings)
     }
     glfwSetWindowUserPointer(m_EngineContext.ActiveWindow, this);
     glfwMakeContextCurrent(m_EngineContext.ActiveWindow);
-    
-    glfwSetFramebufferSizeCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, int width, int height){
+
+    glfwSetFramebufferSizeCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, int width, int height)
+    {
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
@@ -56,20 +57,22 @@ App::App(AppSettings Settings)
     });
 
     glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
-        GLFWwindow* window, 
-        int key, 
-        int scancode, 
-        int action, 
-        int mods) {
-        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-        if (app)
-        {
-            KeyInputEvent event(window, key, scancode, action, mods);
-            app->OnEvent(event);
-        }
-    });
+                       GLFWwindow* window,
+                       int key,
+                       int scancode,
+                       int action,
+                       int mods)
+                       {
+                           auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+                           if (app)
+                           {
+                               KeyInputEvent event(window, key, scancode, action, mods);
+                               app->OnEvent(event);
+                           }
+                       });
 
-    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
+    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos)
+    {
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
@@ -79,20 +82,22 @@ App::App(AppSettings Settings)
     });
 
     glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
-        GLFWwindow* window, 
-        int key, 
-        int scancode, 
-        int action, 
-        int mods) {
-        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-        if (app)
-        {
-            KeyInputEvent event(window, key, scancode, action, mods);
-            app->OnEvent(event);
-        }
-    });
+                       GLFWwindow* window,
+                       int key,
+                       int scancode,
+                       int action,
+                       int mods)
+                       {
+                           auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+                           if (app)
+                           {
+                               KeyInputEvent event(window, key, scancode, action, mods);
+                               app->OnEvent(event);
+                           }
+                       });
 
-    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
+    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos)
+    {
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
@@ -100,18 +105,20 @@ App::App(AppSettings Settings)
             app->OnEvent(event);
         }
     });
-    
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
         logger.LogError("Failed to load glad!");
         Shutdown();
         return;
     }
-    
+
     enableReportGlErrors();
-	glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
-	glEnable(GL_BLEND); // Enables blending
-	glDepthFunc(GL_LESS); // default: pass if fragment is closer
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
+    glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
+    glEnable(GL_BLEND); // Enables blending
+    glDepthFunc(GL_LESS); // default: pass if fragment is closer
+    glDepthMask(GL_TRUE); // draw transparent stuff
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
 
     Services& services = Services::Get();
 
@@ -121,7 +128,9 @@ App::App(AppSettings Settings)
     services.RegisterService<ShaderManager>();
     services.RegisterService<MaterialManager>();
     services.RegisterService<Texture2DManager>();
+    services.RegisterService<AssetManager>();
 }
+
 /**
  * @brief Starts and runs the application's main loop, managing rendering and scene updates.
  *
