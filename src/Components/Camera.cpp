@@ -122,7 +122,7 @@ glm::vec3 COMPCamera::GetUp()
  */
 CameraContext COMPCamera::GetCameraContext() const
 {
-    CameraContext context;
+    CameraContext context{};
     context.fov = fov;
     context.ratio = ratio;
     context.near = near;

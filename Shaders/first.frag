@@ -144,9 +144,8 @@ vec3 calculateSpot(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 texColor)
 
 
         if(distance > light.dist)
-        {
             continue;
-        }
+
 
         vec3 lightDir = normalize(light.position - fragPos);
         vec3 reflectDir = reflect(-lightDir, norm);
