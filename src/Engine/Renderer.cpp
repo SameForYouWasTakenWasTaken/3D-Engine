@@ -70,7 +70,6 @@ void Renderer::End()
     auto& shaderManager = services.GetService<ShaderManager>();
 
     // Loop through each batch and render it
-    int totalVertices = 0;
     for (auto& [batchKey, batch] : m_Batches)
     {
         if (batch.instances.empty())
@@ -81,10 +80,10 @@ void Renderer::End()
         Mesh* mesh = batch.mesh;
         Material* material = materialManager.Get(batch.materialID);
 
-        Shader* shader = shaderManager.Get(material->shader);
+        auto shader = shaderManager.Get(material->shader);
 
-        Texture2D* diffuseTexture = textureManager.Get(material->diffuse);
-        Texture2D* specularTexture = textureManager.Get(material->specular);
+        auto diffuseTexture = textureManager.Get(material->diffuse);
+        auto specularTexture = textureManager.Get(material->specular);
 
         std::shared_ptr<LightManager> lightManager = batch.active_scene->m_LightManager;
 
@@ -140,15 +139,15 @@ void Renderer::End()
         shader->SetFloat("cam.far",camContext.far);
 
         shader->SetVec3("material.ambient", material->ambient);
-        shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() above
+        shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() below
         shader->SetInt("material.specular", 1); // Slot 1
         shader->SetFloat("material.shininess", material->shininess);
         shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
         shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
-        lightManager->UploadToShader(shader);
+        lightManager->UploadToShader(shader.get());
 
-
-        diffuseTexture->Use();
+        diffuseTexture->Use(GL_TEXTURE0);
+        specularTexture->Use(GL_TEXTURE1);
         mesh->vao.Bind();
 
         if (mesh->Indexed)
@@ -172,8 +171,7 @@ void Renderer::End()
         }
 
         diffuseTexture->Unbind();
-
-        totalVertices += mesh->VertexCount;
+        specularTexture->Unbind();
     }
 }
 

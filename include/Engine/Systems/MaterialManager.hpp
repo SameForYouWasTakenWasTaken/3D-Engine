@@ -7,10 +7,14 @@
 class MaterialManager : public IService
 {
     std::unordered_map<MaterialID, Material> m_Materials;
+
     uint32_t m_NextMaterialID = 0;
 public:
     MaterialManager() = default;
-    MaterialID Load(ShaderID shader, TextureID diffuse);
-    MaterialID Load(const Material& material);
+
+    [[nodiscard]]
+    MaterialID Load(Material material);
+
+    [[nodiscard]]
     Material* Get(MaterialID id);
 };

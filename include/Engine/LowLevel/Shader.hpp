@@ -11,7 +11,8 @@ ParseShaderFiles(const std::string&  FragmentSourceFilePath, const std::string& 
 class Shader final
 {
     GLuint m_Program, m_VertexShader, m_FragmentShader;
-    std::string GLSL_FragmentShaderSource, GLSL_VertexShaderSource;
+    std::string VertexShaderSource, FragmentShaderSource; // Normal files
+    std::string GLSL_FragmentShaderSource, GLSL_VertexShaderSource; // GLSL files
 public:
     Shader(const std::string& VertexShaderSource, const std::string& FragmentShaderSource);
     ~Shader();
@@ -31,6 +32,7 @@ public:
     void SetMatrix4(int loc, int amount, const GLfloat* value);
 
     int GetUniformLocation(const std::string& name);
+    std::pair<std::string, std::string> GetFilepaths() const;
 
     Logger logger = Logger("Shader");
 };

@@ -2,23 +2,40 @@
 
 ModelID AssetManager::Load(const std::string& directory)
 {
-    std::string key = directory;
+    auto hash = Hash<ModelID>(directory);
 
-    if (m_PathToID.contains(key))
-        return m_PathToID[key];
-
-    auto id = m_NextModelID++;
+    auto it = m_Models.find(hash);
+    if (it != m_Models.end())
+        return it->first;
 
     ModelData data{
-        id,
+        hash,
         directory,
         Model(directory)
     };
 
 
-    m_Models.emplace(id, data);
-    m_PathToID.emplace(directory, id);
-    return id;
+    m_Models.emplace(hash, data);
+    return hash;
+}
+
+ModelID AssetManager::Load(const Model& model)
+{
+    const auto dir = model.GetDirectory();
+    auto hash = Hash<ModelID>(dir);
+
+    auto it = m_Models.find(hash);
+    if (it != m_Models.end())
+        return it->first;
+
+
+    m_Models.emplace(hash,
+        ModelData{
+        hash,
+        dir,
+        Model(dir)
+    });
+    return hash;
 }
 
 Model* AssetManager::Get(ModelID id)

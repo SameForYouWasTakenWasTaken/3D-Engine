@@ -1,23 +1,20 @@
 #include <Engine/Systems/MaterialManager.hpp>
 
-MaterialID MaterialManager::Load(
-    ShaderID shader,  
-    TextureID diffuse)
+MaterialID MaterialManager::Load(Material material)
 {
-    MaterialID id = m_NextMaterialID++;
+    MaterialID id = Hash<MaterialID>(
+        material.shader,
+        material.diffuse,
+        material.specular,
+        material.ambient.x,
+        material.ambient.y,
+        material.ambient.z,
+        material.shininess,
+        material.transparency
+        );
+    if (Get(id) != nullptr) return id;
 
-    m_Materials.emplace(id, Material{
-        shader,
-        diffuse
-    });
-
-    return id;
-}
-
-MaterialID MaterialManager::Load(const Material& material)
-{
-    MaterialID id = m_NextMaterialID++;
-    m_Materials.emplace(id, material);
+    m_Materials.emplace(id, std::move(material));
     return id;
 }
 
@@ -26,6 +23,5 @@ Material* MaterialManager::Get(MaterialID id)
     auto it = m_Materials.find(id);
     if (it == m_Materials.end())
         return nullptr;
-
     return &it->second;
 }

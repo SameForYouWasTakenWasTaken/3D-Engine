@@ -1,23 +1,33 @@
 #include <Engine/Systems/ShaderManager.hpp>
 
-ShaderID ShaderManager::Hash(const std::string& vert, const std::string& frag)
-{
-    const size_t h1 = std::hash<std::string>{}(vert);
-    const size_t h2 = std::hash<std::string>{}(frag);
-
-    return h1 ^ (h2 << 1);
-}
 
 ShaderID ShaderManager::Load(const std::string& vert_filepath, const std::string& frag_filepath)
 {
-    ShaderID id = Hash(vert_filepath, frag_filepath);
-    if (m_Shaders.contains(id)) return id;
+    ShaderID hash = Hash<ShaderID>(vert_filepath, frag_filepath);
+    if (Get(hash)) return hash;
 
-    m_Shaders[id] = std::make_shared<Shader>(vert_filepath, frag_filepath);
-    return id;
+    auto shader = std::make_shared<Shader>(vert_filepath, frag_filepath);
+    m_Shaders.emplace(
+        hash,
+        shader
+    );
+    return hash;
 }
 
-Shader* ShaderManager::Get(ShaderID id) { 
-    if (m_Shaders.find(id) == m_Shaders.end()) return nullptr;
-    return m_Shaders[id].get(); 
+ShaderID ShaderManager::Load(const std::shared_ptr<Shader> shader)
+{
+    auto [vertexFilepath, fragmentFilepath] = shader->GetFilepaths();
+    auto hash = Hash<ShaderID>(vertexFilepath, fragmentFilepath);
+
+    if (Get(hash) != nullptr) return hash;
+
+    m_Shaders.emplace(hash, shader);
+    return hash;
+}
+
+std::shared_ptr<Shader> ShaderManager::Get(ShaderID id)
+{
+    auto it = m_Shaders.find(id);
+    if (it == m_Shaders.end()) return nullptr;
+    return it->second;
 }

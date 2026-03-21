@@ -35,6 +35,7 @@ class Model
 public:
     Model(const std::string& path);
     [[nodiscard]] const std::vector<SubMesh>& GetSubMeshes() const;
+    [[nodiscard]] std::string GetDirectory() const;
 };
 
 struct COMPModel

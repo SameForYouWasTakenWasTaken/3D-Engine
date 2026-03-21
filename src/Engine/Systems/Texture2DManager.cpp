@@ -1,26 +1,39 @@
 #include <Engine/Systems/Texture2DManager.hpp>
 
-TextureID Texture2DManager::Hash(const std::string& path)
-{
-    return std::hash<std::string>{}(path);
-}
+#include "glm/gtc/type_ptr.hpp"
+
 std::optional<TextureID> Texture2DManager::Load(const std::string& path)
 {
-    TextureID id = Hash(path);
-    if (m_Textures.contains(id)) return id;
+    auto hash = Hash<TextureID>(path);
+    if (Get(hash) != nullptr) return hash;
 
     auto texture = std::make_shared<Texture2D>(path);
     if (texture->IsLoaded())
     {
-        m_Textures[id] = texture;
-        return id;
+        m_Textures.emplace(hash, texture);
+        return hash;
     }
 
     return std::nullopt;
 }
 
-Texture2D* Texture2DManager::Get(TextureID id)
+std::optional<TextureID> Texture2DManager::Load(const std::shared_ptr<Texture2D> texture)
 {
-    if (!m_Textures.contains(id)) return nullptr;
-    return m_Textures[id].get();
+    auto hash = Hash<TextureID>(texture->GetPath());
+    if (Get(hash) != nullptr) return hash;
+
+    if (texture->IsLoaded())
+    {
+        m_Textures.emplace(hash, texture);
+        return hash;
+    }
+
+    return std::nullopt;
+}
+
+std::shared_ptr<Texture2D> Texture2DManager::Get(TextureID id)
+{
+    auto it = m_Textures.find(id);
+    if (it == m_Textures.end()) return nullptr;
+    return it->second;
 }

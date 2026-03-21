@@ -157,8 +157,11 @@ void GameLayer::OnAttach()
     auto color_grid_texture = texture_manager.Load("Resources/Textures2D/default.png");
 
     // Materials
-    uint32_t MaterialID = material_manager.Load(shader, basic_texture.value());
-    uint32_t MaterialID_colorgrid = material_manager.Load(sunShader, color_grid_texture.value());
+    auto mat = Material{shader, basic_texture.value()};
+    auto sunMat = Material{sunShader, color_grid_texture.value()};
+
+    uint32_t MaterialID = material_manager.Load(mat);
+    uint32_t MaterialID_colorgrid = material_manager.Load(sunMat);
 
     // first quad
     auto quad_1 = m_Scene->registry.create();

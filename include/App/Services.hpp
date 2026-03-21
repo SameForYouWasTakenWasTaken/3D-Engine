@@ -7,6 +7,23 @@
 #include <utility>
 #include <typeinfo>
 
+// @param seed the current combined hash
+// @param hash the new hash to mix in
+inline void HashCombine(std::size_t& seed, std::size_t hash)
+{
+    seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+template <typename T = std::size_t, typename... Args>
+T Hash(const Args&... args)
+{
+    std::size_t seed = 0;
+
+    (HashCombine(seed, std::hash<std::decay_t<Args>>{}(args)), ...);
+
+    return static_cast<T>(seed);
+}
+
 class IService
 {
 public:

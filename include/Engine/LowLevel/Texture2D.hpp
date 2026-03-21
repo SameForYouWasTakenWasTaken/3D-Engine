@@ -41,5 +41,6 @@ public:
     void Use(GLenum type = GL_TEXTURE0);
 
     GLuint GetTexture() const {return id;}
+    std::string GetPath() const {return texture_filepath;};
     bool IsLoaded() const {return loaded;}
 };

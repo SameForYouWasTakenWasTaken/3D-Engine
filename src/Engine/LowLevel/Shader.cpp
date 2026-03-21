@@ -33,6 +33,9 @@ Shader::Shader(const std::string& VertexSourceFilePath, const std::string& Fragm
     auto ShaderSources = result.value();
 
     SetShaderSources(ShaderSources.first.c_str(), ShaderSources.second.c_str());
+    VertexShaderSource = VertexSourceFilePath;
+    FragmentShaderSource = FragmentSourceFilePath;
+
     ResetShaders(); // Forward to resetshaders, since it already handles all of the shader creation
 }
 
@@ -61,6 +64,9 @@ void Shader::ResetShaders(const std::string& VertexSourceFilepath, const std::st
 
     auto ShaderSources = result.value();
     SetShaderSources(ShaderSources.first.c_str(), ShaderSources.second.c_str());
+    VertexShaderSource = VertexSourceFilepath;
+    FragmentShaderSource = FragmentSourceFilepath;
+
     ResetShaders(); // Forward to resetshaders, since it already handles all of the shader creation
     int x;
 }
@@ -201,4 +207,11 @@ int Shader::GetUniformLocation(const std::string& name)
         return glGetUniformLocation(m_Program, name.c_str());
 
     return -1;
+}
+
+std::pair<std::string, std::string> Shader::GetFilepaths() const
+{
+    auto copyVertex = VertexShaderSource;
+    auto copyFrag = FragmentShaderSource;
+    return std::make_pair<std::string, std::string>(std::move(copyVertex), std::move(copyFrag));
 }

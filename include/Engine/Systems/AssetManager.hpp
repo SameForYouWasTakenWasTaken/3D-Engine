@@ -11,13 +11,17 @@ struct ModelData
     std::string directory;
     Model model;
 };
+
 class AssetManager : public IService
 {
     std::unordered_map<ModelID, ModelData> m_Models;
-    std::unordered_map<std::string, ModelID> m_PathToID;
-
-    ModelID m_NextModelID = 0;
 public:
+    [[nodiscard]]
     ModelID Load(const std::string& directory);
+
+    [[nodiscard]]
+    ModelID Load(const Model& model);
+
+    [[nodiscard]]
     Model* Get(ModelID id);
 };

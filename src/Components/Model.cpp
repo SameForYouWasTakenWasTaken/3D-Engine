@@ -13,6 +13,11 @@ const std::vector<SubMesh>& Model::GetSubMeshes() const
     return this->m_Meshes;
 }
 
+std::string Model::GetDirectory() const
+{
+    return m_Directory;
+}
+
 void Model::loadModel(const std::string& path)
 {
     m_Meshes.clear();
