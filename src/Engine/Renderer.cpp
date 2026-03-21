@@ -40,10 +40,82 @@ void Renderer::Submit(Mesh* mesh, uint32_t materialID, COMPTransform* transform,
         batch.mesh = mesh;
         batch.materialID = materialID;
         batch.active_scene = active_scene;
+        batch.transform = transform;
     }
 
     // Send out to the m_Batches unordered_map, which will be used for batch rendering in the End() function
     batch.instances.push_back(instanceData);
+}
+
+void Renderer::CacheDrawObject(RenderObject& object)
+{
+
+    auto diffuse = object.diffuse;
+    auto specular = object.specular;
+    auto* shader = object.shader;
+    auto* mesh = object.mesh;
+    auto* material = object.material;
+    auto* scene = object.scene;
+
+    std::shared_ptr<LightManager> lightManager = scene->m_LightManager;
+
+    entt::entity cam = scene->m_CameraManager.GetActiveCamera();
+    auto* TransformCam = scene->registry.try_get<COMPTransform>(cam);
+    auto* Camera = scene->registry.try_get<COMPCamera>(cam);
+
+    if (!material || !shader || !mesh || !TransformCam || !Camera) return;
+
+    CameraContext camContext = Camera->GetCameraContext();
+
+    // Create a default specular texure if none exists
+    if (!specular)
+    {
+        auto& textureManager = Services::Get().GetService<Texture2DManager>();
+        auto id = textureManager.Load("Resources/Textures2D/default_spec.png");
+        specular = textureManager.Get(id.value());
+
+        if (!specular || !id)
+            return; // atp code is trolling and sum went wrong, too tired for this bs
+
+        // Assign specular texture to the material to prevent repeat of this if statement
+        material->specular = id.value();
+    }
+
+    if (!diffuse)
+    {
+        auto& textureManager = Services::Get().GetService<Texture2DManager>();
+        auto id = textureManager.Load("Resources/Textures2D/default_diffuse.png");
+        diffuse = textureManager.Get(id.value());
+
+        if (!diffuse || !id)
+            return; // atp code is trolling and sum went wrong, too tired for this bs
+
+        // Assign diffuse texture to the material to prevent repeat of this if statement
+        material->diffuse = id.value();
+    }
+
+    shader->UseProgram();
+    shader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
+    shader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
+    shader->SetVec3("cam.viewPos", TransformCam->position);
+    shader->SetFloat("cam.near", camContext.near);
+    shader->SetFloat("cam.far", camContext.far);
+
+    shader->SetVec3("material.ambient", material->ambient);
+    shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() below
+    shader->SetInt("material.specular", 1); // Slot 1
+    shader->SetFloat("material.shininess", material->shininess);
+    shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
+    lightManager->UploadToShader(shader);
+
+    diffuse->Use(GL_TEXTURE0);
+    specular->Use(GL_TEXTURE1);
+    mesh->vao.Bind();
+}
+
+void Renderer::CacheDrawObjectOutline(const RenderObject& object, float scaleAmount)
+{
+
 }
 
 void Renderer::Begin()
@@ -81,47 +153,18 @@ void Renderer::End()
         Material* material = materialManager.Get(batch.materialID);
 
         auto shader = shaderManager.Get(material->shader);
-
         auto diffuseTexture = textureManager.Get(material->diffuse);
         auto specularTexture = textureManager.Get(material->specular);
 
-        std::shared_ptr<LightManager> lightManager = batch.active_scene->m_LightManager;
-
-        entt::entity cam = batch.active_scene->m_CameraManager.GetActiveCamera();
-        auto* TransformCam = batch.active_scene->registry.try_get<COMPTransform>(cam);
-        auto* Camera = batch.active_scene->registry.try_get<COMPCamera>(cam);
-
-        if (!material || !shader || !mesh || !TransformCam || !Camera) continue;
-
-        CameraContext camContext = Camera->GetCameraContext();
-
-        // Create a default specular texure if none exists
-        if (!specularTexture)
-        {
-            auto id = textureManager.Load("Resources/Textures2D/default_spec.png");
-            specularTexture = textureManager.Get(id.value());
-
-            if (!specularTexture || !id)
-                continue; // atp code is trolling and sum went wrong, too tired for this bs
-
-            // Assign specular texture to the material to prevent repeat of this if statement
-            material->specular = id.value();
-        }
-
-        if (!diffuseTexture)
-        {
-            auto id = textureManager.Load("Resources/Textures2D/default_diffuse.png");
-            diffuseTexture = textureManager.Get(id.value());
-
-            if (!diffuseTexture || !id)
-                continue; // atp code is trolling and sum went wrong, too tired for this bs
-
-            // Assign diffuse texture to the material to prevent repeat of this if statement
-            material->diffuse = id.value();
-        }
+        auto Object = RenderObject{};
+        Object.mesh = mesh;
+        Object.shader = shader.get();
+        Object.material = material;
+        Object.diffuse = diffuseTexture;
+        Object.specular = specularTexture;
+        Object.scene = batch.active_scene;
 
         mesh->instanceVBO.Bind();
-
         size_t instanceCount = batch.instances.size();
         // Update buffer data allocated inside the mesh, not reallocate
         glBufferSubData(
@@ -131,24 +174,7 @@ void Renderer::End()
             batch.instances.data()
         );
 
-        shader->UseProgram();
-        shader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
-        shader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
-        shader->SetVec3("cam.viewPos",TransformCam->position);
-        shader->SetFloat("cam.near", camContext.near);
-        shader->SetFloat("cam.far",camContext.far);
-
-        shader->SetVec3("material.ambient", material->ambient);
-        shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() below
-        shader->SetInt("material.specular", 1); // Slot 1
-        shader->SetFloat("material.shininess", material->shininess);
-        shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
-        shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
-        lightManager->UploadToShader(shader.get());
-
-        diffuseTexture->Use(GL_TEXTURE0);
-        specularTexture->Use(GL_TEXTURE1);
-        mesh->vao.Bind();
+        CacheDrawObject(Object);
 
         if (mesh->Indexed)
         {

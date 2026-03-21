@@ -114,6 +114,7 @@ App::App(AppSettings Settings)
     }
 
     enableReportGlErrors();
+    glEnable(GL_STENCIL_TEST);
     glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
     glEnable(GL_BLEND); // Enables blending
     glDepthFunc(GL_LESS); // default: pass if fragment is closer
@@ -156,18 +157,27 @@ void App::Run()
 
     scene->AddLayer(gameLayer);
     float dt;
+    double fps = 0;
+
     auto then = glfwGetTime();
     while (!glfwWindowShouldClose(m_EngineContext.ActiveWindow) && !m_EngineContext.SafeShutdown)
     {
         float now = glfwGetTime();
         dt = now - then;
         then = now;
-        glClearColor( 0, 0.502, 0.502, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        
+        double currentFPS = 1.0 / dt;
+        // exponential smoothing
+        fps = 0.9 * fps + 0.1 * currentFPS;
+
+
+
+        glClearColor( 0, 0.502, 0.502, 1.f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+
         renderer.Begin();
-        
+
         // Updating
         renderer.Update(dt);
         sceneManager.Update(dt);
@@ -178,6 +188,8 @@ void App::Run()
 
         glfwSwapBuffers(m_EngineContext.ActiveWindow);
         glfwPollEvents();
+
+        std::cout << "FPS: " << fps << "\n";
     }
 
     Shutdown();

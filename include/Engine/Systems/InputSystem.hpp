@@ -15,6 +15,7 @@ public:
      * Initializes an InputSystem object; all state is default-initialized.
      */
     InputSystem() = default;
+    InputSystem(const InputSystem&) = delete;
         /**
      * @brief Default destructor for InputSystem.
      */

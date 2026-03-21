@@ -24,10 +24,22 @@ class Renderer : public IService {
     {
         Mesh* mesh;
         Scene* active_scene;
+        COMPTransform* transform;
         uint32_t materialID;
         
         std::vector<InstanceData> instances;
         GLuint instanceVBO = 0;
+    };
+
+    struct RenderObject
+    {
+        Mesh* mesh;
+        Shader* shader;
+        Material* material;
+        std::shared_ptr<Texture2D> diffuse;
+        std::shared_ptr<Texture2D> specular;
+        COMPTransform* transform;
+        Scene* scene; // The scene it is currently in
     };
 
     std::unordered_map<size_t, Batch> m_Batches;
@@ -40,7 +52,9 @@ public:
     ~Renderer() = default;
 
     void Submit(Mesh* mesh, uint32_t materialID, COMPTransform* transform, Scene* active_scene);
-    
+    void CacheDrawObject(RenderObject& object);
+    void CacheDrawObjectOutline(const RenderObject& object, float scaleAmount);
+
     void Begin();
     void Update(float dt);
     void End();

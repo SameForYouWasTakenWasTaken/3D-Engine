@@ -13,6 +13,7 @@ class Texture2DManager : public IService
     std::unordered_map<TextureID, std::shared_ptr<Texture2D>> m_Textures;
 public:
     Texture2DManager() = default;
+    Texture2DManager(const Texture2DManager&) = delete;
 
     [[nodiscard]]
     std::optional<TextureID> Load(const std::string& path);

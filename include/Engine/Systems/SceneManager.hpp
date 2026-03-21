@@ -22,6 +22,8 @@ class SceneManager : public IService
     EventCallbackFn m_EventCallback;
     std::unordered_map<uint32_t, std::shared_ptr<Scene>> m_Scenes;
 public:
+    SceneManager() = default;
+    SceneManager(const SceneManager&) = delete;
     EngineContext& m_EngineContext;
     std::shared_ptr<Scene> m_ActiveScene = nullptr;
 

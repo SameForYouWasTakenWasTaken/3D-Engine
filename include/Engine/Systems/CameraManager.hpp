@@ -13,6 +13,7 @@ class CameraManager final
 public:
     Logger logger = Logger("CAMERA_MANAGER");
     CameraManager() = default;
+    CameraManager(const CameraManager&) = delete;
     ~CameraManager() = default;
 
     void Update(entt::registry& registry, float dt);

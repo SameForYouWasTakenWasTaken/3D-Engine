@@ -12,7 +12,8 @@ class ShaderManager : public IService
 {
     std::unordered_map<ShaderID, std::shared_ptr<Shader>> m_Shaders;
 public:
-
+    ShaderManager() = default;
+    ShaderManager(const ShaderManager&) = delete;
 
     [[nodiscard]]
     ShaderID Load(const std::string& vert, const std::string& frag);

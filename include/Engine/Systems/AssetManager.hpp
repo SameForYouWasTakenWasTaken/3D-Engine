@@ -16,6 +16,8 @@ class AssetManager : public IService
 {
     std::unordered_map<ModelID, ModelData> m_Models;
 public:
+    AssetManager() = default;
+    AssetManager(const AssetManager&) = delete;
     [[nodiscard]]
     ModelID Load(const std::string& directory);
 

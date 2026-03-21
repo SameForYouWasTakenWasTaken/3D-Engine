@@ -11,7 +11,7 @@ class MaterialManager : public IService
     uint32_t m_NextMaterialID = 0;
 public:
     MaterialManager() = default;
-
+    MaterialManager(const MaterialManager&) = delete;
     [[nodiscard]]
     MaterialID Load(Material material);
 

@@ -12,7 +12,8 @@ class LightManager final
     std::unordered_map<LightID, std::unique_ptr<LightBase>> m_Lights;
     LightID m_NextLightID = 0;
 public:
-
+    LightManager() = default;
+    LightManager(const LightManager&) = delete;
 
     template <typename T, typename... Args>
     std::optional<LightID> Load(Args&&... args)
