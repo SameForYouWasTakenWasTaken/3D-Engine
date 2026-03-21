@@ -64,6 +64,14 @@ void Shader::ResetShaders(const std::string& VertexSourceFilepath, const std::st
     ResetShaders(); // Forward to resetshaders, since it already handles all of the shader creation
 }
 
+/**
+ * @brief Compile stored GLSL sources and create or replace the OpenGL shader program.
+ *
+ * Compiles the current vertex and fragment shader source strings, links them into a new
+ * OpenGL program, and replaces the existing program handle. If shader sources are empty
+ * the function returns without modifying state. Compilation or link failures are recorded
+ * to the logger under the "SHADER" tag. Shader objects are deleted after linking.
+ */
 void Shader::ResetShaders()
 {
     if (GLSL_FragmentShaderSource.empty() || GLSL_VertexShaderSource.empty())
@@ -98,6 +106,19 @@ void Shader::ResetShaders()
 
     glLinkProgram(m_Program);
 
+    // glBindAttribLocation(m_Program, 0, "position");
+    // glBindAttribLocation(m_Program, 1, "color");
+    // glBindAttribLocation(m_Program, 2, "texCoord");
+    //
+    // glBindAttribLocation(m_Program, 11, "row0"); // match your shader's names
+    // glBindAttribLocation(m_Program, 12, "row1");
+    // glBindAttribLocation(m_Program, 13, "row2");
+    // glBindAttribLocation(m_Program, 14, "row3");
+    //
+    // glBindAttribLocation(m_Program, 15, "normalRow0");
+    // glBindAttribLocation(m_Program, 16, "normalRow1");
+    // glBindAttribLocation(m_Program, 17, "normalRow2");
+
     // Debug    
     int success;
     char infoLog[512];
@@ -119,10 +140,13 @@ void Shader::ResetShaders()
 
     glDeleteShader(m_VertexShader);
     glDeleteShader(m_FragmentShader);
-
-    //SetInt("ShaderTexture", 0);
 }
 
+/**
+ * @brief Activates this shader program for use in the current OpenGL context.
+ *
+ * Dumps any accumulated logs before attempting to activate the program. If the stored program handle is not a valid OpenGL program, logs an error and does not change the current program.
+ */
 void Shader::UseProgram()
 {
     logger.DumpLogs(); // Dump all logs before using the shader

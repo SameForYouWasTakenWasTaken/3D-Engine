@@ -16,6 +16,9 @@ TEST(MaterialTest, DefaultConstruction) {
 
     // Check default shininess
     EXPECT_FLOAT_EQ(material.shininess, 32.0f);
+
+    // Check default transparency (fully opaque)
+    EXPECT_FLOAT_EQ(material.transparency, 1.0f);
 }
 
 // Test Material struct with custom values
@@ -199,4 +202,59 @@ TEST(MaterialTest, RealisticMaterials) {
     rubber.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
     rubber.shininess = 8.0f;
     EXPECT_LT(rubber.shininess, 16.0f);
+}
+
+// ─── Transparency field tests ──────────────────────────────────────────────
+
+// Test Material default transparency
+TEST(MaterialTest, TransparencyDefaultIsOpaque) {
+    Material material;
+    EXPECT_FLOAT_EQ(material.transparency, 1.0f);
+}
+
+// Test setting transparency to fully transparent
+TEST(MaterialTest, TransparencyFullyTransparent) {
+    Material material;
+    material.transparency = 0.0f;
+    EXPECT_FLOAT_EQ(material.transparency, 0.0f);
+}
+
+// Test setting transparency to semi-transparent
+TEST(MaterialTest, TransparencySemiTransparent) {
+    Material material;
+    material.transparency = 0.5f;
+    EXPECT_FLOAT_EQ(material.transparency, 0.5f);
+}
+
+// Test that transparency is independent of other fields
+TEST(MaterialTest, TransparencyIndependentOfOtherFields) {
+    Material m1;
+    m1.transparency = 0.3f;
+    m1.shininess = 64.f;
+
+    Material m2;
+    m2.transparency = 0.8f;
+    m2.shininess = 64.f;
+
+    EXPECT_FLOAT_EQ(m1.shininess, m2.shininess);
+    EXPECT_NE(m1.transparency, m2.transparency);
+}
+
+// Test transparency copy
+TEST(MaterialTest, TransparencyCopiedCorrectly) {
+    Material src;
+    src.transparency = 0.25f;
+    Material copy = src;
+    EXPECT_FLOAT_EQ(copy.transparency, 0.25f);
+    copy.transparency = 0.9f;
+    EXPECT_FLOAT_EQ(src.transparency, 0.25f);
+}
+
+// Regression: transparency field exists alongside shader ID in Material
+TEST(MaterialTest, TransparencyAndShaderCoexist) {
+    Material material;
+    material.shader = 7;
+    material.transparency = 0.6f;
+    EXPECT_EQ(material.shader, 7u);
+    EXPECT_FLOAT_EQ(material.transparency, 0.6f);
 }

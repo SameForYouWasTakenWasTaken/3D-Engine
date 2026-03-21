@@ -1,72 +1,63 @@
+#include <iostream>
 #include <Components/Mesh.hpp>
 
 /**
- * @brief Initialize mesh geometry and configure the VAO for rendering, including instanced transforms.
+ * @brief Uploads mesh vertex and index data to the GPU and configures the VAO for rendering and instancing.
  *
- * Uploads vertex and index data to the GPU, allocates a buffer for up to 10,000 per-instance transformation matrices,
- * enables and configures vertex attributes for position, color, texture coordinates, and the four matrix row attributes
- * (locations 11–14) with an attribute divisor of 1 to support instanced rendering. Updates the mesh's IndexCount and
- * VertexCount to reflect the provided data.
+ * Allocates a dynamic per-instance buffer for up to 10,000 InstanceData entries and configures per-vertex attributes
+ * (position, color, texture coordinates, normal) plus instanced attributes for the model and normal matrices with
+ * attribute divisors set for per-instance advancement. Updates IndexCount, VertexCount, and Indexed to reflect the
+ * mesh's current data.
  *
- * @param vertices Vector of vertex data to upload to the vertex buffer.
- * @param indices  Vector of element indices to upload to the index buffer.
- * @param draw_type OpenGL buffer usage hint used when uploading vertex and index data (e.g., `GL_STATIC_DRAW`, `GL_DYNAMIC_DRAW`).
+ * @param draw_type OpenGL usage hint used when uploading vertex and index buffers (e.g., `GL_STATIC_DRAW`, `GL_DYNAMIC_DRAW`).
  */
-void Mesh::SetData(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, GLenum draw_type)
+void Mesh::SetData(GLenum draw_type)
 {
-
     vao.Bind();
-    
+
+    // Vertex buffer
     vbo.Bind();
     vbo.SetData(vertices, draw_type);
-    
+
+    // Element buffer
     ebo.Bind();
     ebo.SetData(indices, draw_type);
 
-    vao.LinkAttrib(GetAttribPointerPos());
-    vao.LinkAttrib(GetAttribPointerCol());
-    vao.LinkAttrib(GetAttribPointerTex());
-    vao.LinkAttrib(GetAttribPointerNormal());
-    
+    // Per-vertex attributes
+    vao.LinkAttrib(GetAttribPointerPos());  // location 0
+    vao.LinkAttrib(GetAttribPointerCol());  // location 1
+    vao.LinkAttrib(GetAttribPointerTex());  // location 2
+    vao.LinkAttrib(GetAttribPointeraNormal()); // location 3
 
+    // Bind instance VBO first
     instanceVBO.Bind();
-
-    // Allocate empty buffer for instance transforms
     constexpr size_t MAX_INSTANCES = 10000;
+    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * sizeof(InstanceData), nullptr, GL_DYNAMIC_DRAW);
 
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        MAX_INSTANCES * sizeof(glm::mat4),
-        nullptr,
-        GL_DYNAMIC_DRAW
-    );
+    size_t vec4Size = sizeof(glm::vec4);
 
-    // Configure matrix attributes (11–14)
-    std::size_t vec4Size = sizeof(glm::vec4);
-
+    // Model matrix: locations 4–7
     for (int i = 0; i < 4; ++i)
     {
-        glEnableVertexAttribArray(11 + i);
-
-        glVertexAttribPointer(
-            11 + i,
-            4,
-            GL_FLOAT,
-            GL_FALSE,
-            sizeof(glm::mat4),
-            (void*)(i * vec4Size)
-        );
-
-        // Important for instancing
-        glVertexAttribDivisor(11 + i, 1);
+        glEnableVertexAttribArray(4 + i);
+        glVertexAttribPointer(4 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(i * vec4Size));
+        glVertexAttribDivisor(4 + i, 1);
     }
 
+    // Normal matrix: locations 8–10
+    for (int i = 0; i < 3; ++i)
+    {
+        glEnableVertexAttribArray(8 + i);
+        glVertexAttribPointer(8 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(64 + i * vec4Size));
+        glVertexAttribDivisor(8 + i, 1);
+    }
+
+    // Cleanup
     vao.Unbind();
     vbo.Unbind();
     ebo.Unbind();
-
+    instanceVBO.Unbind();
     IndexCount = indices.size();
     VertexCount = vertices.size();
-
     Indexed = !indices.empty();
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <expected>
+#include <memory>
 
 #include <Engine/Layer.hpp>
 #include <Logger.hpp>
 
-#include <entt.hpp>
 #include <Engine/Systems/CameraManager.hpp>
 #include <Engine/Systems/SceneManager.hpp>
 #include <Engine/Systems/LightManager.hpp>
@@ -31,9 +31,8 @@ class Scene final
     uint32_t SceneID = -1;
 public:
 //    Make friend????
-    SceneManager* m_SceneManager;
+    std::shared_ptr<LightManager> m_LightManager = std::make_shared<LightManager>();
     CameraManager m_CameraManager;
-    LightManager m_LightManager;
     entt::registry registry;
 
     Logger logger = Logger("SCENE");
@@ -57,7 +56,7 @@ Scene() = default;
     virtual void Draw();
     virtual void Update(float dt);
     virtual void OnEvent(Event& e);
-    virtual void OnAttach(SceneManager* sceneManager, uint32_t id); // On attach to the scene manager
+    virtual void OnAttach(uint32_t id); // On attach to the scene manager
     virtual void OnDetach(); // on detach from the scene manager
     
     // EngineContext* because std::expected cant take reference

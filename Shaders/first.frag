@@ -1,15 +1,47 @@
 #version 460 core
 
 struct Material {
-    sampler2D diffuse;   // diffuse map
+    sampler2D diffuse;
     vec3 ambient;
     vec3 specular;
     float shininess;
 };
 
-struct Light {
+struct DirectionLight {
+    vec3 color;
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct PointLight {
+    vec3 color;
     vec3 position;
-    vec3 color;      // base color of the light
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+struct SpotLight {
+    vec3 color;
+    vec3 position;
+    vec3 direction;
+
+    float cutOff;
+    float outerCutOff;
+    float dist;
+
+    // point light variables
+    float constant;
+    float linear;
+    float quadratic;
+
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -21,51 +53,135 @@ in vec3 Normal;
 in vec3 FragPos;
 
 uniform Material material;
-uniform Light lights[16]; // array of lights
-uniform int numLights;    // number of active lights
+
+// numDirLights is configured in LightManager UploadShader, same for numPointLights
+uniform DirectionLight dirLights[16];
+uniform int numDirLights;
+
+uniform PointLight pointLights[16];
+uniform int numPointLights;
+
+uniform SpotLight spotLights[16];
+uniform int numSpotLights;
+
 uniform vec3 viewPos;
 
 out vec4 FragColor;
 
-void main()
+// --- Calculate directional lights from an array ---
+vec3 calculateDirectional(vec3 norm, vec3 viewDir, vec3 texColor)
 {
-    // --- Normalize vectors ---
-    vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 result = vec3(0.0);
 
-    // --- Sample diffuse map ---
-    vec3 texColor = texture(material.diffuse, fragmentTexCoord).rgb;
-
-    // --- Accumulators ---
-    vec3 ambientAccum = vec3(0.0);
-    vec3 diffuseAccum = vec3(0.0);
-    vec3 specularAccum = vec3(0.0);
-
-    // --- Loop over lights ---
-    for (int i = 0; i < numLights; ++i)
+    for (int i = 0; i < numDirLights; i++)
     {
-        Light currLight = lights[i];
+        DirectionLight light = dirLights[i];
 
-        // Ambient contribution
-        ambientAccum += currLight.ambient * currLight.color * texColor;
-
-        // Diffuse contribution (Lambert)
-        vec3 lightDir = normalize(currLight.position - FragPos);
+        vec3 lightDir = normalize(-light.direction);
         float diff = max(dot(norm, lightDir), 0.0);
-        diffuseAccum += diff * currLight.diffuse * currLight.color * texColor;
 
-        // Specular contribution (Phong)
         vec3 reflectDir = reflect(-lightDir, norm);
         float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-        specularAccum += spec * currLight.specular * currLight.color;
+
+        vec3 ambient = light.ambient * texColor;
+        vec3 diffuse = light.diffuse * diff * texColor;
+        vec3 specular = light.specular * spec;
+
+        result += ambient + diffuse + specular;
     }
 
-    // --- Combine results ---
-    vec3 result = ambientAccum + diffuseAccum + specularAccum;
+    return result;
+}
+
+// --- Calculate point lights from an array ---
+vec3 calculatePoint(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 texColor)
+{
+    vec3 result = vec3(0.0);
+
+    for (int i = 0; i < numPointLights; i++)
+    {
+        PointLight light = pointLights[i];
+
+        vec3 lightDir = normalize(light.position - fragPos);
+        float diff = max(dot(norm, lightDir), 0.0);
+
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+        float distance = length(light.position - fragPos);
+        float attenuation = 1.0 / (light.constant +
+        light.linear * distance +
+        light.quadratic * distance * distance);
+
+        vec3 ambient  = light.ambient * texColor;
+        vec3 diffuse  = light.diffuse * diff * texColor * attenuation;
+        vec3 specular = light.specular * spec * attenuation;
+
+        result += ambient + diffuse + specular;
+    }
+
+    return result;
+}
+
+vec3 calculateSpot(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 texColor)
+{
+    vec3 result = vec3(0.0);
+
+    for (int i = 0; i < numSpotLights; i++)
+    {
+        SpotLight light = spotLights[i];
+
+
+        float distance = length(light.position - fragPos);
+
+
+        if(distance > light.dist)
+        {
+            continue;
+        }
+
+        vec3 lightDir = normalize(light.position - fragPos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+
+        float diff = max(dot(norm, lightDir), 0.0);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        float attenuation = 1.0 / (light.constant +
+        light.linear * distance +
+        light.quadratic * distance * distance);
+
+        float theta = dot(lightDir, normalize(-light.direction));
+
+        float epsilon = light.cutOff - light.outerCutOff;
+        float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
+        vec3 ambient  = light.ambient * texColor;
+        vec3 diffuse  = light.diffuse * diff * texColor;
+        vec3 specular = light.specular * spec;
+
+        result += (ambient + diffuse + specular) * attenuation * intensity;
+    }
+
+    return result;
+}
+
+void main()
+{
+    vec3 norm = normalize(Normal);
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 texColor = texture(material.diffuse, fragmentTexCoord).rgb;
+
+    // Calculate contributions per light type
+    vec3 resultDirectional = calculateDirectional(norm, viewDir, texColor);
+    vec3 resultPoint = calculatePoint(norm, viewDir, FragPos, texColor);
+    vec3 resultSpot = calculateSpot(norm, viewDir, FragPos, texColor);
+
+    // Combine all contributions
+    vec3 result = resultDirectional + resultPoint + resultSpot;
 
     // Apply vertex color
     result *= vertexColor.rgb;
 
-    // Final fragment color
     FragColor = vec4(result, texture(material.diffuse, fragmentTexCoord).a * vertexColor.a);
+
 }
+

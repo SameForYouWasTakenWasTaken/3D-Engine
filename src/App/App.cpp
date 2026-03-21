@@ -112,27 +112,37 @@ App::App(AppSettings Settings)
 	glEnable(GL_BLEND); // Enables blending
 	glDepthFunc(GL_LESS); // default: pass if fragment is closer
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
+
+    Services& services = Services::Get();
+
+    services.RegisterService<Renderer>(m_EngineContext);
+    services.RegisterService<SceneManager>(m_EngineContext);
+    services.RegisterService<InputSystem>();
+    services.RegisterService<ShaderManager>();
+    services.RegisterService<MaterialManager>();
+    services.RegisterService<Texture2DManager>();
 }
 /**
- * @brief Starts and runs the application's main loop, managing rendering and scene updates.
+ * @brief Starts the application's main loop and drives per-frame updates and rendering.
  *
- * Initializes the renderer and scene manager, prepares initial scenes and layers, then enters
- * the main loop which: computes frame delta time, clears the frame, drives the renderer and
- * scene manager update/draw phases each frame, swaps window buffers, and polls events.
- * The loop continues until the GLFW window is flagged to close or the engine context requests
- * a safe shutdown. Calls Shutdown() after exiting the loop.
+ * Prepares initial scenes and layers using the SceneManager, then runs the loop until the
+ * GLFW window is requested to close or the engine requests a safe shutdown. While running,
+ * the loop advances frame time, updates subsystems, and issues rendering commands. Calls
+ * Shutdown() after exiting the loop.
  */
 void App::Run()
 {
-    renderer = std::make_unique<Renderer>(m_EngineContext);
-    m_EngineContext.renderer = renderer.get();
 
-    m_SceneManager = std::make_unique<SceneManager>(m_EngineContext);
+    auto& services = Services::Get();
+
+    auto& renderer = services.GetService<Renderer>();
+    auto& sceneManager = services.GetService<SceneManager>();
+
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto scene = std::make_shared<Scene>();
     auto scene2 = std::make_shared<Scene>();
-    m_SceneManager->AddScene(scene);
+    sceneManager.AddScene(scene);
 
     scene->AddLayer(gameLayer);
     float dt;
@@ -142,19 +152,19 @@ void App::Run()
         float now = glfwGetTime();
         dt = now - then;
         then = now;
-        glClearColor(0.2f, 0.3f, 0.4f, 1.f);
+        glClearColor( 0, 0.502, 0.502, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         
-        renderer->Begin();
+        renderer.Begin();
         
         // Updating
-        renderer->Update(dt);
-        m_SceneManager->Update(dt);
+        renderer.Update(dt);
+        sceneManager.Update(dt);
 
         // Drawing
-        m_SceneManager->Draw();
-        renderer->End();
+        sceneManager.Draw();
+        renderer.End();
 
         glfwSwapBuffers(m_EngineContext.ActiveWindow);
         glfwPollEvents();
@@ -179,7 +189,13 @@ void App::Shutdown()
  */
 void App::OnEvent(Event& e)
 {
-    renderer->OnEvent(e);
-    m_SceneManager->OnEvent(e);
-    m_InputSystem.OnEvent(e);
+    auto& services = Services::Get();
+
+    auto& renderer = services.GetService<Renderer>();
+    auto& sceneManager = services.GetService<SceneManager>();
+    auto& input = services.GetService<InputSystem>();
+
+    renderer.OnEvent(e);
+    sceneManager.OnEvent(e);
+    input.OnEvent(e);
 }

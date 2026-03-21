@@ -6,6 +6,10 @@ add_executable(engine_tests
         test_light_manager.cpp
         test_texture2d_manager.cpp
         test_shader_parse.cpp
+        test_transform.cpp
+        test_camera.cpp
+        test_services.cpp
+        test_light_types.cpp
         # Source files needed for testing
         ${CMAKE_SOURCE_DIR}/src/Engine/Systems/LightManager.cpp
         ${CMAKE_SOURCE_DIR}/src/Engine/Systems/Texture2DManager.cpp
@@ -14,6 +18,10 @@ add_executable(engine_tests
         ${CMAKE_SOURCE_DIR}/src/Logger.cpp
         ${CMAKE_SOURCE_DIR}/src/glad.c
         ${CMAKE_SOURCE_DIR}/src/Engine/LowLevel/stb_image.c
+        ${CMAKE_SOURCE_DIR}/src/Components/Transform.cpp
+        ${CMAKE_SOURCE_DIR}/src/Components/Camera.cpp
+        ${CMAKE_SOURCE_DIR}/src/Components/Light.cpp
+        ${CMAKE_SOURCE_DIR}/src/App/Services.cpp
 )
 
 # Include directories for tests
