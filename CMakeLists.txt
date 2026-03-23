@@ -11,13 +11,15 @@ endif ()
 file(GLOB_RECURSE SRC_FILES "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/src/*.c")
 file(GLOB_RECURSE HEADER_FILES "${CMAKE_SOURCE_DIR}/include/*.h" "${CMAKE_SOURCE_DIR}/include/*.hpp")
 
+# google test
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
 # Assimp options
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
@@ -42,21 +44,17 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG v1.15.2
-)
-
-FetchContent_Declare(
         assimp
         GIT_REPOSITORY https://github.com/assimp/assimp.git
         GIT_TAG v6.0.4
 )
 
-FetchContent_MakeAvailable(glfw glm spdlog googletest assimp)
+FetchContent_MakeAvailable(glfw glm spdlog assimp)
 
 
-add_executable(GLmain ${SRC_FILES} ${HEADER_FILES})
+add_executable(GLmain ${SRC_FILES} ${HEADER_FILES}
+        src/Engine/LowLevel/FBO.cpp
+        src/Engine/Layers/PresentLayer.cpp)
 
 target_include_directories(GLmain PRIVATE
         "${CMAKE_SOURCE_DIR}/include"
@@ -82,28 +80,9 @@ add_custom_command(TARGET GLmain POST_BUILD
         $<TARGET_FILE_DIR:GLmain>/Resources
 )
 
-add_custom_command(TARGET GLmain POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:assimp>
-        $<TARGET_FILE_DIR:GLmain>
-)
 
-add_custom_command(TARGET GLmain POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:glfw>
-        $<TARGET_FILE_DIR:GLmain>
-)
+ # Enable testing
+ enable_testing()
 
-add_custom_command(TARGET GLmain POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:spdlog>
-        $<TARGET_FILE_DIR:GLmain>
-)
-
-
-
-# # Enable testing
-# enable_testing()
-
-# # Add tests subdirectory
-# add_subdirectory(tests)
+ # Add tests subdirectory
+ add_subdirectory(tests)

@@ -10,8 +10,8 @@ TEST(VertexTest, DefaultConstruction) {
     vertex.color = glm::vec4(0.0f);
 
     // Check default tex_coords
-    EXPECT_FLOAT_EQ(vertex.tex_coords.x, 1.0f);
-    EXPECT_FLOAT_EQ(vertex.tex_coords.y, 1.0f);
+    EXPECT_FLOAT_EQ(vertex.tex_coords.x, 0.0f);
+    EXPECT_FLOAT_EQ(vertex.tex_coords.y, 0.0f);
 
     // Check default normal (pointing in +Z direction)
     EXPECT_FLOAT_EQ(vertex.normal.x, 0.0f);

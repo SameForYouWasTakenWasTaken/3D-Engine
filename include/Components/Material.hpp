@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <glm/glm.hpp>
 
 using TextureID = uint32_t;
@@ -17,6 +18,12 @@ struct Material
 
     float transparency = 1.0f;
     float shininess = 32.0f;
+};
+
+struct MaterialOverride
+{
+    std::optional<float> transparency;
+    std::optional<float> shininess;
 };
 
 struct COMPMaterial

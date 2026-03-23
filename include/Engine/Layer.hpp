@@ -20,7 +20,7 @@ public:
 
     virtual void OnDraw() {}
     virtual void OnUpdate(float dt) {}
-    virtual void OnEvent(Event& e) {} //TODO: add event to arguments later
+    virtual void OnEvent(Event& e) {}
     virtual void OnAttach() {}
     virtual void OnDetach() {}
 };

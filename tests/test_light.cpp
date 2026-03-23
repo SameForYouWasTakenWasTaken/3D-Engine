@@ -5,10 +5,10 @@
 TEST(LightTest, DefaultConstruction) {
     DirectionalLight light;
 
-    // Check default position
-    EXPECT_FLOAT_EQ(light.position.x, 0.0f);
-    EXPECT_FLOAT_EQ(light.position.y, 0.0f);
-    EXPECT_FLOAT_EQ(light.position.z, 0.0f);
+    // Check default direction
+    EXPECT_FLOAT_EQ(light.direction.x, 0.0f);
+    EXPECT_FLOAT_EQ(light.direction.y, 0.0f);
+    EXPECT_FLOAT_EQ(light.direction.z, 0.0f);
 
     // Check default color
     EXPECT_FLOAT_EQ(light.color.x, 1.0f);
@@ -37,7 +37,7 @@ TEST(LightTest, DefaultConstruction) {
 // Test Light struct custom construction
 TEST(LightTest, CustomConstruction) {
     DirectionalLight light;
-    light.position = glm::vec3(1.0f, 2.0f, 3.0f);
+    light.direction = glm::vec3(1.0f, 2.0f, 3.0f);
     light.color = glm::vec3(0.5f, 0.6f, 0.7f);
     light.diffuse = glm::vec3(0.8f, 0.9f, 1.0f);
     light.specular = glm::vec3(0.2f, 0.3f, 0.4f);
@@ -45,9 +45,9 @@ TEST(LightTest, CustomConstruction) {
     light.intensity = 0.75f;
 
     // Verify all fields were set correctly
-    EXPECT_FLOAT_EQ(light.position.x, 1.0f);
-    EXPECT_FLOAT_EQ(light.position.y, 2.0f);
-    EXPECT_FLOAT_EQ(light.position.z, 3.0f);
+    EXPECT_FLOAT_EQ(light.direction.x, 1.0f);
+    EXPECT_FLOAT_EQ(light.direction.y, 2.0f);
+    EXPECT_FLOAT_EQ(light.direction.z, 3.0f);
 
     EXPECT_FLOAT_EQ(light.color.x, 0.5f);
     EXPECT_FLOAT_EQ(light.color.y, 0.6f);
@@ -71,7 +71,7 @@ TEST(LightTest, CustomConstruction) {
 // Test Light copy semantics
 TEST(LightTest, CopySemantics) {
     DirectionalLight light1;
-    light1.position = glm::vec3(5.0f, 6.0f, 7.0f);
+    light1.direction = glm::vec3(5.0f, 6.0f, 7.0f);
     light1.color = glm::vec3(0.1f, 0.2f, 0.3f);
     light1.intensity = 0.9f;
 
@@ -79,9 +79,9 @@ TEST(LightTest, CopySemantics) {
     DirectionalLight light2 = light1;
 
     // Verify copy has same values
-    EXPECT_FLOAT_EQ(light2.position.x, 5.0f);
-    EXPECT_FLOAT_EQ(light2.position.y, 6.0f);
-    EXPECT_FLOAT_EQ(light2.position.z, 7.0f);
+    EXPECT_FLOAT_EQ(light2.direction.x, 5.0f);
+    EXPECT_FLOAT_EQ(light2.direction.y, 6.0f);
+    EXPECT_FLOAT_EQ(light2.direction.z, 7.0f);
     EXPECT_FLOAT_EQ(light2.color.x, 0.1f);
     EXPECT_FLOAT_EQ(light2.color.y, 0.2f);
     EXPECT_FLOAT_EQ(light2.color.z, 0.3f);
@@ -130,11 +130,11 @@ TEST(LightTest, EdgeCases) {
     light.intensity = 1.0f;
     EXPECT_FLOAT_EQ(light.intensity, 1.0f);
 
-    // Test negative position (valid for lights)
-    light.position = glm::vec3(-10.0f, -20.0f, -30.0f);
-    EXPECT_FLOAT_EQ(light.position.x, -10.0f);
-    EXPECT_FLOAT_EQ(light.position.y, -20.0f);
-    EXPECT_FLOAT_EQ(light.position.z, -30.0f);
+    // Test negative direction (valid for directional lights)
+    light.direction = glm::vec3(-10.0f, -20.0f, -30.0f);
+    EXPECT_FLOAT_EQ(light.direction.x, -10.0f);
+    EXPECT_FLOAT_EQ(light.direction.y, -20.0f);
+    EXPECT_FLOAT_EQ(light.direction.z, -30.0f);
 
     // Test black color (all zeros)
     light.color = glm::vec3(0.0f, 0.0f, 0.0f);

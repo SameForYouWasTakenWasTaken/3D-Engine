@@ -1,10 +1,13 @@
 #pragma once
 #include <memory>
+#include <optional>
 
 #include <Components/Texture.hpp>
+#include <Components/Material.hpp>
 #include <Engine/LowLevel/VAO.hpp>
 #include <Engine/LowLevel/VBO.hpp>
 #include <Engine/LowLevel/EBO.hpp>
+
 
 struct InstanceData
 {
@@ -16,7 +19,7 @@ struct InstanceData
     glm::vec4 normal2;
 };
 
-inline const AttributePointer GetAttribPointerPos()
+inline AttributePointer GetAttribPointerPos()
 {
     AttributePointer pos;
     pos.index = 0;
@@ -25,7 +28,7 @@ inline const AttributePointer GetAttribPointerPos()
     return pos;
 }
 
-inline const AttributePointer GetAttribPointerCol()
+inline AttributePointer GetAttribPointerCol()
 {
     AttributePointer col;
     col.index = 1;
@@ -34,7 +37,7 @@ inline const AttributePointer GetAttribPointerCol()
     return col;
 }
 
-inline const AttributePointer GetAttribPointeraNormal()
+inline AttributePointer GetAttribPointeraNormal()
 {
     AttributePointer normal;
     normal.index = 3;
@@ -43,7 +46,7 @@ inline const AttributePointer GetAttribPointeraNormal()
     return normal;
 }
 
-inline const AttributePointer GetAttribPointerTex()
+inline AttributePointer GetAttribPointerTex()
 {
     AttributePointer tex;
     tex.index = 2;
@@ -52,7 +55,7 @@ inline const AttributePointer GetAttribPointerTex()
     return tex;
 }
 
-inline const AttributePointer GetAttribPointerNormal0()
+inline AttributePointer GetAttribPointerNormal0()
 {
     AttributePointer attr{};
     attr.index = 8; // matches shader layout location
@@ -61,7 +64,7 @@ inline const AttributePointer GetAttribPointerNormal0()
     return attr;
 }
 
-inline const AttributePointer GetAttribPointerNormal1()
+inline AttributePointer GetAttribPointerNormal1()
 {
     AttributePointer attr{};
     attr.index = 9;
@@ -70,7 +73,7 @@ inline const AttributePointer GetAttribPointerNormal1()
     return attr;
 }
 
-inline const AttributePointer GetAttribPointerNormal2()
+inline AttributePointer GetAttribPointerNormal2()
 {
     AttributePointer attr{};
     attr.index = 10;
@@ -113,4 +116,5 @@ public:
 struct COMPMesh
 {
     std::shared_ptr<Mesh> mesh;
+    MaterialID materialOverride;
 };

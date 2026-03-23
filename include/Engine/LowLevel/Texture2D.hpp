@@ -31,7 +31,7 @@ public:
     void Recreate(const std::string& filepath);
     void Recreate();
     void Bind();
-    void Unbind();
+    static void Unbind();
 
     /*
     You can draw by binding() and running the necessary OpenGL draw functions, but it's recommended to use

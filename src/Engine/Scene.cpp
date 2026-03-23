@@ -44,64 +44,10 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
  */
 void Scene::Draw()
 {
-
     for (auto& layer : m_Layers)
     {
         layer->OnDraw();
     }
-
-    auto* cam = registry.try_get<COMPCamera>(m_CameraManager.GetActiveCamera());
-    auto* camTransform = registry.try_get<COMPTransform>(m_CameraManager.GetActiveCamera());
-
-    auto& renderer = Services::Get().GetService<Renderer>();
-    auto& assetManager = Services::Get().GetService<AssetManager>();
-
-    if (cam == nullptr || camTransform == nullptr)
-    {
-        logger.AppendLogTag("SCENE", LogColors::GREEN);
-        logger.AppendLogTag("CAMERA_MANAGER", LogColors::YELLOW);
-        logger.LogWarning("No active camera set, skipping draw.");
-        return;
-    }
-    auto& context = renderer.m_EngineContext;
-
-    auto generalView = registry.view<
-    COMPGeometry,
-    COMPMesh,
-    COMPMaterial,
-    COMPTransform
-    >();
-
-    auto modelView = registry.view<COMPModel, COMPTransform>();
-
-    generalView.each([&](auto entity,
-        COMPGeometry& drawable, 
-        COMPMesh& mesh, 
-        COMPMaterial& material, 
-        COMPTransform& transform)
-    {
-        // Put everything into the renderer
-       renderer.Submit(
-           mesh.mesh.get(),
-           material.material,
-           &transform, this);
-    });
-
-    modelView.each([&](auto entity, COMPModel& compModel, COMPTransform& transform)
-    {
-        auto* model = assetManager.Get(compModel.id);
-        if (model == nullptr)
-            return;
-        for (const auto& subMesh : model->GetSubMeshes())
-        {
-            renderer.Submit(
-                subMesh.mesh.get(),
-                subMesh.material,
-                &transform,
-                this
-            );
-        }
-    });
 }
 
 /**
@@ -118,6 +64,7 @@ void Scene::Update(float dt)
     {
         layer->OnUpdate(dt);
     }
+
     m_CameraManager.Update(registry, dt);
 }
 
@@ -155,7 +102,6 @@ void Scene::OnAttach(uint32_t id)
 
 void Scene::OnDetach()
 {
-
 }
 
 /**

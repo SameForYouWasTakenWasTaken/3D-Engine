@@ -41,4 +41,5 @@ public:
 struct COMPModel
 {
     ModelID id = static_cast<ModelID>(-1);
+    std::vector<MaterialID> materialOverrides;
 };

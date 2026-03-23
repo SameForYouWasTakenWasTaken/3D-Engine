@@ -19,9 +19,3 @@ void VBO::Unbind()
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-
-
-void VBO::SetData(std::vector<Vertex>& vertices, GLenum draw_type)
-{
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-}

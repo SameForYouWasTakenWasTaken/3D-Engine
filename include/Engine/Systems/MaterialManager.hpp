@@ -16,5 +16,8 @@ public:
     MaterialID Load(Material material);
 
     [[nodiscard]]
+    std::optional<MaterialID> Clone(MaterialID id);
+
+    [[nodiscard]]
     Material* Get(MaterialID id);
 };

@@ -13,7 +13,137 @@
  */
 void GameLayer::OnDraw()
 {
-    int x = 1;
+    auto& renderer = Services::Get().GetService<Renderer>();
+    auto& assetManager = Services::Get().GetService<AssetManager>();
+
+    renderer.Begin();
+    auto* cam = m_Scene->registry.try_get<COMPCamera>(m_Scene->m_CameraManager.GetActiveCamera());
+    auto* camTransform = m_Scene->registry.try_get<COMPTransform>(m_Scene->m_CameraManager.GetActiveCamera());
+
+
+    if (cam == nullptr || camTransform == nullptr)
+    {
+        logger.AppendLogTag("GAMELAYER", LogColors::GREEN);
+        logger.AppendLogTag("CAMERA_MANAGER", LogColors::YELLOW);
+        logger.LogWarning("No active camera set, skipping draw.");
+        return;
+    }
+    auto& context = renderer.m_EngineContext;
+
+    auto generalView = m_Scene->registry.view<
+        COMPGeometry,
+        COMPMesh,
+        COMPMaterial,
+        COMPTransform
+    >();
+
+    auto modelView = m_Scene->registry.view<COMPModel, COMPTransform>();
+
+    generalView.each([&](auto entity,
+                         COMPGeometry& drawable,
+                         COMPMesh& mesh,
+                         COMPMaterial& material,
+                         COMPTransform& transform)
+    {
+        SubmitObject submit{};
+        submit.mesh = mesh.mesh.get();
+        submit.active_scene = m_Scene;
+        submit.materialID = material.material;
+        submit.transform = &transform;
+        // Put everything into the renderer
+        renderer.Submit(
+            submit
+        );
+    });
+
+
+    modelView.each([&](auto entity, COMPModel& compModel, COMPTransform& transform)
+    {
+        auto* model = assetManager.Get(compModel.id);
+        if (model == nullptr)
+            return;
+
+        auto subMeshes = model->GetSubMeshes();
+
+        // Set optional overrides
+        auto* MatOverride = m_Scene->registry.try_get<MaterialOverride>(entity);
+        if (MatOverride)
+            SetMaterialOverrides(compModel, *MatOverride);
+
+        int countMesh = 0;
+        for (const auto& subMesh : subMeshes)
+        {
+
+
+            MaterialID materialID = subMesh.material;
+
+
+
+            // Set mandatory data
+            SubmitObject submit{};
+            submit.mesh = subMesh.mesh.get();
+            submit.active_scene = m_Scene;
+            submit.materialID = materialID;
+            submit.transform = &transform;
+
+            // Set material overrides
+            if (countMesh < compModel.materialOverrides.size())
+                submit.materialID = compModel.materialOverrides[countMesh];
+
+
+            renderer.Submit(submit);
+            countMesh++;
+        }
+    });
+
+    renderer.End();
+}
+
+void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride& materialOverride)
+{
+    bool hasTransparency = materialOverride.transparency.has_value();
+    bool hasShininess = materialOverride.shininess.has_value();
+
+    if (!hasTransparency && !hasShininess)
+        return;
+
+    auto& services = Services::Get();
+    auto& materialManager = services.GetService<MaterialManager>();
+    auto& assetManager = services.GetService<AssetManager>();
+
+    Model* model = assetManager.Get(modelComponent.id);
+    if (model == nullptr)
+        return;
+
+    auto& submeshes = model->GetSubMeshes();
+
+    modelComponent.materialOverrides.clear();
+    modelComponent.materialOverrides.reserve(submeshes.size());
+
+    for (auto& subMesh : submeshes)
+    {
+        Material* originMat = materialManager.Get(subMesh.material);
+
+        if (originMat == nullptr)
+        {
+            modelComponent.materialOverrides.push_back(subMesh.material);
+            continue;
+        }
+
+        Material cloneMat = *originMat; // Create a clone
+
+
+        // modify the clone
+        if (hasTransparency)
+            cloneMat.transparency = materialOverride.transparency.value();
+
+        if (hasShininess)
+            cloneMat.shininess = materialOverride.shininess.value();
+
+        // cache clone to replace material with
+        auto matID = materialManager.Load(cloneMat);
+        modelComponent.materialOverrides.push_back(matID);
+    }
 }
 
 /**
@@ -122,11 +252,11 @@ void GameLayer::OnAttach()
     for (int i = 0; i < 6; i++) {
         unsigned int offset = i * 4;
         indices.push_back(offset + 0);
-        indices.push_back(offset + 1);
-        indices.push_back(offset + 2);
         indices.push_back(offset + 2);
         indices.push_back(offset + 1);
+        indices.push_back(offset + 2);
         indices.push_back(offset + 3);
+        indices.push_back(offset + 1);
     }
 
     for (auto &v : vertices) {
@@ -255,7 +385,7 @@ void GameLayer::OnEvent(Event& e)
 
     if (e.GetType() == WindowResizeEvent::GetStaticType())
     {
-        const auto& resize = static_cast<WindowResizeEvent&>(e);
+        const auto& resize = dynamic_cast<WindowResizeEvent&>(e);
 
         const float ratio = static_cast<float>(resize.Width) / static_cast<float>(resize.Height);
         auto view = m_Scene->registry.view<COMPCamera>();
@@ -269,7 +399,7 @@ void GameLayer::OnEvent(Event& e)
 
     if (e.GetType() == KeyInputEvent::GetStaticType())
     {
-        auto& input = static_cast<KeyInputEvent&>(e);
+        auto& input = dynamic_cast<KeyInputEvent&>(e);
         
         static bool clicked = false;
         if (input.IsKey(GLFW_KEY_ESCAPE) && input.IsKeyPressed())
@@ -289,17 +419,6 @@ void GameLayer::OnEvent(Event& e)
         }
         
 
-        static float distance = 2.f;
-
-        if (input.IsKey(GLFW_KEY_C) && input.IsKeyPressed())
-        {
-            distance += 0.5f;
-
-        }
-        if (input.IsKey(GLFW_KEY_Z) && input.IsKeyPressed())
-        {
-            distance -= 0.5f;
-        }    
         if (input.IsKey(GLFW_KEY_F) && input.IsKeyPressed())
         {
             auto cam = m_Scene->m_CameraManager.GetActiveCamera();
@@ -307,16 +426,19 @@ void GameLayer::OnEvent(Event& e)
             auto& camComponent = m_Scene->registry.get<COMPCamera>(cam);
 
             auto& asset_manager = Services::Get().GetService<AssetManager>();
+            auto& material_manager = Services::Get().GetService<MaterialManager>();
 
             ModelID model_id = asset_manager.Load("Resources/Objects/Spiderman/scene.gltf");
             // first quad
             auto ModelEntity = m_Scene->registry.create();
             auto& Model = m_Scene->registry.emplace<COMPModel>(ModelEntity, model_id);
             auto& Transform = m_Scene->registry.emplace<COMPTransform>(ModelEntity);
+            auto& material = m_Scene->registry.emplace<MaterialOverride>(ModelEntity);
+            material.transparency = 4.f;
             
             m_Scene->registry.emplace<TAG_GameLayer>(ModelEntity);
 
-            Transform.SetPosition(camTransform.position + camComponent.GetForward() * distance);
+            Transform.SetPosition(camTransform.position + camComponent.GetForward());
             Transform.Scale({0.5f, 0.5f, 0.5f});
         }
     }
@@ -326,7 +448,7 @@ void GameLayer::OnEvent(Event& e)
         if (!m_CanMoveMouse) return;
         if (m_Scene->m_CameraManager.GetActiveCamera() == entt::null) return;
 
-        auto& mouse = static_cast<MouseMoveEvent&>(e);
+        auto& mouse = dynamic_cast<MouseMoveEvent&>(e);
         auto& cam = m_Scene->registry.get<COMPCamera>(m_Scene->m_CameraManager.GetActiveCamera());
         
         static constexpr float sensitivity = 0.1f;

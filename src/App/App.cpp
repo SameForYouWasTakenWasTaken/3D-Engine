@@ -1,5 +1,7 @@
 #include <App/App.hpp>
 
+#include "Engine/Layers/PresentLayer.hpp"
+
 /**
  * @brief Initialize the application context, create the window, and configure OpenGL and input callbacks.
  *
@@ -117,16 +119,18 @@ App::App(AppSettings Settings)
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
     glEnable(GL_BLEND); // Enables blending
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     glDepthFunc(GL_LESS); // default: pass if fragment is closer
     glDepthMask(GL_TRUE); // draw transparent stuff
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
 
     Services& services = Services::Get();
 
+    services.RegisterService<ShaderManager>(); // Renderer depends on ShaderManager
     services.RegisterService<Renderer>(m_EngineContext);
     services.RegisterService<SceneManager>(m_EngineContext);
     services.RegisterService<InputSystem>();
-    services.RegisterService<ShaderManager>();
     services.RegisterService<MaterialManager>();
     services.RegisterService<Texture2DManager>();
     services.RegisterService<AssetManager>();
@@ -145,51 +149,34 @@ void App::Run()
 {
 
     auto& services = Services::Get();
-
-    auto& renderer = services.GetService<Renderer>();
     auto& sceneManager = services.GetService<SceneManager>();
-
+    auto& renderer = services.GetService<Renderer>();
 
     auto gameLayer = std::make_shared<GameLayer>();
+    auto presentLayer = std::make_shared<PresentLayer>();
+
     auto scene = std::make_shared<Scene>();
-    auto scene2 = std::make_shared<Scene>();
     sceneManager.AddScene(scene);
 
     scene->AddLayer(gameLayer);
-    float dt;
-    double fps = 0;
+    scene->AddLayer(presentLayer); // Any layer above will be presented to the screen
+    // TODO: add ImGUI
 
+    float dt{};
     auto then = glfwGetTime();
+
     while (!glfwWindowShouldClose(m_EngineContext.ActiveWindow) && !m_EngineContext.SafeShutdown)
     {
         float now = glfwGetTime();
         dt = now - then;
         then = now;
 
-        double currentFPS = 1.0 / dt;
-        // exponential smoothing
-        fps = 0.9 * fps + 0.1 * currentFPS;
-
-
-
-        glClearColor( 0, 0.502, 0.502, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-
-        renderer.Begin();
-
-        // Updating
-        renderer.Update(dt);
+        renderer.Begin(); // End() runs at PresentLayer
         sceneManager.Update(dt);
-
-        // Drawing
         sceneManager.Draw();
-        renderer.End();
 
         glfwSwapBuffers(m_EngineContext.ActiveWindow);
         glfwPollEvents();
-
-        std::cout << "FPS: " << fps << "\n";
     }
 
     Shutdown();

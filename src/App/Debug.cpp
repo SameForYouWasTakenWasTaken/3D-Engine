@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 
 #include "App/Debug.hpp"
+#include "Logger.hpp"
 #include <GLFW/glfw3.h>
 
 //https://learnopengl.com/In-Practice/Debugging

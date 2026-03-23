@@ -13,10 +13,23 @@
 #include <Components/Mesh.hpp>
 #include <Engine/Events.hpp>
 #include <Contexts/EngineContext.hpp>
+#include <Engine/LowLevel/FBO.hpp>
 
 class SceneManager; // forward declaration
 class EngineContext; // forward declaration
 class Scene; // forward declaration
+
+// Object data that gets submitted
+struct SubmitObject
+{
+    Mesh* mesh;
+    COMPTransform* transform;
+    Scene* active_scene;
+    uint32_t materialID;
+
+    // Data overrides
+    std::optional<MaterialOverride> material_override;
+};
 
 class Renderer : public IService {
 
@@ -44,6 +57,15 @@ class Renderer : public IService {
 
     std::unordered_map<size_t, Batch> m_Batches;
 
+
+    // GPU
+    FBO m_SceneFBO;
+
+    VAO m_ScreenVAO;
+    VBO m_ScreenVBO;
+    EBO m_ScreenEBO;
+
+    ShaderID m_PreprocessShaderID;
 public:
     EngineContext& m_EngineContext;
     Logger logger = Logger("RENDERER");
@@ -51,10 +73,13 @@ public:
     Renderer(EngineContext& context);
     ~Renderer() = default;
 
-    void Submit(Mesh* mesh, uint32_t materialID, COMPTransform* transform, Scene* active_scene);
-    void CacheDrawObject(RenderObject& object);
-    void CacheDrawObjectOutline(const RenderObject& object, float scaleAmount);
+    void Submit(SubmitObject& submit);
+    void PrepareObject(RenderObject& object);
 
+    void DrawObject(RenderObject& object, size_t InstanceCount);
+    void RenderSceneToFBO();
+    void PresentScene();
+    void Init();
     void Begin();
     void Update(float dt);
     void End();

@@ -22,5 +22,5 @@ public:
     ~VAO();
     void LinkAttrib(AttributePointer attrib);
     void Bind();
-    void Unbind();
+    static void Unbind();
 };

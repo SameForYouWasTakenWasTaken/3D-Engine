@@ -158,8 +158,8 @@ MaterialID Model::processMaterial(aiMaterial* aiMat)
     {
         mat.ambient = {color.r, color.g, color.b};
     }
-
-    return materialManager.Load(mat);
+    auto matID = materialManager.Load(mat);
+    return matID;
 }
 
 TextureID Model::loadMaterialTexture(aiMaterial* mat, aiTextureType type)
