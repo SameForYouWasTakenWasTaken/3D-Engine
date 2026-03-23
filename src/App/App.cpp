@@ -1,5 +1,6 @@
 #include <App/App.hpp>
 
+#include "Engine/Layers/ImGUI_DebugLayer.hpp"
 #include "Engine/Layers/PresentLayer.hpp"
 
 /**
@@ -116,13 +117,6 @@ App::App(AppSettings Settings)
     }
 
     enableReportGlErrors();
-    glEnable(GL_STENCIL_TEST);
-    glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
-    glEnable(GL_BLEND); // Enables blending
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glDepthFunc(GL_LESS); // default: pass if fragment is closer
-    glDepthMask(GL_TRUE); // draw transparent stuff
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
 
     Services& services = Services::Get();
@@ -154,13 +148,14 @@ void App::Run()
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto presentLayer = std::make_shared<PresentLayer>();
+    auto debugLayer = std::make_shared<ImGUI_DebugLayer>();
 
     auto scene = std::make_shared<Scene>();
     sceneManager.AddScene(scene);
 
     scene->AddLayer(gameLayer);
     scene->AddLayer(presentLayer); // Any layer above will be presented to the screen
-    // TODO: add ImGUI
+    scene->AddLayer(debugLayer);
 
     float dt{};
     auto then = glfwGetTime();

@@ -66,6 +66,7 @@ class Renderer : public IService {
     EBO m_ScreenEBO;
 
     ShaderID m_PreprocessShaderID;
+    ShaderID m_WireframeShaderID;
 public:
     EngineContext& m_EngineContext;
     Logger logger = Logger("RENDERER");
@@ -77,6 +78,7 @@ public:
     void PrepareObject(RenderObject& object);
 
     void DrawObject(RenderObject& object, size_t InstanceCount);
+    void ApplyState();
     void RenderSceneToFBO();
     void PresentScene();
     void Init();

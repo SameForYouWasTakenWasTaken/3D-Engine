@@ -49,23 +49,56 @@ FetchContent_Declare(
         GIT_TAG v6.0.4
 )
 
-FetchContent_MakeAvailable(glfw glm spdlog assimp)
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui
+        GIT_TAG v1.92.6
+)
 
+FetchContent_MakeAvailable(glfw glm spdlog assimp imgui)
+
+# make static library for imGui (because it doesnt have any cmake files)
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+target_include_directories(imgui PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+)
+
+
+target_link_libraries(imgui PRIVATE
+    glfw
+)
 
 add_executable(GLmain ${SRC_FILES} ${HEADER_FILES}
         src/Engine/LowLevel/FBO.cpp
-        src/Engine/Layers/PresentLayer.cpp)
+        src/Engine/Layers/PresentLayer.cpp
+        src/Engine/Layers/ImGUI_DebugLayer.cpp
+)
 
 target_include_directories(GLmain PRIVATE
         "${CMAKE_SOURCE_DIR}/include"
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
 )
+
 
 target_link_libraries(GLmain PRIVATE
         glm
         spdlog
         glfw
         assimp
+        imgui
 )
+
 
 # Copy shaders after build
 add_custom_command(TARGET GLmain POST_BUILD

@@ -12,6 +12,8 @@
 #include <Components/Material.hpp>
 #include <Engine/LowLevel/Shader.hpp>
 
+#include "entt.hpp"
+
 using ModelID = uint32_t;
 
 struct SubMesh
@@ -28,6 +30,7 @@ class Model
 
     void loadModel(const std::string& path);
     void processNode(aiNode *node, const aiScene *scene);
+    void AddMeshesToRegistry(entt::registry& registry);
     SubMesh processMesh(aiMesh *mesh, const aiScene *scene);
     MaterialID processMaterial(aiMaterial *material);
     TextureID loadMaterialTexture(aiMaterial *mat, aiTextureType type);

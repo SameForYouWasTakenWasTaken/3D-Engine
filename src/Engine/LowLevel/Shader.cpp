@@ -106,14 +106,16 @@ void Shader::ResetShaders()
     glLinkProgram(m_Program);
 
     // Debug    
-    int success;
+    int successA;
+    int successB;
+    int successC;
     char infoLog[512];
     std::stringstream ss;
-    glGetShaderiv(m_VertexShader, GL_COMPILE_STATUS, &success);
-    glGetShaderiv(m_FragmentShader, GL_COMPILE_STATUS, &success);
-    glGetProgramiv(m_Program, GL_LINK_STATUS, &success);
+    glGetShaderiv(m_VertexShader, GL_COMPILE_STATUS, &successA);
+    glGetShaderiv(m_FragmentShader, GL_COMPILE_STATUS, &successB);
+    glGetProgramiv(m_Program, GL_LINK_STATUS, &successC);
     
-    if(!success)
+    if(!successA || !successB || !successC)
     {
         glGetShaderInfoLog(m_VertexShader, 512, NULL, infoLog);
         glGetShaderInfoLog(m_FragmentShader, 512, NULL, infoLog);

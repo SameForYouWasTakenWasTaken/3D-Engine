@@ -46,13 +46,21 @@ void Mesh::SetData(GLenum draw_type)
         glVertexAttribDivisor(4 + i, 1);
     }
 
-    // Normal matrix: locations 8–10
-    for (int i = 0; i < 3; ++i)
-    {
-        glEnableVertexAttribArray(8 + i);
-        glVertexAttribPointer(8 + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData), (void*)(64 + i * vec4Size));
-        glVertexAttribDivisor(8 + i, 1);
-    }
+    // Normal rows
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+        reinterpret_cast<void*>(offsetof(InstanceData, normal0)));
+    glVertexAttribDivisor(8, 1);
+
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+        reinterpret_cast<void*>(offsetof(InstanceData, normal1)));
+    glVertexAttribDivisor(9, 1);
+
+    glEnableVertexAttribArray(10);
+    glVertexAttribPointer(10, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceData),
+        reinterpret_cast<void*>(offsetof(InstanceData, normal2)));
+    glVertexAttribDivisor(10, 1);
 
     // Cleanup
     vao.Unbind();

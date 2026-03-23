@@ -1,7 +1,5 @@
 #include <Engine/Renderer.hpp>
 
-#include "../../cmake-build-debug/_deps/assimp-src/contrib/pugixml/src/pugixml.hpp"
-
 Renderer::Renderer(EngineContext& context)
     : m_EngineContext(context)
 {
@@ -97,6 +95,21 @@ void Renderer::PrepareObject(RenderObject& object)
         material->diffuse = id.value();
     }
 
+    if (m_EngineContext.StateCache.Wireframe == OPTION::YES)
+    {
+        auto WireframeShaderID = Services::Get().GetService<ShaderManager>().Load(
+            shader->GetFilepaths().first,
+            "Shaders/wireframe.frag"
+            );
+        auto WireframeShader = Services::Get().GetService<ShaderManager>().Get(WireframeShaderID);
+
+        WireframeShader->UseProgram();
+        WireframeShader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
+        WireframeShader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
+        mesh->vao.Bind();
+        return;
+    }
+
     shader->UseProgram();
     shader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
     shader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
@@ -118,6 +131,9 @@ void Renderer::PrepareObject(RenderObject& object)
 
 void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
 {
+    if (m_EngineContext.StateCache.Wireframe == OPTION::YES)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     auto* mesh = object.mesh;
     if (mesh->Indexed)
     {
@@ -138,6 +154,129 @@ void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
             InstanceCount
         );
     }
+
+    if (m_EngineContext.StateCache.Wireframe == OPTION::YES)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Renderer::ApplyState()
+{
+    static GLStateCache state =
+    {
+        .VSync = OPTION::NONE,
+        .Wireframe = OPTION::NONE,
+
+        .DepthTest = OPTION::NONE,
+        .DepthFunc = DEPTH_FUNC::NONE,
+        .DepthWrite = DEPTH_WRITE::NONE,
+
+        .StencilTest = OPTION::NONE,
+        .ColorBlend = OPTION::NONE,
+
+        .Culling = OPTION::NONE,
+        .CullingMode = CULLING_MODE::NONE,
+        .WindingDir = WINDING_DIR::NONE
+    };
+
+    auto& pending = m_EngineContext.StateCache;
+
+    // --- Depth Test Enable ---
+    if (state.DepthTest != pending.DepthTest)
+    {
+        state.DepthTest = pending.DepthTest;
+
+        if (pending.DepthTest == OPTION::YES)
+            glEnable(GL_DEPTH_TEST);
+        else if (pending.DepthTest == OPTION::NO)
+            glDisable(GL_DEPTH_TEST);
+    }
+
+    // --- Depth Func ---
+    if (pending.DepthTest == OPTION::YES && state.DepthFunc != pending.DepthFunc)
+    {
+        state.DepthFunc = pending.DepthFunc;
+        glDepthFunc(static_cast<GLenum>(pending.DepthFunc));
+    }
+
+    // --- Depth Write ---
+    if (state.DepthWrite != pending.DepthWrite)
+    {
+        state.DepthWrite = pending.DepthWrite;
+        glDepthMask(
+            pending.DepthWrite == DEPTH_WRITE::ENABLED
+                ? GL_TRUE
+                : GL_FALSE
+        );
+    }
+
+    // --- Stencil Test ---
+    if (state.StencilTest != pending.StencilTest)
+    {
+        state.StencilTest = pending.StencilTest;
+
+        if (pending.StencilTest == OPTION::YES)
+            glEnable(GL_STENCIL_TEST);
+        else if (pending.StencilTest == OPTION::NO)
+            glDisable(GL_STENCIL_TEST);
+    }
+
+    // --- Blending ---
+    if (state.ColorBlend != pending.ColorBlend)
+    {
+        state.ColorBlend = pending.ColorBlend;
+
+        if (pending.ColorBlend == OPTION::YES)
+            glEnable(GL_BLEND);
+        else if (pending.ColorBlend == OPTION::NO)
+            glDisable(GL_BLEND);
+    }
+
+    // --- Face Culling Enable ---
+    if (state.Culling != pending.Culling)
+    {
+        state.Culling = pending.Culling;
+
+        if (pending.Culling == OPTION::YES)
+            glEnable(GL_CULL_FACE);
+        else if (pending.Culling == OPTION::NO)
+            glDisable(GL_CULL_FACE);
+    }
+
+    // --- Cull Mode ---
+    if (pending.Culling == OPTION::YES && state.CullingMode != pending.CullingMode)
+    {
+        state.CullingMode = pending.CullingMode;
+        glCullFace(ToGLCullMode(pending.CullingMode));
+    }
+
+    // --- Front Face Winding ---
+    if (pending.Culling == OPTION::YES && state.WindingDir != pending.WindingDir)
+    {
+        state.WindingDir = pending.WindingDir;
+        glFrontFace(ToGLCullDir(pending.WindingDir));
+    }
+
+    // --- Wireframe ---
+    if (state.Wireframe != pending.Wireframe)
+    {
+        state.Wireframe = pending.Wireframe;
+
+        glPolygonMode(
+            GL_FRONT_AND_BACK,
+            pending.Wireframe == OPTION::YES ? GL_LINE : GL_FILL
+        );
+    }
+
+    // --- VSync ---
+    if (state.VSync != pending.VSync)
+    {
+        state.VSync = pending.VSync;
+
+        if (pending.VSync == OPTION::YES)
+            glfwSwapInterval(1);
+        else if (pending.VSync == OPTION::NO)
+            glfwSwapInterval(0);
+    }
 }
 
 void Renderer::RenderSceneToFBO()
@@ -149,9 +288,7 @@ void Renderer::RenderSceneToFBO()
 
     m_SceneFBO.Bind();
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    ApplyState();
 
     glClearColor(0.f, 0.502f, 0.502f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -174,6 +311,8 @@ void Renderer::RenderSceneToFBO()
         if (!shader)
             continue;
 
+
+
         if (!diffuseTexture)
         {
             auto id = textureManager.Load("Resources/Textures2D/default_diffuse.png");
@@ -182,8 +321,8 @@ void Renderer::RenderSceneToFBO()
             if (!diffuseTexture || !id)
                 continue; // atp code is trolling and sum went wrong, too tired for this bs
 
-            // Assign specular texture to the material to prevent repeat of this if statement
-            material->specular = id.value();
+            // Assign diffuse texture to the material to prevent repeat of this if statement
+            material->diffuse = id.value();
         }
 
         if (!specularTexture)
@@ -239,7 +378,11 @@ void Renderer::PresentScene()
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glDisable(GL_DEPTH_TEST);
+    OPTION SavedOption = m_EngineContext.StateCache.DepthTest;
+    m_EngineContext.StateCache.DepthTest = OPTION::NO; // Disable depth testing for this
+
+    ApplyState();
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     screenShader->UseProgram();
@@ -250,6 +393,7 @@ void Renderer::PresentScene()
 
     m_ScreenVAO.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    m_EngineContext.StateCache.DepthTest = SavedOption; //Reset back to the previously saved option
 }
 
 void Renderer::Init()
