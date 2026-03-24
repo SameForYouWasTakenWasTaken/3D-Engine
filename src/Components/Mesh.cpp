@@ -2,16 +2,14 @@
 #include <Components/Mesh.hpp>
 
 /**
- * @brief Initialize mesh geometry and configure the VAO for rendering, including instanced transforms.
+ * @brief Uploads mesh vertex and index data to the GPU and configures the VAO for rendering and instancing.
  *
- * Uploads vertex and index data to the GPU, allocates a buffer for up to 10,000 per-instance transformation matrices,
- * enables and configures vertex attributes for position, color, texture coordinates, and the four matrix row attributes
- * (locations 11–14) with an attribute divisor of 1 to support instanced rendering. Updates the mesh's IndexCount and
- * VertexCount to reflect the provided data.
+ * Allocates a dynamic per-instance buffer for up to 10,000 InstanceData entries and configures per-vertex attributes
+ * (position, color, texture coordinates, normal) plus instanced attributes for the model and normal matrices with
+ * attribute divisors set for per-instance advancement. Updates IndexCount, VertexCount, and Indexed to reflect the
+ * mesh's current data.
  *
- * @param vertices Vector of vertex data to upload to the vertex buffer.
- * @param indices  Vector of element indices to upload to the index buffer.
- * @param draw_type OpenGL buffer usage hint used when uploading vertex and index data (e.g., `GL_STATIC_DRAW`, `GL_DYNAMIC_DRAW`).
+ * @param draw_type OpenGL usage hint used when uploading vertex and index buffers (e.g., `GL_STATIC_DRAW`, `GL_DYNAMIC_DRAW`).
  */
 void Mesh::SetData(GLenum draw_type)
 {

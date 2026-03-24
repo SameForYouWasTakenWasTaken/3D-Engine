@@ -147,13 +147,10 @@ void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride
 }
 
 /**
- * @brief Updates the active camera's transform from user input and elapsed time.
+ * @brief Updates the active camera's transform based on keyboard input.
  *
- * Processes keyboard input to move and rotate the active camera:
- * - WASD to move in the camera's local forward/right plane.
- * - Q/E to move vertically.
- * - Arrow keys to rotate the camera's orientation.
- * Movement is applied to the active transform and scaled by a movement speed and the supplied delta time.
+ * Reads WASD for movement in the camera's local forward/right plane and Q/E for vertical movement,
+ * computes a normalized movement direction if non-zero, and applies it to the active camera transform scaled by a fixed speed and the supplied delta time.
  *
  * @param dt Elapsed time since the last update, in seconds.
  */
@@ -198,15 +195,13 @@ void GameLayer::OnUpdate(float dt)
 }
 
 /**
- * @brief Initialize scene entities, meshes, materials, and the active camera for the layer.
+ * @brief Initialize the layer's scene: load assets, create entities, lights, and an active camera.
  *
- * Creates two triangle entities and one circle entity, each with geometry, transform, material,
- * mesh components, and attaches them to the layer's tag. The circle is generated as a triangle
- * fan approximating a circle with 100 segments and radius 2. Each entity's mesh and material
- * are configured and positioned (triangle_1 at {0,0,0}, triangle_2 at {1,1,0}, circle at {2,2,1}).
- * If an engine context is available, a camera entity is created, configured with a 90° FOV and
- * the window aspect ratio, positioned at {0,0,-2}, and set as the active camera. If no context
- * is present, an error is logged.
+ * Loads shaders and textures, creates materials and a shared mesh, and instantiates two quad entities
+ * (each with geometry, transform, material, and mesh components) tagged for the GameLayer. Configures
+ * a spotlight and, if an EngineContext is available, creates a camera positioned at {0,0,-2} with
+ * a 90° field of view and the window aspect ratio, then sets it as the active camera. If no context
+ * is present, an error is logged and camera creation is skipped.
  */
 void GameLayer::OnAttach()
 {
@@ -372,11 +367,14 @@ void GameLayer::OnDetach()
 }
 
 /**
- * @brief Processes incoming events for the game layer, updating cameras, transforms, and input state.
+ * @brief Handle window, keyboard, and mouse events for the game layer, updating cameras, transforms, and input state.
  *
- * Handles WindowResizeEvent (updates camera aspect ratio), KeyInputEvent (toggles cursor/raw mouse mode on Escape;
- * applies rotation, translation, and scale to all entities with COMPTransform+COMPGeometry on U/I), and MouseMoveEvent
- * (applies yaw/pitch to the active camera using mouse deltas). Marks the event as handled.
+ * Processes:
+ * - WindowResizeEvent: recomputes and applies the new aspect ratio to the active camera.
+ * - KeyInputEvent: toggles cursor/raw-mouse mode on Escape, adjusts an internal placement distance with C/Z, and on F constructs and positions a new geometry entity relative to the active camera.
+ * - MouseMoveEvent: when mouse control is enabled and an active camera exists, applies yaw/pitch rotation to the active camera from mouse deltas.
+ *
+ * The function marks the incoming event as handled (e.Handled = true) when complete.
  *
  * @param e The event to process; this function may modify e.Handled.
  */

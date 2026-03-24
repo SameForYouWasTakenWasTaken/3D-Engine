@@ -131,13 +131,12 @@ App::App(AppSettings Settings)
 }
 
 /**
- * @brief Starts and runs the application's main loop, managing rendering and scene updates.
+ * @brief Starts the application's main loop and drives per-frame updates and rendering.
  *
- * Initializes the renderer and scene manager, prepares initial scenes and layers, then enters
- * the main loop which: computes frame delta time, clears the frame, drives the renderer and
- * scene manager update/draw phases each frame, swaps window buffers, and polls events.
- * The loop continues until the GLFW window is flagged to close or the engine context requests
- * a safe shutdown. Calls Shutdown() after exiting the loop.
+ * Prepares initial scenes and layers using the SceneManager, then runs the loop until the
+ * GLFW window is requested to close or the engine requests a safe shutdown. While running,
+ * the loop advances frame time, updates subsystems, and issues rendering commands. Calls
+ * Shutdown() after exiting the loop.
  */
 void App::Run()
 {

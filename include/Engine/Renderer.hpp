@@ -103,6 +103,6 @@ public:
     void Begin();
     void Update(float dt);
     void End();
-    
+
     void OnEvent(Event& e);
 };
