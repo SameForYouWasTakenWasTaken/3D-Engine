@@ -144,6 +144,7 @@ void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
             nullptr,
             static_cast<GLsizei>(InstanceCount)
         );
+        g_RenderStats.indicesSubmitted += mesh->IndexCount;
     }
     else
     {
@@ -157,6 +158,10 @@ void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
 
     if (m_EngineContext.StateCache.Wireframe == OPTION::YES)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    g_RenderStats.drawCalls++;
+    g_RenderStats.verticesSubmitted += mesh->VertexCount;
+    g_RenderStats.trianglesSubmitted += mesh->VertexCount / 3;
 }
 
 void Renderer::ApplyState()
@@ -449,6 +454,7 @@ void Renderer::Begin()
 {
     // Clear batches from the last frame
     m_Batches.clear();
+    g_RenderStats.Reset();
 }
 
 /**

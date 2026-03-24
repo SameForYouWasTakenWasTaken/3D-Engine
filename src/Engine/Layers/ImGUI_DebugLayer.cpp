@@ -160,12 +160,12 @@ void ImGUI_DebugLayer::WorldGUI()
     if (show)
     {
         auto& assetManager = Services::Get().GetService<AssetManager>();
+        auto& renderer = Services::Get().GetService<Renderer>();
         auto MeshView = m_Scene->registry.view<COMPMesh>();
         auto ModelView = m_Scene->registry.view<COMPModel>();
 
         size_t MeshCount = MeshView.size();
         size_t ModelCount = ModelView.size();
-        unsigned int TotalVertices = 0;
 
         auto* Context = m_Scene->GetContext().value();
 
@@ -175,11 +175,6 @@ void ImGUI_DebugLayer::WorldGUI()
             return;
         }
 
-        MeshView.each([&](auto entity, COMPMesh& mesh)
-        {
-            TotalVertices += mesh.mesh->vertices.size();
-        });
-
         ModelView.each([&](auto entity, COMPModel& model)
         {
             auto Model = assetManager.Get(model.id);
@@ -187,7 +182,6 @@ void ImGUI_DebugLayer::WorldGUI()
 
             for (const auto& mesh : SubMeshes)
             {
-                TotalVertices += mesh.mesh->vertices.size();
                 MeshCount++;
             }
         });
@@ -210,21 +204,23 @@ void ImGUI_DebugLayer::WorldGUI()
         // --- Wireframe ---
         {
             bool v = OptionToBool(Context->StateCache.Wireframe);
-            static bool clicked = false;
-            static bool CullingOption = OptionToBool(Context->StateCache.Culling);
-            static bool DepthOption = OptionToBool(Context->StateCache.DepthTest);
+            static bool toggled = false;
             if (ImGui::Checkbox("Wireframe", &v))
             {
+                static bool CullingOption = OptionToBool(Context->StateCache.Culling);
+                static bool DepthOption = OptionToBool(Context->StateCache.DepthTest);
                 Context->StateCache.Wireframe = BoolToOption(v);
                 Context->StateCache.Culling = BoolToOption(false);
                 Context->StateCache.DepthTest = BoolToOption(false);
-            }
 
-            if (ImGui::IsItemHovered())
-            {
-                ImGui::SetTooltip("Disables culling and depth test");
-            }
+                if (toggled)
+                {
+                    Context->StateCache.Culling = BoolToOption(CullingOption);
+                    Context->StateCache.DepthTest = BoolToOption(DepthOption);
+                }
 
+                toggled = !toggled;
+            }
         }
 
         // --- Depth Test ---
@@ -276,7 +272,6 @@ void ImGUI_DebugLayer::WorldGUI()
             if (ImGui::Checkbox("Face Culling", &v))
             {
                 Context->StateCache.Culling = BoolToOption(v);
-                Context->StateCache.Wireframe = BoolToOption(false);
             }
         }
 
@@ -303,10 +298,13 @@ void ImGUI_DebugLayer::WorldGUI()
         }
 
         ImGui::Separator();
+        RenderStats& stats = renderer.g_RenderStats;
 
         ImGui::Text("Mesh count: %s", FormatShort(MeshCount).c_str());
         ImGui::Text("Model count: %s", FormatShort(ModelCount).c_str());
-        ImGui::Text("Total vertices: %s", FormatShort(TotalVertices).c_str());
-        ImGui::Text("Total triangles: %u", TotalVertices / 3);
+        ImGui::Text("Total vertices: %s", FormatShort(stats.verticesSubmitted).c_str());
+        ImGui::Text("Total triangles: %u", stats.trianglesSubmitted);
+        ImGui::Text("Total indices: %u", stats.indicesSubmitted);
+        ImGui::Text("Total draw calls: %u", stats.drawCalls);
     }
 }

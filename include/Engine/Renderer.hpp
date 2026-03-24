@@ -31,6 +31,22 @@ struct SubmitObject
     std::optional<MaterialOverride> material_override;
 };
 
+struct RenderStats
+{
+    uint64_t drawCalls = 0;
+    uint64_t verticesSubmitted = 0;
+    uint64_t indicesSubmitted = 0;
+    uint64_t trianglesSubmitted = 0;
+
+    void Reset()
+    {
+        drawCalls = 0;
+        verticesSubmitted = 0;
+        indicesSubmitted = 0;
+        trianglesSubmitted = 0;
+    }
+};
+
 class Renderer : public IService {
 
     struct Batch
@@ -67,7 +83,9 @@ class Renderer : public IService {
 
     ShaderID m_PreprocessShaderID;
     ShaderID m_WireframeShaderID;
+
 public:
+    RenderStats g_RenderStats; // Statistics for performance managing
     EngineContext& m_EngineContext;
     Logger logger = Logger("RENDERER");
 

@@ -4,6 +4,8 @@
 #include <optional>
 #include <glm/glm.hpp>
 
+#include "Engine/LowLevel/Texture2D.hpp"
+
 using TextureID = uint32_t;
 using ShaderID = uint32_t;
 using MaterialID = uint32_t;
