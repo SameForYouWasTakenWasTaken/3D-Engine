@@ -25,7 +25,7 @@ struct SubmitObject
     Mesh* mesh;
     COMPTransform* transform;
     Scene* active_scene;
-    uint32_t materialID;
+    MaterialID materialID;
 
     // Data overrides
     std::optional<MaterialOverride> material_override;
@@ -59,7 +59,7 @@ class Renderer : public IService {
         Mesh* mesh;
         Scene* active_scene;
         COMPTransform* transform;
-        uint32_t materialID;
+        MaterialID materialID;
         
         std::vector<InstanceData> instances;
         GLuint instanceVBO = 0;
@@ -104,7 +104,7 @@ public:
 ~Renderer() = default;
 
     void Submit(SubmitObject& submit);
-    void PrepareObject(RenderObject& object);
+    bool PrepareObject(RenderObject& object);
 
     void DrawObject(RenderObject& object, size_t InstanceCount);
     void ApplyState();

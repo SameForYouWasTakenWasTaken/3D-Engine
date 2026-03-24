@@ -7,6 +7,8 @@
  */
 void PresentLayer::OnDraw()
 {
+    if (renderer == nullptr)
+        return;
     renderer->End();
 }
 
@@ -16,7 +18,3 @@ void PresentLayer::OnDraw()
  * Retrieves the application's Renderer service and stores its address in the layer's
  * `renderer` member for subsequent rendering operations.
  */
-void PresentLayer::OnAttach()
-{
-    renderer = &Services::Get().GetService<Renderer>();
-}

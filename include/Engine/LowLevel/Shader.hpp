@@ -4,6 +4,10 @@
 
 #include <glm/glm.hpp>
 #include <Logger.hpp>
+#include <optional>
+#include <utility>
+
+using ShaderID = uint64_t;
 
 std::optional<std::pair<std::string, std::string>>
 ParseShaderFiles(const std::string&  FragmentSourceFilePath, const std::string&  VertexSourceFilePath);

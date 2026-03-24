@@ -9,7 +9,7 @@
 
 class CameraManager final
 {  
-    entt::entity m_ActiveCamera;
+    entt::entity m_ActiveCamera = entt::null;
 public:
     Logger logger = Logger("CAMERA_MANAGER");
     /**

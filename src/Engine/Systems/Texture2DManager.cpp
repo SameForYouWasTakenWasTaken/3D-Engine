@@ -37,6 +37,7 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path)
  */
 std::optional<TextureID> Texture2DManager::Load(const std::shared_ptr<Texture2D> texture)
 {
+    if (!texture) return std::nullopt;
     auto hash = Hash<TextureID>(texture->GetPath());
     if (Get(hash) != nullptr) return hash;
 

@@ -1,14 +1,10 @@
 #pragma once
 
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
 #include "Engine/Layer.hpp"
 
 class ImGUI_DebugLayer : public Layer
 {
-
+    bool ImGuiEnable = true;
 public:
     /**
  * @brief Constructs an ImGUI_DebugLayer used to render and manage the debug ImGui interface.

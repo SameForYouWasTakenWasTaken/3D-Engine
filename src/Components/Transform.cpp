@@ -7,7 +7,7 @@
  */
 void COMPTransform::Move(const glm::vec3& translation)
 {
-    this->position += translation;
+    this->LocalPosition += translation;
 }
 
 /**
@@ -17,8 +17,8 @@ void COMPTransform::Move(const glm::vec3& translation)
  */
 void COMPTransform::Rotate(const glm::vec3& rot)
 {
-    this->rotation += rot;
-    this->rotation = glm::mod(rotation, glm::vec3(360.f));
+    this->LocalRotation += rot;
+    this->LocalRotation = glm::mod(LocalRotation, glm::vec3(360.f));
 }
 
 /**
@@ -30,7 +30,7 @@ void COMPTransform::Rotate(const glm::vec3& rot)
  */
 void COMPTransform::Scale(const glm::vec3& scale)
 {
-    this->scale *= scale;
+    this->LocalScale *= scale;
 }
 
 /**
@@ -40,7 +40,7 @@ void COMPTransform::Scale(const glm::vec3& scale)
  */
 void COMPTransform::SetPosition(const glm::vec3& position)
 {
-    this->position = glm::vec3(0.f);
+    this->LocalPosition = glm::vec3(0.f);
     Move(position);
 }
 
@@ -54,7 +54,7 @@ void COMPTransform::SetPosition(const glm::vec3& position)
  */
 void COMPTransform::SetRotation(const glm::vec3& rotation)
 {
-    this->rotation = glm::vec3(0.f);
+    this->LocalRotation = glm::vec3(0.f);
     Rotate(rotation);
 }
 
@@ -68,8 +68,8 @@ void COMPTransform::SetRotation(const glm::vec3& rotation)
  */
 void COMPTransform::SetScale(const glm::vec3& scale)
 {
-    this->scale = glm::vec3(1.f);
-    Scale(scale - this->scale); // Scale by the difference between the new scale and the current scale
+    this->LocalScale = glm::vec3(1.f);
+    Scale(scale); // Scale by the difference between the new scale and the current scale
 }
 
 /**
@@ -84,13 +84,13 @@ glm::mat4 COMPTransform::GetModelMatrix()
 {
     glm::mat4 model = glm::mat4(1.f);
 
-    model = glm::translate(model, position);
+    model = glm::translate(model, LocalPosition);
 
-    model = glm::rotate(model, glm::radians(rotation.y), {0,1,0});
-    model = glm::rotate(model, glm::radians(rotation.x), {1,0,0});
-    model = glm::rotate(model, glm::radians(rotation.z), {0,0,1});
+    model = glm::rotate(model, glm::radians(LocalRotation.y), {0,1,0});
+    model = glm::rotate(model, glm::radians(LocalRotation.x), {1,0,0});
+    model = glm::rotate(model, glm::radians(LocalRotation.z), {0,0,1});
 
-    model = glm::scale(model, scale);
+    model = glm::scale(model, LocalScale);
 
     return model;
 }
@@ -111,8 +111,8 @@ glm::mat3 COMPTransform::GetNormalMatrix()
     constexpr float uniformTolerance = 0.0001f;
 
     bool isUniform =
-        std::abs(scale.x - scale.y) < uniformTolerance &&
-        std::abs(scale.y - scale.z) < uniformTolerance;
+        std::abs(LocalScale.x - LocalScale.y) < uniformTolerance &&
+        std::abs(LocalScale.y - LocalScale.z) < uniformTolerance;
 
     if (isUniform)
         return glm::mat3(model);

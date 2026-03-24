@@ -109,6 +109,8 @@ void Scene::OnAttach(uint32_t id)
  */
 void Scene::OnDetach()
 {
+    for (auto& layer : m_Layers)
+        layer->OnDetach();
 }
 
 /**

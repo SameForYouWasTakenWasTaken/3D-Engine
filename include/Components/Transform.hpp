@@ -7,9 +7,10 @@
 
 struct COMPTransform
 {
-    glm::vec3 position = glm::vec3(0.f);
-    glm::vec3 scale = glm::vec3(1.f);
-    glm::vec3 rotation = glm::vec3(0.f);
+    glm::vec3 LocalPosition = glm::vec3(0.f);
+    glm::vec3 LocalScale = glm::vec3(1.f);
+    glm::vec3 LocalRotation = glm::vec3(0.f);
+    glm::mat4 WorldMatrix{1.f};
     bool IsUniform = true;
 
     void Move(const glm::vec3& translation);

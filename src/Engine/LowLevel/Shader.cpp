@@ -101,7 +101,6 @@ void Shader::ResetShaders(const std::string& VertexSourceFilepath, const std::st
     FragmentShaderSource = FragmentSourceFilepath;
 
     ResetShaders(); // Forward to resetshaders, since it already handles all of the shader creation
-    int x;
 }
 
 /**
@@ -163,7 +162,9 @@ void Shader::ResetShaders()
     int successA;
     int successB;
     int successC;
-    char infoLog[512];
+    char infoLogA[512];
+    char infoLogB[512];
+    char infoLogC[512];
     std::stringstream ss;
     glGetShaderiv(m_VertexShader, GL_COMPILE_STATUS, &successA);
     glGetShaderiv(m_FragmentShader, GL_COMPILE_STATUS, &successB);
@@ -171,11 +172,14 @@ void Shader::ResetShaders()
     
     if(!successA || !successB || !successC)
     {
-        glGetShaderInfoLog(m_VertexShader, 512, NULL, infoLog);
-        glGetShaderInfoLog(m_FragmentShader, 512, NULL, infoLog);
-        glGetProgramInfoLog(m_Program, 512, NULL, infoLog);
+        glGetShaderInfoLog(m_VertexShader, 512, NULL, infoLogA);
+        glGetShaderInfoLog(m_FragmentShader, 512, NULL, infoLogB);
+        glGetProgramInfoLog(m_Program, 512, NULL, infoLogC);
         
-        ss << infoLog;
+        ss << infoLogA << "\n";
+        ss << infoLogB << "\n";
+        ss << infoLogC;
+
         logger.AppendLogTag("SHADER", LogColors::CYAN);
         logger.LogError("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" + ss.str());
     }
@@ -283,7 +287,5 @@ int Shader::GetUniformLocation(const std::string& name)
  */
 std::pair<std::string, std::string> Shader::GetFilepaths() const
 {
-    auto copyVertex = VertexShaderSource;
-    auto copyFrag = FragmentShaderSource;
-    return std::make_pair<std::string, std::string>(std::move(copyVertex), std::move(copyFrag));
+    return {VertexShaderSource, FragmentShaderSource};
 }

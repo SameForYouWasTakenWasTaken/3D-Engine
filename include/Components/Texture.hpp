@@ -1,8 +1,7 @@
 #pragma once
 
+#include <Engine/LowLevel/Texture2D.hpp>
 #include <cstdint>
-
-using TextureID = uint32_t;
 
 struct COMPTexture
 {

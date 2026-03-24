@@ -5,6 +5,70 @@
 
 #include "Engine/Systems/AssetManager.hpp"
 
+#include <Engine/Systems/HierarchySystem.hpp>
+
+#include "App/App.hpp"
+
+std::pair<std::vector<Vertex>, std::vector<GLuint>> GetDefault()
+{
+    std::vector<Vertex> vertices = {
+        // Front face (normal 0,0,1)
+        {{-0.5f, 0.f, 0.f}, {1, 0, 0, 1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
+        {{-0.5f, 0.5f, 0.f}, {0, 1, 0, 1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
+        {{0.5f, 0.f, 0.f}, {0, 0, 1, 1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
+        {{0.5f, 0.5f, 0.f}, {1, 1, 0, 1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
+
+        // Back face (normal 0,0,-1)
+        {{0.5f, 0.f, -0.5f}, {0, 1, 1, 1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
+        {{0.5f, 0.5f, -0.5f}, {1, 0, 1, 1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
+        {{-0.5f, 0.f, -0.5f}, {1, 1, 1, 1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0, 0, 0, 1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
+
+        // Left face (normal -1,0,0)
+        {{-0.5f, 0.f, -0.5f}, {1, 0, 0, 1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0, 1, 0, 1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {0, 0, 1, 1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
+        {{-0.5f, 0.5f, 0.f}, {1, 1, 0, 1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
+
+        // Right face (normal 1,0,0)
+        {{0.5f, 0.f, 0.f}, {0, 1, 1, 1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {1, 0, 1, 1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.f, -0.5f}, {1, 1, 1, 1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {0, 0, 0, 1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
+
+        // Top face (normal 0,1,0)
+        {{-0.5f, 0.5f, 0.f}, {1, 0, 0, 1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
+        {{-0.5f, 0.5f, -0.5f}, {0, 1, 0, 1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
+        {{0.5f, 0.5f, 0.f}, {0, 0, 1, 1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
+        {{0.5f, 0.5f, -0.5f}, {1, 1, 0, 1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
+
+        // Bottom face (normal 0,-1,0)
+        {{-0.5f, 0.f, -0.5f}, {0, 1, 1, 1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
+        {{-0.5f, 0.f, 0.f}, {1, 0, 1, 1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
+        {{0.5f, 0.f, -0.5f}, {1, 1, 1, 1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
+        {{0.5f, 0.f, 0.f}, {0, 0, 0, 1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
+    };
+
+    std::vector<GLuint> indices;
+    for (int i = 0; i < 6; i++)
+    {
+        unsigned int offset = i * 4;
+        indices.push_back(offset + 0);
+        indices.push_back(offset + 2);
+        indices.push_back(offset + 1);
+        indices.push_back(offset + 2);
+        indices.push_back(offset + 3);
+        indices.push_back(offset + 1);
+    }
+
+    for (auto& v : vertices)
+    {
+        v.color = {1.f, 1.f, 1.f, 1.f};
+    }
+
+    return {vertices, indices};
+}
+
 /**
  * @brief Perform per-frame render submission for the current scene.
  *
@@ -23,7 +87,6 @@ void GameLayer::OnDraw()
     auto& renderer = Services::Get().GetService<Renderer>();
     auto& assetManager = Services::Get().GetService<AssetManager>();
 
-    renderer.Begin();
     auto* cam = m_Scene->registry.try_get<COMPCamera>(m_Scene->m_CameraManager.GetActiveCamera());
     auto* camTransform = m_Scene->registry.try_get<COMPTransform>(m_Scene->m_CameraManager.GetActiveCamera());
 
@@ -38,7 +101,6 @@ void GameLayer::OnDraw()
     auto& context = renderer.m_EngineContext;
 
     auto generalView = m_Scene->registry.view<
-        COMPGeometry,
         COMPMesh,
         COMPMaterial,
         COMPTransform
@@ -47,7 +109,6 @@ void GameLayer::OnDraw()
     auto modelView = m_Scene->registry.view<COMPModel, COMPTransform>();
 
     generalView.each([&](auto entity,
-                         COMPGeometry& drawable,
                          COMPMesh& mesh,
                          COMPMaterial& material,
                          COMPTransform& transform)
@@ -80,11 +141,7 @@ void GameLayer::OnDraw()
         int countMesh = 0;
         for (const auto& subMesh : subMeshes)
         {
-
-
             MaterialID materialID = subMesh.material;
-
-
 
             // Set mandatory data
             SubmitObject submit{};
@@ -102,8 +159,6 @@ void GameLayer::OnDraw()
             countMesh++;
         }
     });
-
-    renderer.End();
 }
 
 /**
@@ -117,7 +172,7 @@ void GameLayer::OnDraw()
  * @param modelComponent The model component whose `materialOverrides` vector will be replaced to match the model's submesh count.
  * @param materialOverride Optional properties (transparency and/or shininess) to apply to each submesh material.
  */
-void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride& materialOverride)
+void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, const MaterialOverride& materialOverride)
 {
     bool hasTransparency = materialOverride.transparency.has_value();
     bool hasShininess = materialOverride.shininess.has_value();
@@ -164,6 +219,39 @@ void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride
     }
 }
 
+void GameLayer::UpdateWorld()
+{
+    for (const auto& [entity, node] : m_WorldHierarchy.nodes)
+    {
+        if (node.parent == entt::null)
+        {
+            UpdateTransforms(entity, glm::mat4(1.0f));
+        }
+    }
+}
+
+void GameLayer::UpdateTransforms(entt::entity entity, const glm::mat4& inheritedWorld)
+{
+    auto& registry = m_Scene->registry;
+
+    glm::mat4 currentWorld = inheritedWorld;
+
+    if (auto* transform = registry.try_get<COMPTransform>(entity))
+    {
+        currentWorld = inheritedWorld * transform->GetModelMatrix();
+        transform->WorldMatrix = currentWorld;
+    }
+
+    const HierarchyNode* node = HierarchySystem::FindInHierarchy(m_WorldHierarchy, entity);
+    if (!node)
+        return;
+
+    for (entt::entity child : node->children)
+    {
+        UpdateTransforms(child, currentWorld);
+    }
+}
+
 /**
  * @brief Updates the active camera's transform based on keyboard input.
  *
@@ -173,7 +261,8 @@ void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride
  * @param dt Elapsed time since the last update, in seconds.
  */
 void GameLayer::OnUpdate(float dt)
-{    
+{
+    UpdateWorld();
     // Camera movement
     auto active_cam = m_Scene->m_CameraManager.GetActiveCamera();
     auto* transform = m_Scene->registry.try_get<COMPTransform>(active_cam);
@@ -190,15 +279,15 @@ void GameLayer::OnUpdate(float dt)
         if (InputSystem::IsKeyHeld(GLFW_KEY_S)) input.z -= 1;
         if (InputSystem::IsKeyHeld(GLFW_KEY_A)) input.x -= 1;
         if (InputSystem::IsKeyHeld(GLFW_KEY_D)) input.x += 1;
-        
+
         // QE
         if (InputSystem::IsKeyHeld(GLFW_KEY_Q)) input.y -= 1.f;
         if (InputSystem::IsKeyHeld(GLFW_KEY_E)) input.y += 1.f;
 
 
         glm::vec3 move = input.x * cam->GetRight() +
-                         input.y * glm::vec3(0.f, 1.f, 0.f) +
-                         input.z * cam->GetForward();
+            input.y * glm::vec3(0.f, 1.f, 0.f) +
+            input.z * cam->GetForward();
 
         if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_SHIFT))
         {
@@ -207,7 +296,7 @@ void GameLayer::OnUpdate(float dt)
 
         if (glm::length(move) > 0.f)
             move = glm::normalize(move);
-        
+
         transform->Move(move * speed * dt);
     }
 }
@@ -223,59 +312,8 @@ void GameLayer::OnUpdate(float dt)
  */
 void GameLayer::OnAttach()
 {
-    std::vector<Vertex> vertices = {
-        // Front face (normal 0,0,1)
-        {{-0.5f, 0.f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 0.f, 1.f}},
-        {{-0.5f, 0.5f, 0.f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 0.f, 1.f}},
-        {{0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 0.f, 1.f}},
-        {{0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 0.f, 1.f}},
 
-        // Back face (normal 0,0,-1)
-        {{0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, 0.f, -1.f}},
-        {{0.5f, 0.5f, -0.5f}, {1,0,1,1}, {0.f, 1.f}, {0.f, 0.f, -1.f}},
-        {{-0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, 0.f, -1.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {0.f, 0.f, -1.f}},
-
-        // Left face (normal -1,0,0)
-        {{-0.5f, 0.f, -0.5f}, {1,0,0,1}, {0.f, 0.f}, {-1.f, 0.f, 0.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {-1.f, 0.f, 0.f}},
-        {{-0.5f, 0.f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {-1.f, 0.f, 0.f}},
-        {{-0.5f, 0.5f, 0.f}, {1,1,0,1}, {1.f, 1.f}, {-1.f, 0.f, 0.f}},
-
-        // Right face (normal 1,0,0)
-        {{0.5f, 0.f, 0.f}, {0,1,1,1}, {0.f, 0.f}, {1.f, 0.f, 0.f}},
-        {{0.5f, 0.5f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {1.f, 0.f, 0.f}},
-        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {1.f, 0.f, 0.f}},
-        {{0.5f, 0.5f, -0.5f}, {0,0,0,1}, {1.f, 1.f}, {1.f, 0.f, 0.f}},
-
-        // Top face (normal 0,1,0)
-        {{-0.5f, 0.5f, 0.f}, {1,0,0,1}, {0.f, 0.f}, {0.f, 1.f, 0.f}},
-        {{-0.5f, 0.5f, -0.5f}, {0,1,0,1}, {0.f, 1.f}, {0.f, 1.f, 0.f}},
-        {{0.5f, 0.5f, 0.f}, {0,0,1,1}, {1.f, 0.f}, {0.f, 1.f, 0.f}},
-        {{0.5f, 0.5f, -0.5f}, {1,1,0,1}, {1.f, 1.f}, {0.f, 1.f, 0.f}},
-
-        // Bottom face (normal 0,-1,0)
-        {{-0.5f, 0.f, -0.5f}, {0,1,1,1}, {0.f, 0.f}, {0.f, -1.f, 0.f}},
-        {{-0.5f, 0.f, 0.f}, {1,0,1,1}, {0.f, 1.f}, {0.f, -1.f, 0.f}},
-        {{0.5f, 0.f, -0.5f}, {1,1,1,1}, {1.f, 0.f}, {0.f, -1.f, 0.f}},
-        {{0.5f, 0.f, 0.f}, {0,0,0,1}, {1.f, 1.f}, {0.f, -1.f, 0.f}},
-    };
-
-    std::vector<GLuint> indices;
-    for (int i = 0; i < 6; i++) {
-        unsigned int offset = i * 4;
-        indices.push_back(offset + 0);
-        indices.push_back(offset + 2);
-        indices.push_back(offset + 1);
-        indices.push_back(offset + 2);
-        indices.push_back(offset + 3);
-        indices.push_back(offset + 1);
-    }
-
-    for (auto &v : vertices) {
-        v.color = {1.f, 1.f, 1.f, 1.f};
-    }
-
+    auto [vertices, indices] = GetDefault();
     auto context_result = m_Scene->GetContext();
     if (!context_result.has_value())
     {
@@ -284,7 +322,7 @@ void GameLayer::OnAttach()
         logger.DumpLogs();
         return;
     }
-    auto&services = Services::Get();
+    auto& services = Services::Get();
 
     auto& shader_manager = services.GetService<ShaderManager>();
     auto& material_manager = services.GetService<MaterialManager>();
@@ -303,14 +341,14 @@ void GameLayer::OnAttach()
     auto mat = Material{shader, basic_texture.value()};
     auto sunMat = Material{sunShader, color_grid_texture.value()};
 
-    uint32_t MaterialID = material_manager.Load(mat);
-    uint32_t MaterialID_colorgrid = material_manager.Load(sunMat);
+    MaterialID matID = material_manager.Load(mat);
+    MaterialID MaterialID_colorgrid = material_manager.Load(sunMat);
 
     // first quad
     auto quad_1 = m_Scene->registry.create();
     auto& Geometry = m_Scene->registry.emplace<COMPGeometry>(quad_1, vertices, indices);
     auto& Transform = m_Scene->registry.emplace<COMPTransform>(quad_1);
-    auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, MaterialID);
+    auto& Material = m_Scene->registry.emplace<COMPMaterial>(quad_1, matID);
 
     m_Scene->registry.emplace<TAG_GameLayer>(quad_1);
     std::vector<COMPTexture> textures;
@@ -324,17 +362,19 @@ void GameLayer::OnAttach()
 
     Transform.SetPosition({0.f, 0.f, 0.f});
 
+
     // second quad
     auto quad_2 = m_Scene->registry.create();
     auto& Geometry_a = m_Scene->registry.emplace<COMPGeometry>(quad_2, vertices, indices);
     auto& Transform_a = m_Scene->registry.emplace<COMPTransform>(quad_2);
-    auto& Material_a = m_Scene->registry.emplace<COMPMaterial>(quad_2, MaterialID);
+    auto& Material_a = m_Scene->registry.emplace<COMPMaterial>(quad_2, matID);
     m_Scene->registry.emplace<TAG_GameLayer>(quad_2);
 
     // TODO: Let meshes be reusable
     m_Scene->registry.emplace<COMPMesh>(quad_2, mesh);
 
     Transform_a.SetPosition({3.f, 1.f, -2.f});
+
 
     // MODELS
     auto defModelID = asset_manager.Load("Resources/Objects/Spiderman/scene.gltf");
@@ -347,11 +387,28 @@ void GameLayer::OnAttach()
 
     // THE SUNS
     // i dont need many if checks, fairly confident this'll work
-    auto lightID = light_manager->Load<PointLight>();
-    auto light = light_manager->GetLight<PointLight>(lightID.value());
+    // Light object
+    auto LightEntity = m_Scene->registry.create();
+    auto& lightTransform = m_Scene->registry.emplace<COMPTransform>(LightEntity);
+    auto& lightMaterial = m_Scene->registry.emplace<COMPMaterial>(LightEntity, matID);
 
-    glm::vec3 target = {0.f, 0.f, 0.f};
-    light->position = {0.f, 5.f, 0.f};
+    m_Scene->registry.emplace<TAG_GameLayer>(LightEntity);
+
+    auto lightMesh = std::make_shared<Mesh>(vertices, indices);
+    lightMesh->SetData();
+    m_Scene->registry.emplace<COMPMesh>(LightEntity, lightMesh);
+
+    auto LightObject = m_Scene->registry.create();
+    auto lightID = light_manager->Load<PointLight>();
+    auto LightType = light_manager->GetLight<PointLight>(lightID.value());
+
+    LightType->position = {0.f, 0.f, 0.f};
+
+    HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_1);
+    HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_2);
+    HierarchySystem::PutInHierarchy(m_WorldHierarchy, ironman);
+    HierarchySystem::PutInHierarchy(m_WorldHierarchy, LightEntity);
+    HierarchySystem::SetChildren(m_WorldHierarchy, LightEntity, LightObject);
 
     // Camera creation
     auto context_expected = m_Scene->GetContext();
@@ -362,24 +419,25 @@ void GameLayer::OnAttach()
         auto cam_entity = m_Scene->registry.create();
         auto& cam_transform = m_Scene->registry.emplace<COMPTransform>(cam_entity);
         cam_transform.SetPosition({0.f, 0.f, -2.f});
-        
+
         float ratio = static_cast<float>(context->WindowWidth) / static_cast<float>(context->WindowHeight);
-        
+
         m_Scene->registry.emplace<COMPCamera>(cam_entity, 90.f, ratio, 0.01f, 1000.f);
         m_Scene->m_CameraManager.SetActiveCamera(cam_entity);
-    }else {
+    }
+    else
+    {
         logger.AppendLogTag("GAMELAYER", LogColors::GREEN);
         logger.LogError("Camera has not been attached, because no context had been provided!");
         logger.DumpLogs();
     }
-
-    
 }
 
 void GameLayer::OnDetach()
 {
     auto view = m_Scene->registry.view<TAG_GameLayer>();
-    view.each([&](auto entity){
+    view.each([&](auto entity)
+    {
         m_Scene->registry.destroy(entity);
     });
 }
@@ -398,7 +456,6 @@ void GameLayer::OnDetach()
  */
 void GameLayer::OnEvent(Event& e)
 {
-
     if (e.GetType() == WindowResizeEvent::GetStaticType())
     {
         const auto& resize = dynamic_cast<WindowResizeEvent&>(e);
@@ -416,7 +473,7 @@ void GameLayer::OnEvent(Event& e)
     if (e.GetType() == KeyInputEvent::GetStaticType())
     {
         auto& input = dynamic_cast<KeyInputEvent&>(e);
-        
+
         static bool clicked = false;
         if (input.IsKey(GLFW_KEY_ESCAPE) && input.IsKeyPressed())
         {
@@ -424,16 +481,18 @@ void GameLayer::OnEvent(Event& e)
             {
                 clicked = true;
                 glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE); 
+                glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
                 m_CanMoveMouse = true;
-            }else {
+            }
+            else
+            {
                 clicked = false;
                 glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
                 m_CanMoveMouse = false;
             }
         }
-        
+
 
         if (input.IsKey(GLFW_KEY_F) && input.IsKeyPressed())
         {
@@ -441,21 +500,52 @@ void GameLayer::OnEvent(Event& e)
             auto& camTransform = m_Scene->registry.get<COMPTransform>(cam);
             auto& camComponent = m_Scene->registry.get<COMPCamera>(cam);
 
-            auto& asset_manager = Services::Get().GetService<AssetManager>();
-            auto& material_manager = Services::Get().GetService<MaterialManager>();
+            auto& services = Services::Get();
+            auto& shader_manager = services.GetService<ShaderManager>();
+            auto& texture_manager = services.GetService<Texture2DManager>();
+            auto& asset_manager = services.GetService<AssetManager>();
+            auto& material_manager = services.GetService<MaterialManager>();
 
             ModelID model_id = asset_manager.Load("Resources/Objects/Spiderman/scene.gltf");
-            // first quad
+            // model
             auto ModelEntity = m_Scene->registry.create();
             auto& Model = m_Scene->registry.emplace<COMPModel>(ModelEntity, model_id);
             auto& Transform = m_Scene->registry.emplace<COMPTransform>(ModelEntity);
             auto& material = m_Scene->registry.emplace<MaterialOverride>(ModelEntity);
             material.transparency = 4.f;
-            
+
             m_Scene->registry.emplace<TAG_GameLayer>(ModelEntity);
 
-            Transform.SetPosition(camTransform.position + camComponent.GetForward());
+            Transform.SetPosition(camTransform.LocalPosition + camComponent.GetForward());
             Transform.Scale({0.5f, 0.5f, 0.5f});
+
+            // second quad
+            // shaders
+            auto shader = shader_manager.Load("../Shaders/first.vert", "../Shaders/first.frag");
+            auto sunShader = shader_manager.Load("../Shaders/first.vert", "../Shaders/sun.frag");
+
+            auto basic_texture = texture_manager.Load("Resources/Textures2D/images.png");
+
+            // Materials
+            auto mat = Material{shader, basic_texture.value()};
+
+            MaterialID matID = material_manager.Load(mat);
+
+            auto [vertices, indices] = GetDefault();
+            auto quad = m_Scene->registry.create();
+            auto& Transform_a = m_Scene->registry.emplace<COMPTransform>(quad);
+            auto& Material_a = m_Scene->registry.emplace<COMPMaterial>(quad, matID);
+            m_Scene->registry.emplace<TAG_GameLayer>(quad);
+
+            auto mesh = std::make_shared<Mesh>(vertices, indices);
+            mesh->SetData();
+            m_Scene->registry.emplace<COMPMesh>(quad, mesh);
+
+            HierarchySystem::PutInHierarchy(m_WorldHierarchy, ModelEntity);
+            HierarchySystem::SetChildren(m_WorldHierarchy, ModelEntity, quad);
+            static int x = 0;
+            Transform_a.Move({x / 2 , x / 2, x / 2});
+            x++;
         }
     }
 
@@ -466,13 +556,14 @@ void GameLayer::OnEvent(Event& e)
 
         auto& mouse = dynamic_cast<MouseMoveEvent&>(e);
         auto& cam = m_Scene->registry.get<COMPCamera>(m_Scene->m_CameraManager.GetActiveCamera());
-        
+
         static constexpr float sensitivity = 0.1f;
         static bool firstMouseInput = true;
         static double lastMouseX;
         static double lastMouseY;
 
-        if (firstMouseInput) {
+        if (firstMouseInput)
+        {
             lastMouseX = mouse.xpos;
             lastMouseY = mouse.ypos;
             firstMouseInput = false; // reset after first alignment

@@ -4,15 +4,14 @@
 #include <optional>
 #include <glm/glm.hpp>
 
-#include "Engine/LowLevel/Texture2D.hpp"
+#include <Engine/LowLevel/Texture2D.hpp>
+#include <Engine/LowLevel/Shader.hpp>
 
-using TextureID = uint32_t;
-using ShaderID = uint32_t;
-using MaterialID = uint32_t;
+using MaterialID = uint64_t;
 
 struct Material
 {
-    ShaderID shader = static_cast<TextureID>(-1);
+    ShaderID shader = static_cast<ShaderID>(-1);
     TextureID diffuse = static_cast<TextureID>(-1);
     TextureID specular = static_cast<TextureID>(-1);
 

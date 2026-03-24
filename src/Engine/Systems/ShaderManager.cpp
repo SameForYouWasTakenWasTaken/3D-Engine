@@ -33,8 +33,12 @@ ShaderID ShaderManager::Load(const std::string& vert_filepath, const std::string
  * @return ShaderID The computed identifier for the shader; if a shader with the same identifier already existed,
  * the existing identifier is returned without modifying the manager.
  */
-ShaderID ShaderManager::Load(const std::shared_ptr<Shader> shader)
+ShaderID ShaderManager::Load(const std::shared_ptr<Shader>& shader)
 {
+    auto vf = shader->GetFilepaths();
+    ShaderID id = Hash<ShaderID>(vf.first, vf.second);
+    if (m_Shaders.contains(id)) return id;
+
     auto [vertexFilepath, fragmentFilepath] = shader->GetFilepaths();
     auto hash = Hash<ShaderID>(vertexFilepath, fragmentFilepath);
 

@@ -11,6 +11,9 @@ class FBO final
 public:
     FBO();
     ~FBO();
+    
+    FBO(const FBO&) = delete;
+    FBO& operator=(const FBO&) = delete;
 
     void Bind();
 

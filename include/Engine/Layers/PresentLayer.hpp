@@ -12,7 +12,7 @@ public:
  * @note The member `renderer` is not initialized by this constructor and must be set
  *       before use.
  */
-PresentLayer() {};
+PresentLayer() : renderer(&Services::Get().GetService<Renderer>()) {};
     /**
  * @brief Destroy the PresentLayer and release its resources.
  *
@@ -21,7 +21,6 @@ PresentLayer() {};
 ~PresentLayer() override = default;
 
     void OnDraw() override;
-    void OnAttach() override;
     /**
  * @brief Per-frame update hook that performs no action for this layer.
  *

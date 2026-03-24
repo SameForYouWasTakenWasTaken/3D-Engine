@@ -82,6 +82,7 @@ add_executable(GLmain ${SRC_FILES} ${HEADER_FILES}
         src/Engine/LowLevel/FBO.cpp
         src/Engine/Layers/PresentLayer.cpp
         src/Engine/Layers/ImGUI_DebugLayer.cpp
+        src/Engine/Systems/HierarchySystem.cpp
 )
 
 target_include_directories(GLmain PRIVATE

@@ -18,9 +18,12 @@
 
 #include <Engine/Systems/InputSystem.hpp>
 
+#include "Engine/Systems/HierarchySystem.hpp"
+
 class GameLayer : public Layer
 {
     bool m_CanMoveMouse = false;
+    Hierarchy m_WorldHierarchy;
 public:
     GameLayer() = default;
     ~GameLayer() = default;
@@ -31,5 +34,7 @@ public:
     void OnDetach() override;
     void OnEvent(Event& e) override;
 
-    void SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride& materialOverride);
+    void SetMaterialOverrides(COMPModel& modelComponent, const MaterialOverride& materialOverride);
+    void UpdateWorld(); // Update transform components
+    void UpdateTransforms(entt::entity entity, const glm::mat4& inheritedWorld);
 };

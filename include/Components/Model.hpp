@@ -1,4 +1,7 @@
 #pragma once
+#include <cstdint>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include <assimp/Importer.hpp>
@@ -14,7 +17,7 @@
 
 #include "entt.hpp"
 
-using ModelID = uint32_t;
+using ModelID = uint64_t;
 
 struct SubMesh
 {

@@ -1,8 +1,14 @@
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include <Engine/Layers/ImGUI_DebugLayer.hpp>
 
 #include "Engine/Systems/AssetManager.hpp"
 
 #include <cmath>
+
+#define TYPE_TO_STRING(x) #x
 
 /**
  * @brief Produces a compact, human-readable string for large integer counts using suffixes.
@@ -107,15 +113,18 @@ void ImGUI_DebugLayer::OnEvent(Event& event)
  */
 void ImGUI_DebugLayer::OnAttach()
 {
+    GLFWwindow* window = m_Scene->GetContext().value()->ActiveWindow;
+    if (!window)
+        ImGuiEnable = false;
+
+    if (!ImGuiEnable) return;
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-    GLFWwindow* window = m_Scene->GetContext().value()->ActiveWindow;
 
-    if (!window)
-        return;
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
@@ -138,6 +147,7 @@ void ImGUI_DebugLayer::OnDetach()
  */
 void ImGUI_DebugLayer::CameraGUI()
 {
+    if (!ImGuiEnable) return;
     static bool show = false;
     auto activeCam = m_Scene->m_CameraManager.GetActiveCamera();
     auto* Camera = m_Scene->registry.try_get<COMPCamera>(activeCam);
@@ -163,7 +173,7 @@ void ImGUI_DebugLayer::CameraGUI()
         glm::vec3 forward = Camera->GetForward();
         glm::vec3 right = Camera->GetRight();
         glm::vec3 up = Camera->GetUp();
-        glm::vec3 position = CameraTransform->position;
+        glm::vec3 position = CameraTransform->LocalPosition;
 
         if (ImGui::SliderFloat("FOV", &fov, 30.0f, 120.0f))
         {
@@ -195,7 +205,7 @@ void ImGUI_DebugLayer::CameraGUI()
         {
             Camera->yaw = 0.0f;
             Camera->pitch = 0.0f;
-            CameraTransform->position = {0.0f, 0.0f, 3.0f};
+            CameraTransform->LocalPosition = {0.0f, 0.0f, 3.0f};
             Camera->dirty_camera = true;
         }
     }
@@ -215,6 +225,7 @@ void ImGUI_DebugLayer::CameraGUI()
  */
 void ImGUI_DebugLayer::WorldGUI()
 {
+    if (!ImGuiEnable) return;
     static bool show = false;
 
     ImGui::Text("World settings");
@@ -244,10 +255,10 @@ void ImGUI_DebugLayer::WorldGUI()
         {
             auto Model = assetManager.Get(model.id);
             auto SubMeshes = Model->GetSubMeshes();
-
             for (const auto& mesh : SubMeshes)
             {
                 MeshCount++;
+
             }
         });
 
@@ -368,8 +379,8 @@ void ImGUI_DebugLayer::WorldGUI()
         ImGui::Text("Mesh count: %s", FormatShort(MeshCount).c_str());
         ImGui::Text("Model count: %s", FormatShort(ModelCount).c_str());
         ImGui::Text("Total vertices: %s", FormatShort(stats.verticesSubmitted).c_str());
-        ImGui::Text("Total triangles: %u", stats.trianglesSubmitted);
-        ImGui::Text("Total indices: %u", stats.indicesSubmitted);
+        ImGui::Text("Total triangles: %s", FormatShort(stats.trianglesSubmitted).c_str());
+        ImGui::Text("Total indices: %s", FormatShort(stats.indicesSubmitted).c_str());
         ImGui::Text("Total draw calls: %u", stats.drawCalls);
     }
 }

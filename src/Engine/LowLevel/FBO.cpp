@@ -22,6 +22,24 @@ FBO::FBO() : m_ColorTexture(0), m_RBO(0)
 FBO::~FBO()
 {
     glDeleteFramebuffers(1, &id);
+
+    if (m_ColorTexture != 0)
+    {
+        glDeleteTextures(1, &m_ColorTexture);
+        m_ColorTexture = 0;
+    }
+
+    if (m_RBO != 0)
+    {
+        glDeleteRenderbuffers(1, &m_RBO);
+        m_RBO = 0;
+    }
+
+    if (id != 0)
+    {
+        glDeleteFramebuffers(1, &id);
+        id = 0;
+    }
 }
 
 /**

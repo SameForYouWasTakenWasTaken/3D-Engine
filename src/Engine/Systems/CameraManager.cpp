@@ -23,6 +23,10 @@ void CameraManager::Update(entt::registry& registry, float dt)
         return;
     }
 
+    if (std::isnan(camera->GetCameraContext().ratio))
+        return;
+
+
     CameraContext context = camera->GetCameraContext();
 
     // Update the projection matrix
@@ -49,8 +53,8 @@ void CameraManager::Update(entt::registry& registry, float dt)
 
     // Build view matrix
     camera->view = glm::lookAt(
-        transform->position,
-        transform->position + camera->GetForward(),
+        transform->LocalPosition,
+        transform->LocalPosition + camera->GetForward(),
         camera->GetUp()
     );
 }

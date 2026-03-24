@@ -1,6 +1,6 @@
 #pragma once
 
-#include <expected>
+#include <optional>
 #include <memory>
 
 #include <Engine/Layer.hpp>
@@ -60,10 +60,6 @@ Scene() = default;
     virtual void OnEvent(Event& e);
     virtual void OnAttach(uint32_t id); // On attach to the scene manager
     virtual void OnDetach(); // on detach from the scene manager
-
-    // entt helper functions
-    void SetMaterialOverrides(COMPMesh& mesh, MaterialOverride& materialOverride);
-    void SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride& materialOverride);
 
     // EngineContext* because std::expected cant take reference
     std::optional<EngineContext*> GetContext();

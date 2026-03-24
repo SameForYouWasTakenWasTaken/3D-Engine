@@ -29,7 +29,7 @@ ShaderManager(const ShaderManager&) = delete;
     ShaderID Load(const std::string& vert, const std::string& frag);
 
     [[nodiscard]]
-    ShaderID Load(std::shared_ptr<Shader> shader);
+    ShaderID Load(const std::shared_ptr<Shader>& shader);
 
     [[nodiscard]]
     std::shared_ptr<Shader> Get(ShaderID id);

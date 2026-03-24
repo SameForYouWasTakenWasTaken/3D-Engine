@@ -43,9 +43,19 @@ std::optional<MaterialID> MaterialManager::Clone(MaterialID id)
         return std::nullopt;
 
 
-    auto newID = m_NextMaterialID++;
-    m_Materials.emplace(newID, it->second);
-    return newID;
+    bool validHash = false;
+    MaterialID nextID{};
+
+    while (!validHash)
+    {
+        nextID = Hash<MaterialID>(id, m_NextMaterialID++);
+
+        if (Get(nextID) == nullptr)
+            validHash = true;
+    }
+
+    m_Materials.emplace(nextID, it->second);
+    return nextID;
 }
 
 /**

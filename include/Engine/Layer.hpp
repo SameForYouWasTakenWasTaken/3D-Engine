@@ -7,9 +7,11 @@
 
 class Scene; // forward declaration
 
-class Layer {
+class Layer
+{
 protected:
     Scene* m_Scene = nullptr;
+
 public:
     Logger logger = Logger("LAYER_BASE");
     Layer() = default;
@@ -23,7 +25,10 @@ public:
  *
  * Override to implement layer-specific drawing. The default implementation does nothing.
  */
-virtual void OnDraw() {}
+    virtual void OnDraw()
+    {
+    }
+
     /**
  * @brief Called each frame to update the layer's state.
  *
@@ -31,7 +36,10 @@ virtual void OnDraw() {}
  *
  * @param dt Time elapsed since the last update in seconds.
  */
-virtual void OnUpdate(float dt) {}
+    virtual void OnUpdate(float dt)
+    {
+    }
+
     /**
  * @brief Handle an incoming event for this layer.
  *
@@ -40,18 +48,26 @@ virtual void OnUpdate(float dt) {}
  *
  * @param e Event to handle; may be modified by the handler.
  */
-virtual void OnEvent(Event& e) {}
+    virtual void OnEvent(Event& e)
+    {
+    }
+
     /**
  * @brief Called when the layer is attached to its scene or layer stack.
  *
  * Override to perform initialization, allocate resources, or run setup that depends on the associated Scene.
  */
-virtual void OnAttach() {}
+    virtual void OnAttach()
+    {
+    }
+
     /**
  * @brief Called when the layer is detached from its Scene or layer stack.
  *
  * Default implementation performs no action; override to respond to detachment
  * (e.g., free resources or unregister callbacks).
  */
-virtual void OnDetach() {}
+    virtual void OnDetach()
+    {
+    }
 };

@@ -2,7 +2,7 @@
 #include <glad/glad.h>
 #include <Logger.hpp>
 #include <stb_image.h>
-
+using TextureID = uint64_t;
 // Standard settings you might modify
 struct TextureSettings {
     // Use XY instead of ST to prevent confusion

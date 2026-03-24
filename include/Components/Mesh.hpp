@@ -168,5 +168,5 @@ public:
 struct COMPMesh
 {
     std::shared_ptr<Mesh> mesh;
-    MaterialID materialOverride;
+    MaterialID materialOverride = static_cast<MaterialID>(-1);
 };

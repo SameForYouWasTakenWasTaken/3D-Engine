@@ -17,14 +17,14 @@ ModelID AssetManager::Load(const std::string& directory)
     if (it != m_Models.end())
         return it->first;
 
-    ModelData data{
-        hash,
-        directory,
-        Model(directory)
-    };
 
-
-    m_Models.emplace(hash, data);
+    m_Models.emplace(hash,
+                     ModelData{
+                         hash,
+                         directory,
+                         std::make_unique<Model>(directory)
+                     }
+    );
     return hash;
 }
 
@@ -34,22 +34,20 @@ ModelID AssetManager::Load(const std::string& directory)
  * @param model Model whose directory will be used to identify and load the asset.
  * @return ModelID Identifier derived from hashing the model's directory; if the directory is already cached, returns the existing identifier.
  */
-ModelID AssetManager::Load(const Model& model)
+ModelID AssetManager::Load(std::unique_ptr<Model>& model)
 {
-    const auto dir = model.GetDirectory();
-    auto hash = Hash<ModelID>(dir);
-
+    auto hash = Hash<ModelID>(model->GetDirectory());
     auto it = m_Models.find(hash);
     if (it != m_Models.end())
         return it->first;
 
 
     m_Models.emplace(hash,
-        ModelData{
-        hash,
-        dir,
-        Model(dir)
-    });
+                     ModelData{
+                         hash,
+                         model->GetDirectory(),
+                         std::move(model)
+                     });
     return hash;
 }
 
@@ -66,5 +64,5 @@ Model* AssetManager::Get(ModelID id)
     if (it == m_Models.end())
         return nullptr;
 
-    return &it->second.model;
+    return it->second.model.get();
 }

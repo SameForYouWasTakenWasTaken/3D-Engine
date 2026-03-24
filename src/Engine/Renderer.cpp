@@ -44,11 +44,11 @@ void Renderer::Submit(SubmitObject& submit)
     // and it allows us to easily store batches in an unordered_map
     size_t batchKey =
         std::hash<Mesh*>{}(submit.mesh) ^
-        (std::hash<uint32_t>{}(submit.materialID) << 1) ^
+        (std::hash<MaterialID>{}(submit.materialID) << 1) ^
         (std::hash<Scene*>{}(submit.active_scene) << 2);
 
 
-    glm::mat4 model = submit.transform->GetModelMatrix();
+    glm::mat4 model = submit.transform->WorldMatrix;
     glm::mat3 normalMat = submit.transform->GetNormalMatrix();
 
     InstanceData instanceData{};
@@ -88,7 +88,7 @@ void Renderer::Submit(SubmitObject& submit)
  *
  * @param object RenderObject containing mesh, shader, material, textures, and scene context.
  */
-void Renderer::PrepareObject(RenderObject& object)
+bool Renderer::PrepareObject(RenderObject& object)
 {
     auto diffuse = object.diffuse;
     auto specular = object.specular;
@@ -97,13 +97,21 @@ void Renderer::PrepareObject(RenderObject& object)
     auto* material = object.material;
     auto* scene = object.scene;
 
+
     std::shared_ptr<LightManager> lightManager = scene->m_LightManager;
 
     entt::entity cam = scene->m_CameraManager.GetActiveCamera();
     auto* TransformCam = scene->registry.try_get<COMPTransform>(cam);
     auto* Camera = scene->registry.try_get<COMPCamera>(cam);
 
-    if (!material || !shader || !mesh || !TransformCam || !Camera) return;
+
+
+    assert(shader);
+    assert(mesh);
+    assert(material);
+    assert(scene);
+
+    if (!material || !shader || !mesh || !TransformCam || !Camera) return false;
 
     CameraContext camContext = Camera->GetCameraContext();
 
@@ -114,8 +122,8 @@ void Renderer::PrepareObject(RenderObject& object)
         auto id = textureManager.Load("Resources/Textures2D/default_spec.png");
         specular = textureManager.Get(id.value());
 
-        if (!specular || !id)
-            return; // atp code is trolling and sum went wrong, too tired for this bs
+        assert(specular);
+        assert(id);
 
         // Assign specular texture to the material to prevent repeat of this if statement
         material->specular = id.value();
@@ -127,8 +135,8 @@ void Renderer::PrepareObject(RenderObject& object)
         auto id = textureManager.Load("Resources/Textures2D/default_diffuse.png");
         diffuse = textureManager.Get(id.value());
 
-        if (!diffuse || !id)
-            return; // atp code is trolling and sum went wrong, too tired for this bs
+        assert(diffuse);
+        assert(id);
 
         // Assign diffuse texture to the material to prevent repeat of this if statement
         material->diffuse = id.value();
@@ -142,17 +150,19 @@ void Renderer::PrepareObject(RenderObject& object)
             );
         auto WireframeShader = Services::Get().GetService<ShaderManager>().Get(WireframeShaderID);
 
+        assert(WireframeShader);
+
         WireframeShader->UseProgram();
         WireframeShader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
         WireframeShader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
         mesh->vao.Bind();
-        return;
+        return true;
     }
 
     shader->UseProgram();
     shader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
     shader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
-    shader->SetVec3("cam.viewPos", TransformCam->position);
+    shader->SetVec3("cam.viewPos", TransformCam->LocalPosition);
     shader->SetFloat("cam.near", camContext.near);
     shader->SetFloat("cam.far", camContext.far);
 
@@ -166,6 +176,8 @@ void Renderer::PrepareObject(RenderObject& object)
     diffuse->Use(GL_TEXTURE0);
     specular->Use(GL_TEXTURE1);
     mesh->vao.Bind();
+
+    return true;
 }
 
 /**
@@ -196,7 +208,7 @@ void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
             nullptr,
             static_cast<GLsizei>(InstanceCount)
         );
-        g_RenderStats.indicesSubmitted += mesh->IndexCount;
+        g_RenderStats.indicesSubmitted += static_cast<uint64_t>(mesh->IndexCount) * InstanceCount;
     }
     else
     {
@@ -211,9 +223,13 @@ void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
     if (m_EngineContext.StateCache.Wireframe == OPTION::YES)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    g_RenderStats.verticesSubmitted += static_cast<uint64_t>(mesh->VertexCount) * InstanceCount;
+    if (mesh->Primitive)
+    {
+        const auto trianglesPerInstance = mesh->Indexed ? (mesh->IndexCount / 3) : (mesh->VertexCount / 3);
+        g_RenderStats.trianglesSubmitted += static_cast<uint64_t>(trianglesPerInstance) * InstanceCount;
+    }
     g_RenderStats.drawCalls++;
-    g_RenderStats.verticesSubmitted += mesh->VertexCount;
-    g_RenderStats.trianglesSubmitted += mesh->VertexCount / 3;
 }
 
 /**
@@ -379,34 +395,6 @@ void Renderer::RenderSceneToFBO()
         auto diffuseTexture = textureManager.Get(material->diffuse);
         auto specularTexture = textureManager.Get(material->specular);
 
-        if (!shader)
-            continue;
-
-
-
-        if (!diffuseTexture)
-        {
-            auto id = textureManager.Load("Resources/Textures2D/default_diffuse.png");
-            diffuseTexture = textureManager.Get(id.value());
-
-            if (!diffuseTexture || !id)
-                continue; // atp code is trolling and sum went wrong, too tired for this bs
-
-            // Assign diffuse texture to the material to prevent repeat of this if statement
-            material->diffuse = id.value();
-        }
-
-        if (!specularTexture)
-        {
-            auto id = textureManager.Load("Resources/Textures2D/default_spec.png");
-            specularTexture = textureManager.Get(id.value());
-
-            if (!specularTexture || !id)
-                continue; // atp code is trolling and sum went wrong, too tired for this bs
-
-            // Assign specular texture to the material to prevent repeat of this if statement
-            material->specular = id.value();
-        }
 
         RenderObject Object{};
         Object.mesh = mesh;
@@ -417,8 +405,10 @@ void Renderer::RenderSceneToFBO()
         Object.transform = batch.transform;
         Object.scene = batch.active_scene;
 
-        mesh->instanceVBO.Bind();
+        bool prepared = PrepareObject(Object);
+        if (!prepared) return;
 
+        mesh->instanceVBO.Bind();
         size_t instanceCount = batch.instances.size();
 
         glBufferSubData(
@@ -428,9 +418,7 @@ void Renderer::RenderSceneToFBO()
             batch.instances.data()
         );
 
-        PrepareObject(Object);
         DrawObject(Object, instanceCount);
-
         diffuseTexture->Unbind();
         specularTexture->Unbind();
     }
