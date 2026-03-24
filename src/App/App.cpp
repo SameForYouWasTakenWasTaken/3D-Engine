@@ -173,7 +173,6 @@ void App::Run()
         glfwSwapBuffers(m_EngineContext.ActiveWindow);
         glfwPollEvents();
     }
-
     Shutdown();
 }
 
@@ -197,9 +196,8 @@ void App::OnEvent(Event& e)
 
     auto& renderer = services.GetService<Renderer>();
     auto& sceneManager = services.GetService<SceneManager>();
-    auto& input = services.GetService<InputSystem>();
 
     renderer.OnEvent(e);
     sceneManager.OnEvent(e);
-    input.OnEvent(e);
+    InputSystem::OnEvent(e);
 }
