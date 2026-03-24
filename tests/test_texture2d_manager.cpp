@@ -135,7 +135,12 @@ TEST(Texture2DManagerTest, HashSlashTypes) {
     EXPECT_NE(hash_forward, hash_backward);
 }
 
-// Test Texture2DManager Hash distribution (many paths)
+/**
+ * @brief Verifies the hash function produces unique TextureID values for many distinct paths.
+ *
+ * Generates 100 distinct texture file paths, computes Hash<TextureID> for each,
+ * and asserts that all resulting TextureID values are unique (no collisions).
+ */
 TEST(Texture2DManagerTest, HashDistribution) {
     std::unordered_set<TextureID> hashes;
     const int NUM_PATHS = 100;
@@ -201,7 +206,12 @@ TEST(Texture2DManagerTest, HashDeterminism) {
     }
 }
 
-// Test Texture2DManager Hash with numeric-only paths
+/**
+ * @brief Ensures numeric-only path strings produce deterministic and distinct hashes.
+ *
+ * Verifies that two different numeric strings yield different TextureID hashes
+ * and that hashing the same numeric string twice produces identical TextureID values.
+ */
 TEST(Texture2DManagerTest, HashNumericPaths) {
     std::string path1 = "123456";
     std::string path2 = "654321";

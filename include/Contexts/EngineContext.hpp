@@ -68,6 +68,12 @@ struct GLStateCache
     WINDING_DIR WindingDir = WINDING_DIR::COUNTER_CLOCKWISE;
 };
 
+/**
+ * @brief Convert a CULLING_MODE value to the corresponding OpenGL cull-face `GLenum`.
+ *
+ * @param mode Culling mode to convert.
+ * @return GLenum OpenGL constant representing the cull-face mode for `mode`; returns `GL_BACK` if `mode` is unrecognized.
+ */
 inline GLenum ToGLCullMode(CULLING_MODE mode)
 {
     switch (mode)
@@ -79,6 +85,12 @@ inline GLenum ToGLCullMode(CULLING_MODE mode)
     return GL_BACK;
 }
 
+/**
+ * @brief Convert a WINDING_DIR value to the corresponding OpenGL winding direction.
+ *
+ * @param dir The WINDING_DIR enum value to convert.
+ * @return GLenum `GL_CW` for `WINDING_DIR::CLOCKWISE`, `GL_CCW` for `WINDING_DIR::COUNTER_CLOCKWISE`; defaults to `GL_CCW`.
+ */
 inline GLenum ToGLCullDir(WINDING_DIR dir)
 {
     switch (dir)

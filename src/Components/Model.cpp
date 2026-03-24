@@ -3,21 +3,50 @@
 #include "Engine/Systems/MaterialManager.hpp"
 #include "Engine/Systems/Texture2DManager.hpp"
 
+/**
+ * @brief Constructs a Model and loads its data from a file.
+ *
+ * @param path Filesystem path to the model file (absolute or relative). The constructor will load the model and populate internal meshes and material data from this file.
+ */
 Model::Model(const std::string& path)
 {
     loadModel(path);
 }
 
+/**
+ * Provides access to the model's loaded submeshes.
+ *
+ * @return const std::vector<SubMesh>& Const reference to the internal list of SubMesh objects owned by the model.
+ */
 const std::vector<SubMesh>& Model::GetSubMeshes() const
 {
     return this->m_Meshes;
 }
 
+/**
+ * @brief Retrieve the directory portion of the model's file path.
+ *
+ * @return std::string The directory path derived from the original model file path,
+ *                     or an empty string if no directory component was present.
+ */
 std::string Model::GetDirectory() const
 {
     return m_Directory;
 }
 
+/**
+ * @brief Loads a 3D model file, converts it into submeshes, and populates the model state.
+ *
+ * Clears any existing mesh and directory state, attempts to read and validate the file using Assimp
+ * (triangulating faces and generating smooth normals), sets the model directory to the file's
+ * containing folder for relative texture resolution, and recursively processes the scene graph
+ * to build submeshes.
+ *
+ * If the Assimp import fails or the scene is incomplete, the function returns early and leaves the
+ * model in the cleared state (no submeshes).
+ *
+ * @param path Filesystem path to the model file to load.
+ */
 void Model::loadModel(const std::string& path)
 {
     m_Meshes.clear();
@@ -43,6 +72,15 @@ void Model::loadModel(const std::string& path)
     processNode(scene->mRootNode, scene);
 }
 
+/**
+ * @brief Traverses an Assimp node subtree and converts referenced meshes into SubMesh entries.
+ *
+ * Processes each mesh referenced by the given node and appends the resulting SubMesh objects
+ * to the model's internal mesh list (`m_Meshes`), then recursively processes all child nodes.
+ *
+ * @param node Root Assimp node whose meshes and descendants will be processed.
+ * @param scene Assimp scene that contains the mesh and node data referenced by `node`.
+ */
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process all the node's meshes (if any)
@@ -58,6 +96,18 @@ void Model::processNode(aiNode* node, const aiScene* scene)
     }
 }
 
+/**
+ * @brief Converts an Assimp mesh into an engine SubMesh.
+ *
+ * Builds vertex and index buffers from the provided `aiMesh`, resolves the mesh's
+ * material using the containing `aiScene`, and returns a SubMesh that holds a
+ * fully initialized `Mesh` and the associated `MaterialID`.
+ *
+ * @param mesh Assimp mesh to convert; must be non-null.
+ * @param scene Assimp scene used to resolve the mesh's material index.
+ * @return SubMesh A SubMesh containing the created `Mesh` and its `MaterialID`.
+ *         Returns `MaterialID(-1)` when no valid material is found or assigned.
+ */
 SubMesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Vertex> vertices;
@@ -123,6 +173,16 @@ SubMesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     return SubMesh{meshPtr, materialID};
 }
 
+/**
+ * @brief Construct and register an engine Material from an Assimp material.
+ *
+ * Builds a Material by loading a default shader, resolving diffuse and specular textures,
+ * and applying optional numeric and color overrides (opacity, shininess, ambient) from the
+ * provided aiMaterial, then registers the material with the MaterialManager.
+ *
+ * @param aiMat Pointer to the Assimp material to convert.
+ * @return MaterialID Identifier of the registered material.
+ */
 MaterialID Model::processMaterial(aiMaterial* aiMat)
 {
     auto& services = Services::Get();
@@ -162,6 +222,15 @@ MaterialID Model::processMaterial(aiMaterial* aiMat)
     return matID;
 }
 
+/**
+ * @brief Loads the first texture of the given Assimp material for the specified texture type,
+ *        resolving the texture path relative to the model's directory.
+ *
+ * @param mat Assimp material to query for textures.
+ * @param type Assimp texture type to load (e.g., aiTextureType_DIFFUSE, aiTextureType_SPECULAR).
+ * @return TextureID The identifier of the loaded texture, or `TextureID(-1)` if the material
+ *         has no texture of that type, the texture entry cannot be retrieved, or loading fails.
+ */
 TextureID Model::loadMaterialTexture(aiMaterial* mat, aiTextureType type)
 {
     if (mat->GetTextureCount(type) == 0)

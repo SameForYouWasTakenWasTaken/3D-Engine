@@ -10,8 +10,19 @@ class MaterialManager : public IService
 
     uint32_t m_NextMaterialID = 0;
 public:
-    MaterialManager() = default;
-    MaterialManager(const MaterialManager&) = delete;
+    /**
+ * @brief Constructs an empty MaterialManager.
+ *
+ * Initializes the manager with an empty material map and sets the next
+ * material ID counter to 0.
+ */
+MaterialManager() = default;
+    /**
+ * @brief Prevents copying of MaterialManager instances.
+ *
+ * The copy constructor is deleted to enforce unique ownership semantics; MaterialManager objects cannot be copied.
+ */
+MaterialManager(const MaterialManager&) = delete;
     [[nodiscard]]
     MaterialID Load(Material material);
 

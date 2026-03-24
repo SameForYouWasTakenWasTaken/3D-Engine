@@ -22,8 +22,20 @@ class SceneManager : public IService
     EventCallbackFn m_EventCallback;
     std::unordered_map<uint32_t, std::shared_ptr<Scene>> m_Scenes;
 public:
-    SceneManager() = default;
-    SceneManager(const SceneManager&) = delete;
+    /**
+ * @brief Default-constructs a SceneManager.
+ *
+ * Constructs a SceneManager with default-initialized internal state and no active scene.
+ */
+SceneManager() = default;
+    /**
+ * @brief Disables copy construction of SceneManager.
+ *
+ * Copying is prohibited because SceneManager owns or references unique engine resources
+ * (engine context, scene collection, active scene and logger) and must maintain a single
+ * distinct instance.
+ */
+SceneManager(const SceneManager&) = delete;
     EngineContext& m_EngineContext;
     std::shared_ptr<Scene> m_ActiveScene = nullptr;
 

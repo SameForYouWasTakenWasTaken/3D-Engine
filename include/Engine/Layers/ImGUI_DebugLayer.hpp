@@ -10,7 +10,12 @@ class ImGUI_DebugLayer : public Layer
 {
 
 public:
-    ImGUI_DebugLayer() = default;
+    /**
+ * @brief Constructs an ImGUI_DebugLayer used to render and manage the debug ImGui interface.
+ *
+ * Initializes an instance of the ImGUI debug layer; platform and renderer bindings are established when OnAttach() is called.
+ */
+ImGUI_DebugLayer() = default;
     ~ImGUI_DebugLayer() override;
 
     void OnDraw() override;

@@ -38,6 +38,11 @@ struct RenderStats
     uint64_t indicesSubmitted = 0;
     uint64_t trianglesSubmitted = 0;
 
+    /**
+     * @brief Resets all render statistics counters to zero.
+     *
+     * Sets `drawCalls`, `verticesSubmitted`, `indicesSubmitted`, and `trianglesSubmitted` to 0.
+     */
     void Reset()
     {
         drawCalls = 0;
@@ -90,7 +95,13 @@ public:
     Logger logger = Logger("RENDERER");
 
     Renderer(EngineContext& context);
-    ~Renderer() = default;
+    /**
+ * @brief Destroys the Renderer and releases owned resources.
+ *
+ * @details Uses the default destructor behavior; member objects and RAII-managed resources
+ * are cleaned up by their own destructors.
+ */
+~Renderer() = default;
 
     void Submit(SubmitObject& submit);
     void PrepareObject(RenderObject& object);

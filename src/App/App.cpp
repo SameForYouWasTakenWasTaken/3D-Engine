@@ -4,15 +4,16 @@
 #include "Engine/Layers/PresentLayer.hpp"
 
 /**
- * @brief Initialize the application context, create the window, and configure OpenGL and input callbacks.
+ * @brief Initialize application window, OpenGL context, input callbacks, and engine services.
  *
- * Initializes engine window dimensions and logger, starts GLFW, creates the primary GLFW window, binds
- * this App instance to the window, registers framebuffer-size, key and cursor-position callbacks that
- * translate platform events into engine events dispatched via OnEvent, loads OpenGL functions via glad,
- * and configures basic GL state (error reporting, depth testing, blending, depth and blend functions).
+ * Sets engine window dimensions, creates the primary GLFW window and binds this App as the window user
+ * pointer, registers framebuffer-size, key, and cursor-position callbacks that forward platform events
+ * to OnEvent, loads OpenGL function pointers, and configures basic GL state and blending. Also registers
+ * core engine services (shader, renderer, scene manager, input, material/texture/asset managers).
  *
- * On failure to initialize GLFW, create the window, or load GL function pointers, an error is logged
- * and Shutdown() is called; the constructor will return without a fully initialized rendering context.
+ * On failure to initialize GLFW, create the window, or load GL function pointers, Shutdown() is invoked
+ * to tear down any partially initialized state and the constructor returns without a fully initialized
+ * rendering context.
  *
  * @param Settings Application settings providing Width, Height, and Name for the window.
  */

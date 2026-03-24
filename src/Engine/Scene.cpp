@@ -3,6 +3,13 @@
 #include "Components/Model.hpp"
 #include "Engine/Systems/AssetManager.hpp"
 
+/**
+ * @brief Adds a layer to the scene and performs attachment setup.
+ *
+ * @param layer Shared pointer to the layer to add. The layer's scene
+ *              association will be set to this scene and its OnAttach()
+ *              lifecycle method will be invoked.
+ */
 void Scene::AddLayer(std::shared_ptr<Layer> layer)
 {
     m_Layers.push_back(layer);
@@ -33,13 +40,10 @@ void Scene::RemoveLayer(std::shared_ptr<Layer> layer)
 }
 
 /**
- * @brief Draws the scene by invoking layer draw callbacks and submitting renderable entities.
+ * @brief Delegates drawing to each attached layer by invoking their OnDraw callback.
  *
- * Calls OnDraw() on every attached layer, updates the renderer engine context with the active
- * camera's projection, view, and camera position, then iterates entities with geometry, mesh,
- * material, and transform components and submits each mesh, material, model matrix, and the
- * scene's light manager to the renderer. If no active camera or its transform is available,
- * a warning is logged and drawing is skipped.
+ * Calls OnDraw() on every layer in the scene in stored order; the Scene itself does not
+ * perform renderer submissions or camera setup.
  */
 void Scene::Draw()
 {
@@ -108,9 +112,9 @@ void Scene::OnDetach()
 }
 
 /**
- * @brief Retrieve the Renderer service's EngineContext for this scene.
+ * @brief Obtain the Renderer service's engine context associated with this scene.
  *
- * @return std::expected<EngineContext*, bool> `EngineContext*` pointing to the Renderer service's engine context on success; `std::unexpected(false)` when the context is not available.
+ * @return std::optional<EngineContext*> `EngineContext*` pointing to the renderer's engine context if available, `std::nullopt` otherwise.
  */
 std::optional<EngineContext*> Scene::GetContext()
 {

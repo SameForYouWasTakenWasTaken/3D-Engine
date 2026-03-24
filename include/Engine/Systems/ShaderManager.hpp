@@ -12,8 +12,18 @@ class ShaderManager : public IService
 {
     std::unordered_map<ShaderID, std::shared_ptr<Shader>> m_Shaders;
 public:
-    ShaderManager() = default;
-    ShaderManager(const ShaderManager&) = delete;
+    /**
+ * @brief Default-constructs the ShaderManager service.
+ *
+ * Initializes the manager with no loaded shaders.
+ */
+ShaderManager() = default;
+    /**
+ * @brief Copy construction is disabled for ShaderManager.
+ *
+ * Prevents creating a copy of a ShaderManager instance to preserve its internal shader ownership and service identity.
+ */
+ShaderManager(const ShaderManager&) = delete;
 
     [[nodiscard]]
     ShaderID Load(const std::string& vert, const std::string& frag);

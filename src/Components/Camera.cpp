@@ -116,9 +116,9 @@ glm::vec3 COMPCamera::GetUp()
 }
 
 /**
- * @brief Retrieve the camera's projection and orientation parameters as a CameraContext.
+ * @brief Produce a CameraContext populated with this camera's projection and orientation parameters.
  *
- * @return CameraContext containing the camera's `fov`, `ratio`, `near`, `far`, `pitch`, and `yaw` values.
+ * @return CameraContext populated with this camera's `fov`, `ratio`, `near`, `far`, `pitch`, and `yaw`; any other fields are zero-initialized.
  */
 CameraContext COMPCamera::GetCameraContext() const
 {

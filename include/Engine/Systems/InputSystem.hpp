@@ -15,7 +15,13 @@ public:
      * Initializes an InputSystem object; all state is default-initialized.
      */
     InputSystem() = default;
-    InputSystem(const InputSystem&) = delete;
+    /**
+ * @brief Disable copying of InputSystem instances.
+ *
+ * The copy constructor is deleted to prevent creating duplicate service instances (shared static
+ * state such as key storage must not be copied).
+ */
+InputSystem(const InputSystem&) = delete;
         /**
      * @brief Default destructor for InputSystem.
      */

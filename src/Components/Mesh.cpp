@@ -2,12 +2,13 @@
 #include <Components/Mesh.hpp>
 
 /**
- * @brief Uploads mesh vertex and index data to the GPU and configures the VAO for rendering and instancing.
+ * @brief Uploads mesh geometry and instance data to the GPU and configures the VAO for rendering with instancing.
  *
- * Allocates a dynamic per-instance buffer for up to 10,000 InstanceData entries and configures per-vertex attributes
- * (position, color, texture coordinates, normal) plus instanced attributes for the model and normal matrices with
- * attribute divisors set for per-instance advancement. Updates IndexCount, VertexCount, and Indexed to reflect the
- * mesh's current data.
+ * Uploads vertex and index data to their GPU buffers, allocates a dynamic per-instance buffer (capacity for 10,000
+ * InstanceData entries), and configures per-vertex attributes (position, color, texture coordinates, normal) plus
+ * per-instance attributes for the model matrix and normal matrix rows with attribute divisors set for per-instance
+ * advancement. Also updates internal bookkeeping fields (`IndexCount`, `VertexCount`, `Indexed`) to reflect the mesh's
+ * current data.
  *
  * @param draw_type OpenGL usage hint used when uploading vertex and index buffers (e.g., `GL_STATIC_DRAW`, `GL_DYNAMIC_DRAW`).
  */

@@ -6,10 +6,17 @@
 #include "Engine/Systems/AssetManager.hpp"
 
 /**
- * @brief Executes the layer's per-frame drawing step.
+ * @brief Perform per-frame render submission for the current scene.
  *
- * This is invoked during the render phase to perform any layer-specific rendering.
- * Currently no rendering operations are implemented in this method.
+ * Begins a rendering frame, validates the active camera, and submits visible geometry and model submeshes
+ * to the renderer for the active scene. If no active camera transform or camera component is available,
+ * the function logs a warning and skips submission for this frame.
+ *
+ * The method:
+ * - Obtains renderer and asset manager services.
+ * - Submits entities with COMPGeometry/COMPMesh/COMPMaterial/COMPTransform as single drawables.
+ * - Submits entities with COMPModel/COMPTransform by loading the model, iterating its submeshes and submitting
+ *   each submesh. Per-entity MaterialOverride components are applied via SetMaterialOverrides when present.
  */
 void GameLayer::OnDraw()
 {
@@ -99,6 +106,17 @@ void GameLayer::OnDraw()
     renderer.End();
 }
 
+/**
+ * @brief Populate a model component's per-submesh material overrides by cloning and reloading materials with optional property changes.
+ *
+ * Applies the optional transparency and shininess values from the provided MaterialOverride to each submesh's material,
+ * loading a cloned material for each modified submesh and storing the resulting material IDs in modelComponent.materialOverrides.
+ * If neither override is specified or the referenced model cannot be found, the function returns without modifying the component.
+ * When a submesh's original material cannot be retrieved, the original material ID is preserved in the overrides.
+ *
+ * @param modelComponent The model component whose `materialOverrides` vector will be replaced to match the model's submesh count.
+ * @param materialOverride Optional properties (transparency and/or shininess) to apply to each submesh material.
+ */
 void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, MaterialOverride& materialOverride)
 {
     bool hasTransparency = materialOverride.transparency.has_value();
@@ -367,16 +385,16 @@ void GameLayer::OnDetach()
 }
 
 /**
- * @brief Handle window, keyboard, and mouse events for the game layer, updating cameras, transforms, and input state.
+ * @brief Process window, keyboard, and mouse events to update camera, transforms, and input state.
  *
- * Processes:
- * - WindowResizeEvent: recomputes and applies the new aspect ratio to the active camera.
- * - KeyInputEvent: toggles cursor/raw-mouse mode on Escape, adjusts an internal placement distance with C/Z, and on F constructs and positions a new geometry entity relative to the active camera.
+ * Handles three event types:
+ * - WindowResizeEvent: recomputes the aspect ratio and applies it to the active camera.
+ * - KeyInputEvent: toggles cursor/raw-mouse capture on Escape and spawns a model entity with a MaterialOverride when F is pressed.
  * - MouseMoveEvent: when mouse control is enabled and an active camera exists, applies yaw/pitch rotation to the active camera from mouse deltas.
  *
- * The function marks the incoming event as handled (e.Handled = true) when complete.
+ * The function marks the incoming event as handled (sets `e.Handled = true`) when finished.
  *
- * @param e The event to process; this function may modify e.Handled.
+ * @param e The event to process; this function may modify `e.Handled`.
  */
 void GameLayer::OnEvent(Event& e)
 {

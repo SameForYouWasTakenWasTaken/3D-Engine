@@ -1,5 +1,18 @@
 #include <Engine/LowLevel/Shader.hpp>
 
+/**
+ * @brief Loads vertex and fragment shader source text from two files.
+ *
+ * Reads the entire contents of the file at VertexSourceFilePath as the vertex
+ * shader source and the file at FragmentSourceFilePath as the fragment shader
+ * source.
+ *
+ * @param VertexSourceFilePath Path to the vertex shader source file.
+ * @param FragmentSourceFilePath Path to the fragment shader source file.
+ * @return std::optional<std::pair<std::string, std::string>> An engaged optional
+ * containing a pair `{vertexSource, fragmentSource}` when both files were opened
+ * and read successfully; `std::nullopt` if either file could not be opened.
+ */
 std::optional<std::pair<std::string, std::string>>
 ParseShaderFiles(const std::string& VertexSourceFilePath, const std::string& FragmentSourceFilePath)
 {
@@ -20,6 +33,15 @@ ParseShaderFiles(const std::string& VertexSourceFilePath, const std::string& Fra
     return std::make_pair(vert_buffer.str(), frag_buffer.str());
 }
 
+/**
+ * @brief Initializes the Shader by loading vertex and fragment source files, setting their sources, and compiling/linking the shader program.
+ *
+ * Attempts to read the provided vertex and fragment shader files; on success stores the file paths, applies the sources, and invokes shader compilation/linking via ResetShaders().
+ * If either file fails to open or read, logs an error under the "SHADER" tag and leaves the Shader in an uninitialized state (constructor returns early).
+ *
+ * @param VertexSourceFilePath Path to the vertex shader source file.
+ * @param FragmentSourceFilePath Path to the fragment shader source file.
+ */
 Shader::Shader(const std::string& VertexSourceFilePath, const std::string& FragmentSourceFilePath)
 {
     auto result = ParseShaderFiles(VertexSourceFilePath, FragmentSourceFilePath);
@@ -52,6 +74,17 @@ Shader::~Shader()
         glDeleteShader(m_FragmentShader);
 }
 
+/**
+ * @brief Reloads shader sources from the given file paths and rebuilds the shader program.
+ *
+ * Attempts to read the vertex and fragment shader source files at the provided paths; on
+ * success the sources are stored, the stored file-path members are updated, and the shader
+ * program is (re)compiled and linked. If file loading fails, an error is logged under the
+ * "SHADER" tag and no changes are made to the current shader state.
+ *
+ * @param VertexSourceFilepath Path to the vertex shader source file.
+ * @param FragmentSourceFilepath Path to the fragment shader source file.
+ */
 void Shader::ResetShaders(const std::string& VertexSourceFilepath, const std::string& FragmentSourceFilepath)
 {
     auto result = ParseShaderFiles(VertexSourceFilepath, FragmentSourceFilepath);
@@ -229,6 +262,12 @@ void Shader::SetVec3(const std::string& name, const glm::vec3& vec)
 }
 
 
+/**
+ * @brief Retrieves the location of a named uniform in the shader program.
+ *
+ * @param name The uniform variable name to query.
+ * @return int Location of the uniform, or `-1` if the shader program is not valid or the uniform is not found.
+ */
 int Shader::GetUniformLocation(const std::string& name)
 {
     if (glIsProgram(m_Program))
@@ -237,6 +276,11 @@ int Shader::GetUniformLocation(const std::string& name)
     return -1;
 }
 
+/**
+ * @brief Retrieve the stored vertex and fragment shader source file paths.
+ *
+ * @return std::pair<std::string, std::string> First: vertex shader file path; Second: fragment shader file path.
+ */
 std::pair<std::string, std::string> Shader::GetFilepaths() const
 {
     auto copyVertex = VertexShaderSource;

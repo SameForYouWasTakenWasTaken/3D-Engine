@@ -19,6 +19,13 @@ struct InstanceData
     glm::vec4 normal2;
 };
 
+/**
+ * @brief Provides the attribute description for a vertex position.
+ *
+ * Returns an AttributePointer configured for the position attribute used by the vertex shader: attribute location 0 with 3 components and the byte offset of Vertex::position.
+ *
+ * @return AttributePointer Configured for position (index = 0, size = 3, offset = offsetof(Vertex, position)).
+ */
 inline AttributePointer GetAttribPointerPos()
 {
     AttributePointer pos;
@@ -28,6 +35,11 @@ inline AttributePointer GetAttribPointerPos()
     return pos;
 }
 
+/**
+ * @brief Provides the vertex attribute description for the vertex color attribute.
+ *
+ * @return AttributePointer Attribute description configured for attribute location 1 with 4 components, offset to `Vertex::color`.
+ */
 inline AttributePointer GetAttribPointerCol()
 {
     AttributePointer col;
@@ -37,6 +49,11 @@ inline AttributePointer GetAttribPointerCol()
     return col;
 }
 
+/**
+ * @brief Provides the attribute description for a vertex normal.
+ *
+ * @return AttributePointer configured with attribute location 3, 3 components, and the byte offset of `Vertex::normal`.
+ */
 inline AttributePointer GetAttribPointeraNormal()
 {
     AttributePointer normal;
@@ -46,6 +63,11 @@ inline AttributePointer GetAttribPointeraNormal()
     return normal;
 }
 
+/**
+ * @brief Provides the vertex attribute description for texture coordinates.
+ *
+ * @return AttributePointer Configured for attribute location 2 with two components, using the offset of `Vertex::tex_coords`.
+ */
 inline AttributePointer GetAttribPointerTex()
 {
     AttributePointer tex;
@@ -55,6 +77,12 @@ inline AttributePointer GetAttribPointerTex()
     return tex;
 }
 
+/**
+ * @brief Describes the instanced normal0 vertex attribute for shader input.
+ *
+ * @return AttributePointer configured for the instance `normal0` attribute:
+ * attribute location 8, 4 components (vec4), and byte offset to `InstanceData::normal0`.
+ */
 inline AttributePointer GetAttribPointerNormal0()
 {
     AttributePointer attr{};
@@ -64,6 +92,13 @@ inline AttributePointer GetAttribPointerNormal0()
     return attr;
 }
 
+/**
+ * @brief Provides the attribute description for the instanced normal1 vector.
+ *
+ * Returns an AttributePointer configured for shader location 9 that maps to InstanceData::normal1.
+ *
+ * @return AttributePointer with attribute index 9, component count 4, and offset pointing to `InstanceData::normal1`.
+ */
 inline AttributePointer GetAttribPointerNormal1()
 {
     AttributePointer attr{};
@@ -73,6 +108,14 @@ inline AttributePointer GetAttribPointerNormal1()
     return attr;
 }
 
+/**
+ * @brief Provides the attribute description for the per-instance normal2 vector.
+ *
+ * Configures an AttributePointer for the instance attribute located at shader layout index 10,
+ * with 4 components and the byte offset of InstanceData::normal2.
+ *
+ * @return AttributePointer Attribute description (index = 10, size = 4, offset = offsetof(InstanceData, normal2)).
+ */
 inline AttributePointer GetAttribPointerNormal2()
 {
     AttributePointer attr{};
@@ -105,6 +148,15 @@ public:
 
     void SetData(GLenum draw_type = GL_STATIC_DRAW);
 
+    /**
+     * @brief Constructs a Mesh by taking ownership of provided vertex and index arrays.
+     *
+     * The provided vectors are moved into the mesh's internal storage; index and vertex
+     * counters are initialized to zero.
+     *
+     * @param vertices Vector of vertex data to transfer into the mesh (moved).
+     * @param indices Vector of indices to transfer into the mesh (moved).
+     */
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices)
         :
     vertices(std::move(vertices)), indices(std::move(indices)),

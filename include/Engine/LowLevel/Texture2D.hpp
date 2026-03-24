@@ -40,7 +40,22 @@ public:
     */
     void Use(GLenum type = GL_TEXTURE0);
 
-    GLuint GetTexture() const {return id;}
-    std::string GetPath() const {return texture_filepath;};
-    bool IsLoaded() const {return loaded;}
+    /**
+ * @brief Access the OpenGL texture object handle for this texture.
+ *
+ * @return GLuint OpenGL texture handle associated with this Texture2D.
+ */
+GLuint GetTexture() const {return id;}
+    /**
+ * @brief Gets the stored file path for this texture.
+ *
+ * @return std::string The file system path used to load or recreate the texture.
+ */
+std::string GetPath() const {return texture_filepath;};
+    /**
+ * @brief Reports whether the texture image has been successfully loaded.
+ *
+ * @return `true` if the texture has been loaded successfully, `false` otherwise.
+ */
+bool IsLoaded() const {return loaded;}
 };

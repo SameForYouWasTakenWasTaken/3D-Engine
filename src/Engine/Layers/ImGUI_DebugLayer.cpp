@@ -4,6 +4,14 @@
 
 #include <cmath>
 
+/**
+ * @brief Produces a compact, human-readable string for large integer counts using suffixes.
+ *
+ * Converts the given integer into a decimal with one digit after the decimal point and appends a suffix from "", "K", "M", "B", "T" to denote thousands, millions, billions, and trillions (for example, 1234 -> "1.2K").
+ *
+ * @param value The numeric value to format.
+ * @return std::string Shortened representation of the value with one decimal place and an appropriate suffix.
+ */
 std::string FormatShort(size_t value)
 {
     const char* suffixes[] = {"", "K", "M", "B", "T"};
@@ -21,6 +29,11 @@ std::string FormatShort(size_t value)
     return buffer;
 }
 
+/**
+ * @brief Releases ImGui resources and shuts down its GLFW/OpenGL backends.
+ *
+ * Cleans up the ImGui OpenGL3 and GLFW platform backends and destroys the ImGui context to free associated resources.
+ */
 ImGUI_DebugLayer::~ImGUI_DebugLayer()
 {
     ImGui_ImplOpenGL3_Shutdown();
@@ -28,6 +41,12 @@ ImGUI_DebugLayer::~ImGUI_DebugLayer()
     ImGui::DestroyContext();
 }
 
+/**
+ * @brief Renders the debug UI and submits ImGui draw data to OpenGL.
+ *
+ * Starts a new ImGui frame, builds the "DEBUG" window by invoking CameraGUI() and WorldGUI(),
+ * then finalizes ImGui and submits the resulting draw data to the OpenGL3 backend.
+ */
 void ImGUI_DebugLayer::OnDraw()
 {
     ImGui_ImplOpenGL3_NewFrame();
@@ -43,10 +62,26 @@ void ImGUI_DebugLayer::OnDraw()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+/**
+ * @brief Per-frame update hook for the debug layer.
+ *
+ * This implementation performs no per-frame logic; the method is a no-op.
+ *
+ * @param deltaTime Time elapsed since the previous frame, in seconds.
+ */
 void ImGUI_DebugLayer::OnUpdate(float deltaTime)
 {
 }
 
+/**
+ * @brief Adjusts ImGui font and style scale when the window is resized.
+ *
+ * When the provided event is a WindowResizeEvent, computes a scale factor as
+ * resize.Width / 1280.0 and applies it to ImGui's global font scale and style
+ * (resetting the style to defaults before scaling).
+ *
+ * @param event The incoming event; only WindowResizeEvent instances affect ImGui scaling.
+ */
 void ImGUI_DebugLayer::OnEvent(Event& event)
 {
     if (event.GetType() == WindowResizeEvent::GetStaticType())
@@ -63,6 +98,13 @@ void ImGUI_DebugLayer::OnEvent(Event& event)
     }
 }
 
+/**
+ * @brief Initialize ImGui context and backends for the current scene's GLFW OpenGL window.
+ *
+ * Creates an ImGui context, enables keyboard and gamepad navigation, retrieves the scene's active
+ * GLFW window, and initializes the ImGui GLFW and OpenGL3 backends. If no active window is
+ * available, the function returns without initializing backends.
+ */
 void ImGUI_DebugLayer::OnAttach()
 {
     IMGUI_CHECKVERSION();
@@ -79,10 +121,21 @@ void ImGUI_DebugLayer::OnAttach()
     ImGui_ImplOpenGL3_Init();
 }
 
+/**
+ * @brief Called when the debug layer is detached from the application.
+ *
+ * Currently performs no teardown or state changes.
+ */
 void ImGUI_DebugLayer::OnDetach()
 {
 }
 
+/**
+ * @brief Renders the Camera section of the ImGui debug window and exposes interactive camera controls.
+ *
+ * Displays a "Camera settings" header and an "Open" toggle; if no active camera or transform is available it shows "No valid camera exists!" and returns.
+ * When opened, presents controls for FOV, near and far planes (updating the camera and setting `dirty_camera = true` on change), shows forward/right/up vectors, world position, yaw and pitch, and provides a "Reset Camera" button that sets yaw and pitch to 0.0 and the camera transform position to {0.0f, 0.0f, 3.0f} (also marking the camera dirty).
+ */
 void ImGUI_DebugLayer::CameraGUI()
 {
     static bool show = false;
@@ -148,6 +201,18 @@ void ImGUI_DebugLayer::CameraGUI()
     }
 }
 
+/**
+ * @brief Renders the "World settings" ImGui panel and allows inspecting and modifying world and render-state parameters.
+ *
+ * Displays a toggleable UI section that:
+ * - Shows counts for meshes, models, and rendering statistics.
+ * - Enumerates models to include their sub-meshes when computing mesh count.
+ * - Exposes controls to modify render state stored in the scene context's StateCache (VSync, wireframe, depth test/write, depth function,
+ *   stencil test, color blending, face culling, cull mode, and winding).
+ *
+ * The function reads engine services (AssetManager and Renderer) and the active scene context; it updates Context->StateCache in response
+ * to user interactions. If no valid context exists, a message is shown and no state is modified.
+ */
 void ImGUI_DebugLayer::WorldGUI()
 {
     static bool show = false;

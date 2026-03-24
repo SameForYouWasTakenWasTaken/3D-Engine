@@ -21,6 +21,13 @@ void COMPTransform::Rotate(const glm::vec3& rot)
     this->rotation = glm::mod(rotation, glm::vec3(360.f));
 }
 
+/**
+ * @brief Multiplies the component's current scale by per-axis scale factors.
+ *
+ * Each component of the stored scale is multiplied by the corresponding component of `scale`.
+ *
+ * @param scale Per-axis scale factors (x, y, z) to apply.
+ */
 void COMPTransform::Scale(const glm::vec3& scale)
 {
     this->scale *= scale;
@@ -88,6 +95,15 @@ glm::mat4 COMPTransform::GetModelMatrix()
     return model;
 }
 
+/**
+ * @brief Computes the 3×3 normal transformation matrix for this transform.
+ *
+ * The normal matrix equals the model matrix's upper-left 3×3 when the component's
+ * scale is approximately uniform (each pair of scale components differs by less
+ * than 0.0001); otherwise it is the inverse-transpose of that 3×3.
+ *
+ * @return glm::mat3 The matrix used to transform surface normals. 
+ */
 glm::mat3 COMPTransform::GetNormalMatrix()
 {
     glm::mat4 model = GetModelMatrix();

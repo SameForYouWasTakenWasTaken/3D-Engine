@@ -1,16 +1,43 @@
 #include <Engine/Renderer.hpp>
 
+/**
+ * @brief Constructs a Renderer and initializes renderer state and resources.
+ *
+ * Initializes internal rendering resources and prepares the renderer to process
+ * frames using the provided engine context.
+ *
+ * @param context Reference to the EngineContext that provides renderer state,
+ *                configuration, and access to shared services. The renderer
+ *                stores this reference for the lifetime of the renderer.
+ */
 Renderer::Renderer(EngineContext& context)
     : m_EngineContext(context)
 {
     Init();
 };
 
-// TODO: Batch updating
+/**
+ * @brief Update renderer internal state for the current frame.
+ *
+ * Advances any time-dependent renderer state (animations, timers, or pending updates).
+ *
+ * @param dt Time elapsed since the previous update, in seconds.
+ */
 void Renderer::Update(float dt)
 {
 }
 
+/**
+ * @brief Adds a render submission to the renderer's instancing batches.
+ *
+ * Builds per-instance transform and normal data from the provided submission and
+ * accumulates it into an internal batch keyed by mesh, material ID, and scene.
+ * When a batch is created for the first time, the batch's mesh, material ID,
+ * scene, and base transform are recorded; subsequent submissions with the same
+ * key append instance data to that batch.
+ *
+ * @param submit Submission containing mesh, materialID, active_scene, and transform used to populate instance data.
+ */
 void Renderer::Submit(SubmitObject& submit)
 {
     // It's a much faster way to batch than comparing the mesh and material pointers directly,
@@ -49,6 +76,18 @@ void Renderer::Submit(SubmitObject& submit)
     batch.instances.push_back(instanceData);
 }
 
+/**
+ * @brief Prepare GPU/state for rendering a single object: configure shader uniforms, ensure textures,
+ *        upload lights, and bind the mesh VAO and required textures.
+ *
+ * Ensures the object's diffuse and specular textures exist (loading and writing default texture IDs
+ * back into the material when absent). In wireframe mode, selects a wireframe fragment shader,
+ * sets projection/view matrices, binds the mesh VAO, and returns early. Otherwise, sets camera and
+ * material uniforms on the object's shader, uploads scene lights, binds diffuse/specular textures to
+ * texture slots 0 and 1, and binds the mesh VAO ready for drawing.
+ *
+ * @param object RenderObject containing mesh, shader, material, textures, and scene context.
+ */
 void Renderer::PrepareObject(RenderObject& object)
 {
     auto diffuse = object.diffuse;
@@ -129,6 +168,19 @@ void Renderer::PrepareObject(RenderObject& object)
     mesh->vao.Bind();
 }
 
+/**
+ * @brief Issues an instanced draw for the provided render object and updates render statistics.
+ *
+ * If wireframe mode is enabled in the engine state, the object is rendered using line polygon mode
+ * for the duration of this draw call.
+ *
+ * @param object RenderObject whose mesh (and bound VAO/state) will be drawn; must have a valid `mesh`.
+ * @param InstanceCount Number of instances to render.
+ *
+ * @details
+ * Performs either an indexed instanced draw or a non-indexed instanced draw depending on `mesh->Indexed`.
+ * Updates global render statistics (draw calls, vertex/triangle counts and, for indexed draws, indices submitted).
+ */
 void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
 {
     if (m_EngineContext.StateCache.Wireframe == OPTION::YES)
@@ -164,6 +216,11 @@ void Renderer::DrawObject(RenderObject& object, size_t InstanceCount)
     g_RenderStats.trianglesSubmitted += mesh->VertexCount / 3;
 }
 
+/**
+ * @brief Applies the engine's cached rendering state to OpenGL and the windowing system.
+ *
+ * @details Compares the current GL/state cache against the engine's pending StateCache and applies only the differences. The function updates depth testing (enable/disable and depth function), depth write mask, stencil test, color blending, face culling (enable/disable, cull mode, front-face winding), polygon mode (wireframe vs fill), and vertical sync (VSync via glfwSwapInterval).
+ */
 void Renderer::ApplyState()
 {
     static GLStateCache state =
@@ -284,6 +341,15 @@ void Renderer::ApplyState()
     }
 }
 
+/**
+ * @brief Renders all collected batches into the scene framebuffer object.
+ *
+ * Applies the current GL state, clears the scene FBO, and for each non-empty batch:
+ * validates and resolves mesh, material, shader, and textures (loading and assigning
+ * default diffuse/specular textures when missing), uploads per-instance data to the
+ * mesh instance VBO, calls PrepareObject and DrawObject to perform instanced rendering,
+ * and unbinds bound textures. Unbinds the scene FBO on completion.
+ */
 void Renderer::RenderSceneToFBO()
 {
     auto& services = Services::Get();
@@ -372,6 +438,13 @@ void Renderer::RenderSceneToFBO()
     FBO::Unbind();
 }
 
+/**
+ * @brief Blits the scene FBO color texture to the default framebuffer using the preprocess shader.
+ *
+ * Uses the stored preprocess/screen shader to draw a fullscreen quad sampling the renderer's
+ * scene framebuffer color attachment, temporarily disables depth testing for the blit, and
+ * restores the previous depth test setting before returning.
+ */
 void Renderer::PresentScene()
 {
     auto& services = Services::Get();
@@ -401,6 +474,13 @@ void Renderer::PresentScene()
     m_EngineContext.StateCache.DepthTest = SavedOption; //Reset back to the previously saved option
 }
 
+/**
+ * @brief Initializes renderer resources required for offscreen rendering and screen blit.
+ *
+ * Sets up the scene framebuffer (m_SceneFBO), creates and configures the fullscreen quad
+ * geometry (m_ScreenVAO / m_ScreenVBO / m_ScreenEBO) with position and UV vertex attributes,
+ * and loads the preprocessing shader used to present the FBO to the screen.
+ */
 void Renderer::Init()
 {
     auto& shaderManager = Services::Get().GetService<ShaderManager>();
@@ -450,6 +530,11 @@ void Renderer::Init()
     m_PreprocessShaderID = shaderManager.Load("Shaders/Preprocessing/preprocess.vert", "Shaders/Preprocessing/preprocess.frag");
 }
 
+/**
+ * @brief Prepare the renderer for a new frame by clearing pending batches and resetting statistics.
+ *
+ * Clears all submitted draw batches from the previous frame and resets global render statistics.
+ */
 void Renderer::Begin()
 {
     // Clear batches from the last frame
@@ -458,14 +543,9 @@ void Renderer::Begin()
 }
 
 /**
- * @brief Finalizes and flushes all accumulated render batches to the GPU.
+ * @brief Completes the frame by rendering all accumulated batches into the renderer's scene framebuffer and then presenting that framebuffer's color output to the default framebuffer.
  *
- * Iterates stored batches, skips empty ones, binds each batch's mesh VAO and
- * instance VBO, updates the instance buffer with the batch's InstanceData,
- * activates the material's shader, and issues an instanced draw call.
- * For meshes marked as indexed, uses glDrawElementsInstanced with the mesh's
- * index count; for non-indexed meshes, uses glDrawArraysInstanced with the
- * mesh's vertex count.
+ * Renders batched objects into the offscreen scene FBO and then draws the resulting color texture to the screen to finalize the frame.
  */
 void Renderer::End()
 {
@@ -473,6 +553,14 @@ void Renderer::End()
     PresentScene();
 }
 
+/**
+ * @brief Handles window resize events to update the renderer's framebuffer and viewport.
+ *
+ * If `e` is a WindowResizeEvent, resizes the scene framebuffer object to the new width/height,
+ * binds the framebuffer, and updates the OpenGL viewport accordingly. Other event types are ignored.
+ *
+ * @param e Event to handle; expected to be (or contain) a WindowResizeEvent for resize behavior.
+ */
 void Renderer::OnEvent(Event& e)
 {
     if (e.GetType() == WindowResizeEvent::GetStaticType())
