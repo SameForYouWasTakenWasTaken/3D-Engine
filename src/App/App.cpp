@@ -1,7 +1,12 @@
-#include <App/App.hpp>
+#include "App.hpp"
 
-#include "Engine/Layers/ImGUI_DebugLayer.hpp"
-#include "Engine/Layers/PresentLayer.hpp"
+#include "Layers/ImGUI_DebugLayer.hpp"
+#include "Layers/PresentLayer.hpp"
+
+#include <tracy/Tracy.hpp>
+
+#include "Engine/Engine.hpp"
+#include "Engine/Systems/Texture2DManager.hpp"
 
 /**
  * @brief Initialize application window, OpenGL context, input callbacks, and engine services.
@@ -17,40 +22,15 @@
  *
  * @param Settings Application settings providing Width, Height, and Name for the window.
  */
-App::App(AppSettings Settings)
+App::App(EngineSettings Settings)
 {
-    m_EngineContext.WindowHeight = Settings.Height;
-    m_EngineContext.WindowWidth = Settings.Width;
-    auto logger = m_EngineContext.logger;
-    logger.RenameLogger("APP");
+    Engine engine; // Initialize the engine
+    engine.Init(Settings);
 
-    if (!glfwInit())
-    {
-        logger.LogError("Couldn't initialize GLFW!");
-        Shutdown();
-        return;
-    }
+    const auto& engineContext = Engine::GetContext();
+    glfwSetWindowUserPointer(engineContext.ActiveWindow, this);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    m_EngineContext.ActiveWindow = glfwCreateWindow(
-        m_EngineContext.WindowWidth, m_EngineContext.WindowHeight, // Width, height
-        Settings.Name.c_str(), // App name
-        NULL, NULL
-    );
-
-    if (!m_EngineContext.ActiveWindow)
-    {
-        logger.LogError("Active window does not exist!");
-        Shutdown();
-        return;
-    }
-    glfwSetWindowUserPointer(m_EngineContext.ActiveWindow, this);
-    glfwMakeContextCurrent(m_EngineContext.ActiveWindow);
-
-    glfwSetFramebufferSizeCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, int width, int height)
+    glfwSetFramebufferSizeCallback(engineContext.ActiveWindow, [](GLFWwindow* window, int width, int height)
     {
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
@@ -60,7 +40,7 @@ App::App(AppSettings Settings)
         }
     });
 
-    glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
+    glfwSetKeyCallback(engineContext.ActiveWindow, [](
                        GLFWwindow* window,
                        int key,
                        int scancode,
@@ -75,7 +55,7 @@ App::App(AppSettings Settings)
                            }
                        });
 
-    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos)
+    glfwSetCursorPosCallback(engineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos)
     {
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
@@ -85,25 +65,8 @@ App::App(AppSettings Settings)
         }
     });
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        logger.LogError("Failed to load glad!");
-        Shutdown();
-        return;
-    }
-
-    enableReportGlErrors();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
-
-    Services& services = Services::Get();
-
-    services.RegisterService<ShaderManager>(); // Renderer depends on ShaderManager
-    services.RegisterService<Renderer>(m_EngineContext);
-    services.RegisterService<SceneManager>(m_EngineContext);
-    services.RegisterService<InputSystem>();
-    services.RegisterService<MaterialManager>();
-    services.RegisterService<Texture2DManager>();
-    services.RegisterService<AssetManager>();
+    Engine::InitServices();
+    Services::Get().RegisterService<SceneManager>();
 }
 
 /**
@@ -116,10 +79,10 @@ App::App(AppSettings Settings)
  */
 void App::Run()
 {
-
     auto& services = Services::Get();
     auto& sceneManager = services.GetService<SceneManager>();
     auto& renderer = services.GetService<Renderer>();
+    const auto& engineContext = Engine::GetContext();
 
     auto gameLayer = std::make_shared<GameLayer>();
     auto presentLayer = std::make_shared<PresentLayer>();
@@ -128,14 +91,13 @@ void App::Run()
     auto scene = std::make_shared<Scene>();
     sceneManager.AddScene(scene);
 
-    scene->AddLayer(gameLayer);
-    scene->AddLayer(presentLayer); // Any layer above will be presented to the screen
-    scene->AddLayer(debugLayer);
+    sceneManager.AddLayer(scene, gameLayer);
+    sceneManager.AddLayer(scene, presentLayer); // Any layer above will be presented to the screen
+    sceneManager.AddLayer(scene, debugLayer);
 
     float dt{};
     auto then = glfwGetTime();
-
-    while (!glfwWindowShouldClose(m_EngineContext.ActiveWindow) && !m_EngineContext.SafeShutdown)
+    while (!glfwWindowShouldClose(engineContext.ActiveWindow) && !engineContext.SafeShutdown)
     {
         float now = glfwGetTime();
         dt = now - then;
@@ -145,8 +107,11 @@ void App::Run()
         sceneManager.Update(dt);
         sceneManager.Draw();
 
-        glfwSwapBuffers(m_EngineContext.ActiveWindow);
+        glfwSwapBuffers(engineContext.ActiveWindow);
         glfwPollEvents();
+
+        FrameMark;
+
     }
     Shutdown();
 }
@@ -154,7 +119,7 @@ void App::Run()
 void App::Shutdown()
 {
     // After shutdown
-    //m_EngineContext.logger.CreateLogFile(); // TODO: Auto delete logs that are a week old
+    //engineContext.logger.CreateLogFile(); // TODO: Auto delete logs that are a week old
     glfwTerminate();
 }
 

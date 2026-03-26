@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Engine/LowLevel/Vertex.hpp>
+#include <../src/Core/Engine/Renderer/API/Vertex.hpp>
 
 #include "glad/glad.h"
 

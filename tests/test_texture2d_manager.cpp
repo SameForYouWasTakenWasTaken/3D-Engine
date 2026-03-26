@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
-#include <Engine/Systems/Texture2DManager.hpp>
+#include <../src/Core/Engine/Systems/Texture2DManager.hpp>
 #include <unordered_set>
 
 // Test Texture2DManager Hash basic functionality
 TEST(Texture2DManagerTest, HashBasic) {
     // Hash should produce consistent results
-    std::string path1 = "Resources/Textures2D/test.png";
+    std::string path1 = "assets/Textures2D/test.png";
     TextureID hash1a = Hash<TextureID>(path1);
     TextureID hash1b = Hash<TextureID>(path1);
 
@@ -15,8 +15,8 @@ TEST(Texture2DManagerTest, HashBasic) {
 
 // Test Texture2DManager Hash with different paths
 TEST(Texture2DManagerTest, HashDifferentPaths) {
-    std::string path1 = "Resources/Textures2D/texture1.png";
-    std::string path2 = "Resources/Textures2D/texture2.png";
+    std::string path1 = "assets/Textures2D/texture1.png";
+    std::string path2 = "assets/Textures2D/texture2.png";
 
     TextureID hash1 = Hash<TextureID>(path1);
     TextureID hash2 = Hash<TextureID>(path2);
@@ -51,7 +51,7 @@ TEST(Texture2DManagerTest, HashSingleCharacter) {
 
 // Test Texture2DManager Hash with long paths
 TEST(Texture2DManagerTest, HashLongPaths) {
-    std::string long_path = "Resources/Textures2D/VeryLongDirectoryName/AnotherLongDirectory/SubDirectory/texture_with_very_long_name_for_testing.png";
+    std::string long_path = "assets/Textures2D/VeryLongDirectoryName/AnotherLongDirectory/SubDirectory/texture_with_very_long_name_for_testing.png";
     TextureID hash = Hash<TextureID>(long_path);
 
     // Should produce consistent hash
@@ -61,9 +61,9 @@ TEST(Texture2DManagerTest, HashLongPaths) {
 
 // Test Texture2DManager Hash with special characters
 TEST(Texture2DManagerTest, HashSpecialCharacters) {
-    std::string path_with_spaces = "Resources/Textures2D/texture with spaces.png";
-    std::string path_with_underscores = "Resources/Textures2D/texture_with_underscores.png";
-    std::string path_with_dashes = "Resources/Textures2D/texture-with-dashes.png";
+    std::string path_with_spaces = "assets/Textures2D/texture with spaces.png";
+    std::string path_with_underscores = "assets/Textures2D/texture_with_underscores.png";
+    std::string path_with_dashes = "assets/Textures2D/texture-with-dashes.png";
 
     TextureID hash1 = Hash<TextureID>(path_with_spaces);
     TextureID hash2 = Hash<TextureID>(path_with_underscores);
@@ -78,8 +78,8 @@ TEST(Texture2DManagerTest, HashSpecialCharacters) {
 // Test Texture2DManager Hash with case sensitivity
 TEST(Texture2DManagerTest, HashCaseSensitivity) {
     std::string lower = "resources/textures2d/texture.png";
-    std::string upper = "Resources/Textures2D/Texture.png";
-    std::string mixed = "Resources/Textures2D/texture.png";
+    std::string upper = "assets/Textures2D/Texture.png";
+    std::string mixed = "assets/Textures2D/texture.png";
 
     TextureID hash_lower = Hash<TextureID>(lower);
     TextureID hash_upper = Hash<TextureID>(upper);
@@ -93,8 +93,8 @@ TEST(Texture2DManagerTest, HashCaseSensitivity) {
 
 // Test Texture2DManager Hash with relative vs absolute paths
 TEST(Texture2DManagerTest, HashRelativeVsAbsolute) {
-    std::string relative = "Resources/Textures2D/texture.png";
-    std::string absolute = "/home/user/project/Resources/Textures2D/texture.png";
+    std::string relative = "assets/Textures2D/texture.png";
+    std::string absolute = "/home/user/project/assets/Textures2D/texture.png";
 
     TextureID hash_relative = Hash<TextureID>(relative);
     TextureID hash_absolute = Hash<TextureID>(absolute);
@@ -109,9 +109,9 @@ TEST(Texture2DManagerTest, HashRelativeVsAbsolute) {
 
 // Test Texture2DManager Hash with similar paths
 TEST(Texture2DManagerTest, HashSimilarPaths) {
-    std::string path1 = "Resources/Textures2D/texture.png";
-    std::string path2 = "Resources/Textures2D/texture.jpg";
-    std::string path3 = "Resources/Textures2D/textures.png";
+    std::string path1 = "assets/Textures2D/texture.png";
+    std::string path2 = "assets/Textures2D/texture.jpg";
+    std::string path3 = "assets/Textures2D/textures.png";
 
     TextureID hash1 = Hash<TextureID>(path1);
     TextureID hash2 = Hash<TextureID>(path2);
@@ -125,8 +125,8 @@ TEST(Texture2DManagerTest, HashSimilarPaths) {
 
 // Test Texture2DManager Hash with forward vs backward slashes
 TEST(Texture2DManagerTest, HashSlashTypes) {
-    std::string forward = "Resources/Textures2D/texture.png";
-    std::string backward = "Resources\\Textures2D\\texture.png";
+    std::string forward = "assets/Textures2D/texture.png";
+    std::string backward = "assets\\Textures2D\\texture.png";
 
     TextureID hash_forward = Hash<TextureID>(forward);
     TextureID hash_backward = Hash<TextureID>(backward);
@@ -147,7 +147,7 @@ TEST(Texture2DManagerTest, HashDistribution) {
 
     // Generate many different paths
     for (int i = 0; i < NUM_PATHS; ++i) {
-        std::string path = "Resources/Textures2D/texture_" + std::to_string(i) + ".png";
+        std::string path = "assets/Textures2D/texture_" + std::to_string(i) + ".png";
         TextureID hash = Hash<TextureID>(path);
         hashes.insert(hash);
     }
@@ -158,7 +158,7 @@ TEST(Texture2DManagerTest, HashDistribution) {
 
 // Test Texture2DManager Hash with common texture file extensions
 TEST(Texture2DManagerTest, HashCommonExtensions) {
-    std::string base = "Resources/Textures2D/texture";
+    std::string base = "assets/Textures2D/texture";
     std::vector<std::string> extensions = {".png", ".jpg", ".jpeg", ".bmp", ".tga", ".dds"};
     std::unordered_set<TextureID> hashes;
 
@@ -174,10 +174,10 @@ TEST(Texture2DManagerTest, HashCommonExtensions) {
 
 // Test Texture2DManager Hash with trailing/leading whitespace
 TEST(Texture2DManagerTest, HashWhitespace) {
-    std::string normal = "Resources/Textures2D/texture.png";
-    std::string leading = " Resources/Textures2D/texture.png";
-    std::string trailing = "Resources/Textures2D/texture.png ";
-    std::string both = " Resources/Textures2D/texture.png ";
+    std::string normal = "assets/Textures2D/texture.png";
+    std::string leading = " assets/Textures2D/texture.png";
+    std::string trailing = "assets/Textures2D/texture.png ";
+    std::string both = " assets/Textures2D/texture.png ";
 
     TextureID hash_normal = Hash<TextureID>(normal);
     TextureID hash_leading = Hash<TextureID>(leading);
@@ -192,7 +192,7 @@ TEST(Texture2DManagerTest, HashWhitespace) {
 
 // Test Texture2DManager Hash determinism across calls
 TEST(Texture2DManagerTest, HashDeterminism) {
-    std::string path = "Resources/Textures2D/test_texture.png";
+    std::string path = "assets/Textures2D/test_texture.png";
     std::vector<TextureID> hashes;
 
     // Hash the same path multiple times
@@ -227,8 +227,8 @@ TEST(Texture2DManagerTest, HashNumericPaths) {
 
 // Test Texture2DManager Hash with Unicode characters (if supported)
 TEST(Texture2DManagerTest, HashUnicode) {
-    std::string path_ascii = "Resources/Textures2D/texture.png";
-    std::string path_unicode = "Resources/Textures2D/テクスチャ.png";
+    std::string path_ascii = "assets/Textures2D/texture.png";
+    std::string path_unicode = "assets/Textures2D/テクスチャ.png";
 
     TextureID hash_ascii = Hash<TextureID>(path_ascii);
     TextureID hash_unicode = Hash<TextureID>(path_unicode);

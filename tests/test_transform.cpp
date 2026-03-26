@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Components/Transform.hpp>
+#include <../src/Core/Engine/Components/Transform.hpp>
 
 // ─── Default construction ──────────────────────────────────────────────────
 
@@ -157,30 +157,19 @@ TEST(COMPTransformTest, ScaleByZeroCollapsesScale) {
 TEST(COMPTransformTest, SetScaleActualBehavior) {
     COMPTransform t;
     t.SetScale(glm::vec3(3.f, 3.f, 3.f));
-    // SetScale resets to 1, then Scale(3-1=2): scale = 1*2 = 2
-    EXPECT_FLOAT_EQ(t.LocalScale.x, 2.f);
-    EXPECT_FLOAT_EQ(t.LocalScale.y, 2.f);
-    EXPECT_FLOAT_EQ(t.LocalScale.z, 2.f);
-}
-
-TEST(COMPTransformTest, SetScaleIsAbsolute) {
-    // SetScale should override any previously accumulated scale
-    COMPTransform t;
-    t.Scale(glm::vec3(10.f, 10.f, 10.f));
-    t.SetScale(glm::vec3(5.f, 5.f, 5.f));
-    // After SetScale: scale = 5 - 1 = 4
-    EXPECT_FLOAT_EQ(t.LocalScale.x, 4.f);
-    EXPECT_FLOAT_EQ(t.LocalScale.y, 4.f);
-    EXPECT_FLOAT_EQ(t.LocalScale.z, 4.f);
+    // SetScale resets to 1, then Scale(3*1=3)
+    EXPECT_FLOAT_EQ(t.LocalScale.x, 3.f);
+    EXPECT_FLOAT_EQ(t.LocalScale.y, 3.f);
+    EXPECT_FLOAT_EQ(t.LocalScale.z, 3.f);
 }
 
 TEST(COMPTransformTest, SetScaleNonUniform) {
     COMPTransform t;
+    t.SetScale(glm::vec3(2.f));
     t.SetScale(glm::vec3(4.f, 2.f, 3.f));
-    // SetScale(4,2,3): Scale(4-1=3, 2-1=1, 3-1=2) → scale = (3, 1, 2)
-    EXPECT_FLOAT_EQ(t.LocalScale.x, 3.f);
-    EXPECT_FLOAT_EQ(t.LocalScale.y, 1.f);
-    EXPECT_FLOAT_EQ(t.LocalScale.z, 2.f);
+    EXPECT_FLOAT_EQ(t.LocalScale.x, 4.f);
+    EXPECT_FLOAT_EQ(t.LocalScale.y, 2.f);
+    EXPECT_FLOAT_EQ(t.LocalScale.z, 3.f);
 }
 
 // ─── GetModelMatrix ────────────────────────────────────────────────────────
