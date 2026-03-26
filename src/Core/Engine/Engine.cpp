@@ -30,6 +30,10 @@ bool Engine::Init(EngineSettings settings)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#if defined(__APPLE__)
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
     m_EngineContext.ActiveWindow = glfwCreateWindow(
         m_EngineContext.WindowWidth, m_EngineContext.WindowHeight, // Width, height
         settings.Name.c_str(), // App name
