@@ -1,52 +1,37 @@
-#include <App/App.hpp>
+#include "App.hpp"
+
+#include "Layers/ImGUI_DebugLayer.hpp"
+#include "Layers/PresentLayer.hpp"
+
+#include <tracy/Tracy.hpp>
+
+#include "Engine/Engine.hpp"
+#include "Engine/Systems/Texture2DManager.hpp"
 
 /**
- * @brief Initialize the application context, create the window, and configure OpenGL and input callbacks.
+ * @brief Initialize application window, OpenGL context, input callbacks, and engine services.
  *
- * Initializes engine window dimensions and logger, starts GLFW, creates the primary GLFW window, binds
- * this App instance to the window, registers framebuffer-size, key and cursor-position callbacks that
- * translate platform events into engine events dispatched via OnEvent, loads OpenGL functions via glad,
- * and configures basic GL state (error reporting, depth testing, blending, depth and blend functions).
+ * Sets engine window dimensions, creates the primary GLFW window and binds this App as the window user
+ * pointer, registers framebuffer-size, key, and cursor-position callbacks that forward platform events
+ * to OnEvent, loads OpenGL function pointers, and configures basic GL state and blending. Also registers
+ * core engine services (shader, renderer, scene manager, input, material/texture/asset managers).
  *
- * On failure to initialize GLFW, create the window, or load GL function pointers, an error is logged
- * and Shutdown() is called; the constructor will return without a fully initialized rendering context.
+ * On failure to initialize GLFW, create the window, or load GL function pointers, Shutdown() is invoked
+ * to tear down any partially initialized state and the constructor returns without a fully initialized
+ * rendering context.
  *
  * @param Settings Application settings providing Width, Height, and Name for the window.
  */
-App::App(AppSettings Settings)
+App::App(EngineSettings Settings)
 {
-    m_EngineContext.WindowHeight = Settings.Height;
-    m_EngineContext.WindowWidth = Settings.Width;
-    auto logger = m_EngineContext.logger;
-    logger.RenameLogger("APP");
+    Engine engine; // Initialize the engine
+    engine.Init(Settings);
 
-    if (!glfwInit())
-    {
-        logger.LogError("Couldn't initialize GLFW!");
-        Shutdown();
-        return;
-    }
+    const auto& engineContext = Engine::GetContext();
+    glfwSetWindowUserPointer(engineContext.ActiveWindow, this);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
-    m_EngineContext.ActiveWindow = glfwCreateWindow(
-        m_EngineContext.WindowWidth, m_EngineContext.WindowHeight, // Width, height
-        Settings.Name.c_str(), // App name
-        NULL, NULL
-    );
-    
-    if (!m_EngineContext.ActiveWindow)
+    glfwSetFramebufferSizeCallback(engineContext.ActiveWindow, [](GLFWwindow* window, int width, int height)
     {
-        logger.LogError("Active window does not exist!");
-        Shutdown();
-        return;
-    }
-    glfwSetWindowUserPointer(m_EngineContext.ActiveWindow, this);
-    glfwMakeContextCurrent(m_EngineContext.ActiveWindow);
-    
-    glfwSetFramebufferSizeCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, int width, int height){
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
@@ -55,44 +40,23 @@ App::App(AppSettings Settings)
         }
     });
 
-    glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
-        GLFWwindow* window, 
-        int key, 
-        int scancode, 
-        int action, 
-        int mods) {
-        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-        if (app)
-        {
-            KeyInputEvent event(window, key, scancode, action, mods);
-            app->OnEvent(event);
-        }
-    });
+    glfwSetKeyCallback(engineContext.ActiveWindow, [](
+                       GLFWwindow* window,
+                       int key,
+                       int scancode,
+                       int action,
+                       int mods)
+                       {
+                           auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
+                           if (app)
+                           {
+                               KeyInputEvent event(window, key, scancode, action, mods);
+                               app->OnEvent(event);
+                           }
+                       });
 
-    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
-        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-        if (app)
-        {
-            MouseMoveEvent event(window, xpos, ypos);
-            app->OnEvent(event);
-        }
-    });
-
-    glfwSetKeyCallback(m_EngineContext.ActiveWindow, [](
-        GLFWwindow* window, 
-        int key, 
-        int scancode, 
-        int action, 
-        int mods) {
-        auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-        if (app)
-        {
-            KeyInputEvent event(window, key, scancode, action, mods);
-            app->OnEvent(event);
-        }
-    });
-
-    glfwSetCursorPosCallback(m_EngineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos) {
+    glfwSetCursorPosCallback(engineContext.ActiveWindow, [](GLFWwindow* window, double xpos, double ypos)
+    {
         auto app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
         if (app)
         {
@@ -100,28 +64,11 @@ App::App(AppSettings Settings)
             app->OnEvent(event);
         }
     });
-    
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        logger.LogError("Failed to load glad!");
-        Shutdown();
-        return;
-    }
-    
-    enableReportGlErrors();
-	glEnable(GL_DEPTH_TEST); // ensures correct depth rendering
-	glEnable(GL_BLEND); // Enables blending
-	glDepthFunc(GL_LESS); // default: pass if fragment is closer
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
 
-    Services& services = Services::Get();
-
-    services.RegisterService<Renderer>(m_EngineContext);
-    services.RegisterService<SceneManager>(m_EngineContext);
-    services.RegisterService<InputSystem>();
-    services.RegisterService<ShaderManager>();
-    services.RegisterService<MaterialManager>();
-    services.RegisterService<Texture2DManager>();
+    Engine::InitServices();
+    Services::Get().RegisterService<SceneManager>();
 }
+
 /**
  * @brief Starts the application's main loop and drives per-frame updates and rendering.
  *
@@ -132,51 +79,47 @@ App::App(AppSettings Settings)
  */
 void App::Run()
 {
-
     auto& services = Services::Get();
-
-    auto& renderer = services.GetService<Renderer>();
     auto& sceneManager = services.GetService<SceneManager>();
-
+    auto& renderer = services.GetService<Renderer>();
+    const auto& engineContext = Engine::GetContext();
 
     auto gameLayer = std::make_shared<GameLayer>();
+    auto presentLayer = std::make_shared<PresentLayer>();
+    auto debugLayer = std::make_shared<ImGUI_DebugLayer>();
+
     auto scene = std::make_shared<Scene>();
-    auto scene2 = std::make_shared<Scene>();
     sceneManager.AddScene(scene);
 
-    scene->AddLayer(gameLayer);
-    float dt;
+    sceneManager.AddLayer(scene, gameLayer);
+    sceneManager.AddLayer(scene, presentLayer); // Any layer above will be presented to the screen
+    sceneManager.AddLayer(scene, debugLayer);
+
+    float dt{};
     auto then = glfwGetTime();
-    while (!glfwWindowShouldClose(m_EngineContext.ActiveWindow) && !m_EngineContext.SafeShutdown)
+    while (!glfwWindowShouldClose(engineContext.ActiveWindow) && !engineContext.SafeShutdown)
     {
         float now = glfwGetTime();
         dt = now - then;
         then = now;
-        glClearColor( 0, 0.502, 0.502, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        
-        renderer.Begin();
-        
-        // Updating
-        renderer.Update(dt);
+        renderer.Begin(); // End() runs at PresentLayer
         sceneManager.Update(dt);
-
-        // Drawing
         sceneManager.Draw();
-        renderer.End();
 
-        glfwSwapBuffers(m_EngineContext.ActiveWindow);
+        glfwSwapBuffers(engineContext.ActiveWindow);
         glfwPollEvents();
-    }
 
+        FrameMark;
+
+    }
     Shutdown();
 }
 
 void App::Shutdown()
 {
     // After shutdown
-    //m_EngineContext.logger.CreateLogFile(); // TODO: Auto delete logs that are a week old
+    //engineContext.logger.CreateLogFile(); // TODO: Auto delete logs that are a week old
     glfwTerminate();
 }
 
@@ -193,9 +136,8 @@ void App::OnEvent(Event& e)
 
     auto& renderer = services.GetService<Renderer>();
     auto& sceneManager = services.GetService<SceneManager>();
-    auto& input = services.GetService<InputSystem>();
 
     renderer.OnEvent(e);
     sceneManager.OnEvent(e);
-    input.OnEvent(e);
+    InputSystem::OnEvent(e);
 }

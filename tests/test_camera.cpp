@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Components/Camera.hpp>
+#include <../src/Core/Engine/Components/Camera.hpp>
 #include <cmath>
 
 // ─── Construction ─────────────────────────────────────────────────────────

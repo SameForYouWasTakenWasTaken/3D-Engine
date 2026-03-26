@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <Components/Material.hpp>
+#include <../src/Core/Engine/Components/Material.hpp>
 
 // Test Material struct default construction
 TEST(MaterialTest, DefaultConstruction) {

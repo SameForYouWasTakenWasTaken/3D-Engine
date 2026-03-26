@@ -1,8 +1,8 @@
-#include <App/App.hpp>
+#include "App.hpp"
 
 int main()
 {
-    AppSettings settings; // On default settings already.
+    EngineSettings settings; // On default settings already.
     App app(settings);
 
     app.Run();
