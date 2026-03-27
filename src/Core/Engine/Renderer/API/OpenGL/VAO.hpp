@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vendor/glad.h>
-#include "Vertex.hpp"
+#include "../Vertex.hpp"
 
 struct AttributePointer
 {

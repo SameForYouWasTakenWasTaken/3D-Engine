@@ -529,6 +529,8 @@ void Renderer::Init()
     m_PreprocessShaderID = shaderManager.Load(
         std::string(SHADERS_DIRECTORY) + "Preprocessing/preprocess.vert",
         std::string(SHADERS_DIRECTORY) + "Preprocessing/preprocess.frag");
+
+    engineContext.EventDispatcher.sink<WindowResizeEvent>().connect<&Renderer::OnResize>(this);
 }
 
 /**
@@ -561,15 +563,11 @@ void Renderer::End()
  * If `e` is a WindowResizeEvent, resizes the scene framebuffer object to the new width/height,
  * binds the framebuffer, and updates the OpenGL viewport accordingly. Other event types are ignored.
  *
- * @param e Event to handle; expected to be (or contain) a WindowResizeEvent for resize behavior.
+ * @param resize Event to handle; expected to be (or contain) a WindowResizeEvent for resize behavior.
  */
-void Renderer::OnEvent(Event& e)
+void Renderer::OnResize(const WindowResizeEvent& resize)
 {
-    if (e.GetType() == WindowResizeEvent::GetStaticType())
-    {
-        auto& resize = static_cast<WindowResizeEvent&>(e);
-        m_SceneFBO.Resize(resize.Width, resize.Height);
-        m_SceneFBO.Bind();
-        glViewport(0, 0, resize.Width, resize.Height);
-    }
+    m_SceneFBO.Resize(resize.Width, resize.Height);
+    m_SceneFBO.Bind();
+    glViewport(0, 0, resize.Width, resize.Height);
 }

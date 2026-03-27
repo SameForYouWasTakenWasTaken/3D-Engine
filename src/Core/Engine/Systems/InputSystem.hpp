@@ -29,5 +29,5 @@ InputSystem(const InputSystem&) = delete;
 
     static bool IsKeyHeld(int key);
 
-    static void OnEvent(Event& e);
+    static void OnEvent(const KeyInputEvent& key);
 };

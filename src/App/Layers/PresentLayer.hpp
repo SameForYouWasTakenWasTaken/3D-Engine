@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Layer.hpp"
+#include "Engine/Renderer/API/Screen/Layer.hpp"
 
 class PresentLayer : public Layer
 {
@@ -34,7 +34,6 @@ void OnUpdate(float dt) override {}
  *
  * @param e Event dispatched to the layer.
  */
-void OnEvent(Event& e) override {}
     /**
  * @brief Called when the layer is detached from the engine.
  *

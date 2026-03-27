@@ -11,15 +11,15 @@
  *
  * @param scene Shared pointer to the scene to add; must be non-null.
  */
-uint32_t SceneManager::AddScene(std::shared_ptr<Scene> scene)
+void SceneManager::AddScene(std::shared_ptr<Scene> scene)
 {
-    m_Scenes.emplace(scene, std::vector<std::shared_ptr<Layer>>{});
-    scene->OnAttach(m_NextSceneID++);
+    if (!scene) return;
+    auto id = m_NextSceneID++;
+    m_Scenes.emplace(id, scene);
+    scene->OnAttach(id);
 
     if (m_ActiveScene == nullptr)
         m_ActiveScene = scene;
-
-    return m_NextSceneID;
 }
 
 /**
@@ -29,28 +29,21 @@ uint32_t SceneManager::AddScene(std::shared_ptr<Scene> scene)
  *
  * @param sceneID ID of the scene to remove.
  */
-void SceneManager::RemoveScene(std::shared_ptr<Scene> scene)
+void SceneManager::RemoveScene(uint32_t ID)
 {
-    auto validScene = DoesSceneExist(scene);
-    if (!validScene)
-        return;
-    m_Scenes.erase(validScene);
+    auto it = m_Scenes.find(ID);
+    if (it == m_Scenes.end()) return;
 
-    if (m_ActiveScene == validScene)
+    m_Scenes.erase(it);
+
+    if (m_ActiveScene == it->second)
         m_ActiveScene = nullptr;
 }
 
-void SceneManager::ChangeScene(std::shared_ptr<Scene> scene)
+void SceneManager::ChangeScene(uint32_t ID)
 {
-    auto validScene = DoesSceneExist(scene);
+    auto validScene = GetSceneFromID(ID);
     if (!validScene)
-    {
-        logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
-        logger.LogError("Scene not found in scene manager!");
-        logger.DumpLogs();
-        return;
-    }
-    if (!m_Scenes.contains(validScene))
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
         logger.LogError("Scene not found in scene manager!");
@@ -59,25 +52,6 @@ void SceneManager::ChangeScene(std::shared_ptr<Scene> scene)
     }
 
     m_ActiveScene = validScene;
-}
-
-void SceneManager::AddLayer(std::shared_ptr<Scene> scene, std::shared_ptr<Layer> layer)
-{
-    auto it = m_Scenes.find(scene);
-    if (it == m_Scenes.end() || !scene || !layer)
-        return;
-    it->second.push_back(layer);
-    layer->SetScene(scene.get());
-    layer->OnAttach();
-}
-
-void SceneManager::RemoveLayer(std::shared_ptr<Scene> scene, std::shared_ptr<Layer> layer)
-{
-    auto it = m_Scenes.find(scene);
-    if (it == m_Scenes.end() || !scene || !layer)
-        return;
-    layer->OnDetach();
-    std::erase(it->second, layer);
 }
 
 /**
@@ -99,11 +73,11 @@ void SceneManager::NextScene()
     if (m_ActiveScene == nullptr)
     {
         auto element = *m_Scenes.begin();
-        m_ActiveScene = element.first;
+        m_ActiveScene = element.second;
         return;
     }
 
-    auto it = m_Scenes.find(m_ActiveScene);
+    auto it = m_Scenes.find(m_ActiveScene->GetID());
     if (it == m_Scenes.end())
     {
         logger.AppendLogTag("SCENE_MANAGER", LogColors::CYAN);
@@ -121,7 +95,7 @@ void SceneManager::NextScene()
         return;
     }
 
-    m_ActiveScene = it->first;
+    m_ActiveScene = it->second;
 }
 
 /**
@@ -132,16 +106,6 @@ void SceneManager::NextScene()
 void SceneManager::SetEventCallback(const EventCallbackFn& callback)
 {
     m_EventCallback = callback;
-}
-
-void SceneManager::OnEvent(Event& e)
-{
-    // Handle via callbacks
-    if (!e.Handled && m_EventCallback)
-        m_EventCallback(e);
-
-    for (auto& layer : m_Scenes.at(m_ActiveScene))
-        layer->OnEvent(e);
 }
 
 /**
@@ -177,8 +141,8 @@ void SceneManager::Draw()
         return;
     }
 
-    for (auto& layer : m_Scenes.at(m_ActiveScene))
-        layer->OnDraw();
+    for (auto& scene : m_Scenes | std::views::values)
+        scene->OnDraw();
 }
 
 /**
@@ -199,10 +163,9 @@ void SceneManager::Update(float dt)
     }
 
     m_ActiveScene->Update(dt);
-    for (auto& layer : m_Scenes.at(m_ActiveScene))
-    {
-        layer->OnUpdate(dt);
-    }
+
+    for (auto& scene : m_Scenes | std::views::values)
+        scene->OnUpdate(dt);
 }
 
 /**
@@ -212,8 +175,10 @@ void SceneManager::Update(float dt)
  * @return std::shared_ptr<Scene> Shared pointer to the scene corresponding to `id`.
  *         Behavior is undefined if `id` is not present in the manager's scene map.
  */
-std::shared_ptr<Scene> SceneManager::DoesSceneExist(std::shared_ptr<Scene> scene) const
+std::shared_ptr<Scene> SceneManager::GetSceneFromID(uint32_t id)
 {
-    auto it = m_Scenes.find(scene);
-    return it->first;
+    auto it = m_Scenes.find(id);
+    if (it == m_Scenes.end())
+        return nullptr;
+    return it->second;
 }

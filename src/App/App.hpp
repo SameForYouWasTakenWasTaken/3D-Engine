@@ -5,9 +5,9 @@
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
-#include "Engine/Renderer/API/VAO.hpp"
-#include "Engine/Renderer/API/VBO.hpp"
-#include "Engine/Renderer/API/EBO.hpp"
+#include "Engine/Renderer/API/OpenGL/VAO.hpp"
+#include "Engine/Renderer/API/OpenGL/VBO.hpp"
+#include "Engine/Renderer/API/OpenGL/EBO.hpp"
 #include "Engine/Renderer/API/Shader.hpp"
 #include "Engine/Renderer/API/Debug.hpp"
 #include "Engine/Renderer/Renderer.hpp"
@@ -29,7 +29,4 @@ public:
 
     void Run();
     void Shutdown();
-    void OnEvent(Event& e);
-
-    EngineContext m_EngineContext;
 };

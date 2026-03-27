@@ -84,31 +84,6 @@ void ImGUI_DebugLayer::OnUpdate(float deltaTime)
 }
 
 /**
- * @brief Adjusts ImGui font and style scale when the window is resized.
- *
- * When the provided event is a WindowResizeEvent, computes a scale factor as
- * resize.Width / 1280.0 and applies it to ImGui's global font scale and style
- * (resetting the style to defaults before scaling).
- *
- * @param event The incoming event; only WindowResizeEvent instances affect ImGui scaling.
- */
-void ImGUI_DebugLayer::OnEvent(Event& event)
-{
-    if (event.GetType() == WindowResizeEvent::GetStaticType())
-    {
-        auto& resize = static_cast<WindowResizeEvent&>(event);
-        float scale = resize.Width / 1280.f;
-
-        ImGuiIO& io = ImGui::GetIO();
-        io.FontGlobalScale = scale;
-
-        ImGuiStyle& style = ImGui::GetStyle();
-        style = ImGuiStyle(); //reset
-        style.ScaleAllSizes(scale);
-    }
-}
-
-/**
  * @brief Initialize ImGui context and backends for the current scene's GLFW OpenGL window.
  *
  * Creates an ImGui context, enables keyboard and gamepad navigation, retrieves the scene's active
@@ -133,6 +108,7 @@ void ImGUI_DebugLayer::OnAttach()
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
+    Engine::GetContext().EventDispatcher.sink<WindowResizeEvent>().connect<&ImGUI_DebugLayer::OnResize>(this);
 }
 
 /**
@@ -142,6 +118,8 @@ void ImGUI_DebugLayer::OnAttach()
  */
 void ImGUI_DebugLayer::OnDetach()
 {
+    auto& engineContext = Engine::GetContext();
+    engineContext.EventDispatcher.sink<WindowResizeEvent>().disconnect<&ImGUI_DebugLayer::OnResize>(this);
 }
 
 /**
@@ -213,6 +191,10 @@ void ImGUI_DebugLayer::CameraGUI()
             Camera->pitch = 0.0f;
             CameraTransform->LocalPosition = {0.0f, 0.0f, 3.0f};
             Camera->dirty_camera = true;
+
+            Camera->SetFOV(90.f);
+            Camera->SetFar(1000.f);
+            Camera->SetNear(0.1f);
         }
     }
 }
@@ -383,4 +365,16 @@ void ImGUI_DebugLayer::WorldGUI()
         ImGui::Text("Total indices: %s", FormatShort(stats.indicesSubmitted).c_str());
         ImGui::Text("Total draw calls: %u", stats.drawCalls);
     }
+}
+
+void ImGUI_DebugLayer::OnResize(WindowResizeEvent& resize)
+{
+    float scale = resize.Width / 1280.f;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.FontGlobalScale = scale;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style = ImGuiStyle(); //reset
+    style.ScaleAllSizes(scale);
 }

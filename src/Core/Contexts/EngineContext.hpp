@@ -1,6 +1,7 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+#include <vendor/entt.hpp>
 #include <GLFW/glfw3.h>
 #include <vendor/entt.hpp>
 #include <glm/mat4x4.hpp>

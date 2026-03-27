@@ -258,6 +258,152 @@ void GameLayer::UpdateTransforms(entt::entity entity, const glm::mat4& inherited
     }
 }
 
+void GameLayer::OnResize(const WindowResizeEvent& resize)
+{
+    auto& sceneContext = m_Scene->GetContext();
+    const float ratio = static_cast<float>(resize.Width) / static_cast<float>(resize.Height);
+    auto view = sceneContext.registry.view<COMPCamera>();
+    if (auto* cam = sceneContext.registry.try_get<COMPCamera>(view.front()))
+    {
+        cam->SetRatio(ratio);
+    }
+
+    std::cout << "Resize: " << resize.Width << ", " << resize.Height << std::endl;
+}
+
+void GameLayer::OnMouseMove(MouseMoveEvent& mouse)
+{
+    auto& sceneContext = m_Scene->GetContext();
+
+    static constexpr float sensitivity = 0.1f;
+    static bool firstMouseInput = true;
+    static double lastMouseX;
+    static double lastMouseY;
+
+    if (!m_CanMoveMouse) return;
+    if (sceneContext.m_CameraManager.GetActiveCamera() == entt::null) return;
+
+    auto& cam = sceneContext.registry.get<COMPCamera>(sceneContext.m_CameraManager.GetActiveCamera());
+
+    if (firstMouseInput)
+    {
+        lastMouseX = mouse.xpos;
+        lastMouseY = mouse.ypos;
+        firstMouseInput = false; // reset after first alignment
+        return;
+    }
+
+    float xoffset = mouse.xpos - lastMouseX;
+    float yoffset = lastMouseY - mouse.ypos; // reversed since y-coords go top->down
+
+    lastMouseX = mouse.xpos;
+    lastMouseY = mouse.ypos;
+
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    cam.RotateEuler(xoffset, yoffset);
+}
+
+void GameLayer::OnKey(KeyInputEvent& input)
+{
+    auto& asset_manager = Services::Get().GetService<AssetManager>();
+    auto& shader_manager = Services::Get().GetService<ShaderManager>();
+    auto& texture_manager = Services::Get().GetService<Texture2DManager>();
+    auto& material_manager = Services::Get().GetService<MaterialManager>();
+    auto& mesh_manager = Services::Get().GetService<MeshManager>();
+
+    auto& sceneContext = m_Scene->GetContext();
+
+    if (input.IsKey(GLFW_KEY_ESCAPE) && input.IsKeyPressed())
+    {
+        auto& engineContext = Engine::GetContext();
+
+        int screenWidth = engineContext.WindowWidth;
+        int screenHeight = engineContext.WindowHeight;
+        static bool firstCapture = true;
+        static bool clicked = false;
+        static double LastMouseX = 0, LastMouseY = 0;
+
+        if (!clicked)
+        {
+            clicked = true;
+            glfwSetCursorPos(input.Window, LastMouseX, LastMouseY);
+            glfwGetCursorPos(input.Window, &LastMouseX, &LastMouseY);
+
+            glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+            m_CanMoveMouse = true;
+        }
+        else
+        {
+            clicked = false;
+            glfwSetCursorPos(input.Window, LastMouseX, LastMouseY);
+            glfwGetCursorPos(input.Window, &LastMouseX, &LastMouseY);
+
+            glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+            m_CanMoveMouse = false;
+        }
+    }
+
+
+    if (input.IsKey(GLFW_KEY_F) && input.IsKeyPressed())
+    {
+        auto cam = sceneContext.m_CameraManager.GetActiveCamera();
+        auto& camTransform = sceneContext.registry.get<COMPTransform>(cam);
+        auto& camComponent = sceneContext.registry.get<COMPCamera>(cam);
+
+        auto shadersDir = std::string(SHADERS_DIRECTORY);
+        auto texturesDir = std::string(TEXTURES_DIRECTORY);
+        auto objectsDir = std::string(OBJECTS_DIRECTORY);
+
+        ModelID model_id = asset_manager.Load(objectsDir + "Spiderman/scene.gltf");
+        // model
+        auto ModelEntity = sceneContext.registry.create();
+        auto& Model = sceneContext.registry.emplace<COMPModel>(ModelEntity, model_id);
+        auto& Transform = sceneContext.registry.emplace<COMPTransform>(ModelEntity);
+        auto& material = sceneContext.registry.emplace<MaterialOverride>(ModelEntity);
+        material.transparency = 4.f;
+
+        sceneContext.registry.emplace<TAG_GameLayer>(ModelEntity);
+
+        Transform.SetPosition(camTransform.LocalPosition + camComponent.GetForward());
+        Transform.Scale({0.5f, 0.5f, 0.5f});
+
+        // second quad
+        // shaders
+        auto shader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "first.frag");
+        auto sunShader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "sun.frag");
+
+        auto basic_texture = texture_manager.Load(texturesDir + "images.png");
+
+        // Materials
+        auto mat = Material{shader, basic_texture.value()};
+
+        MaterialID matID = material_manager.Load(mat);
+
+        auto [vertices, indices] = GetDefault();
+        auto quad = sceneContext.registry.create();
+        auto& Transform_a = sceneContext.registry.emplace<COMPTransform>(quad);
+        auto& Material_a = sceneContext.registry.emplace<COMPMaterial>(quad, matID);
+        sceneContext.registry.emplace<TAG_GameLayer>(quad);
+
+        auto mesh = Mesh(vertices, indices);
+        mesh.SetData();
+
+        auto meshID = mesh_manager.Load(std::move(mesh));
+
+        sceneContext.registry.emplace<COMPMesh>(quad, meshID);
+
+        HierarchySystem::PutInHierarchy(m_WorldHierarchy, ModelEntity);
+        HierarchySystem::SetChildren(m_WorldHierarchy, ModelEntity, quad);
+        static int x = 0;
+        Transform_a.Move({x / 2, x / 2, x / 2});
+        x++;
+    }
+}
+
 /**
  * @brief Updates the active camera's transform based on keyboard input.
  *
@@ -422,166 +568,24 @@ void GameLayer::OnAttach()
 
     sceneContext.registry.emplace<COMPCamera>(cam_entity, 90.f, ratio, 0.01f, 1000.f);
     sceneContext.m_CameraManager.SetActiveCamera(cam_entity);
+
+    // Connect events
+    engineContext.EventDispatcher.sink<WindowResizeEvent>().connect<&GameLayer::OnResize>(this);
+    engineContext.EventDispatcher.sink<KeyInputEvent>().connect<&GameLayer::OnKey>(this);
+    engineContext.EventDispatcher.sink<MouseMoveEvent>().connect<&GameLayer::OnMouseMove>(this);
 }
 
 void GameLayer::OnDetach()
 {
     auto& sceneContext = m_Scene->GetContext();
+    auto& engineContext = Engine::GetContext();
     auto view = sceneContext.registry.view<TAG_GameLayer>();
     view.each([&](auto entity)
     {
         sceneContext.registry.destroy(entity);
     });
-}
 
-/**
- * @brief Process window, keyboard, and mouse events to update camera, transforms, and input state.
- *
- * Handles three event types:
- * - WindowResizeEvent: recomputes the aspect ratio and applies it to the active camera.
- * - KeyInputEvent: toggles cursor/raw-mouse capture on Escape and spawns a model entity with a MaterialOverride when F is pressed.
- * - MouseMoveEvent: when mouse control is enabled and an active camera exists, applies yaw/pitch rotation to the active camera from mouse deltas.
- *
- * The function marks the incoming event as handled (sets `e.Handled = true`) when finished.
- *
- * @param e The event to process; this function may modify `e.Handled`.
- */
-void GameLayer::OnEvent(Event& e)
-{
-    auto& services = Services::Get();
-    auto& shader_manager = services.GetService<ShaderManager>();
-    auto& texture_manager = services.GetService<Texture2DManager>();
-    auto& asset_manager = services.GetService<AssetManager>();
-    auto& material_manager = services.GetService<MaterialManager>();
-    auto& mesh_manager = services.GetService<MeshManager>();
-    auto& sceneContext = m_Scene->GetContext();
-
-    if (e.GetType() == WindowResizeEvent::GetStaticType())
-    {
-        const auto& resize = dynamic_cast<WindowResizeEvent&>(e);
-
-        const float ratio = static_cast<float>(resize.Width) / static_cast<float>(resize.Height);
-        auto view = sceneContext.registry.view<COMPCamera>();
-        if (auto* cam = sceneContext.registry.try_get<COMPCamera>(view.front()))
-        {
-            cam->SetRatio(ratio);
-        }
-
-        std::cout << "Resize: " << resize.Width << ", " << resize.Height << std::endl;
-    }
-
-    if (e.GetType() == KeyInputEvent::GetStaticType())
-    {
-        auto& input = dynamic_cast<KeyInputEvent&>(e);
-
-        static bool clicked = false;
-        if (input.IsKey(GLFW_KEY_ESCAPE) && input.IsKeyPressed())
-        {
-            if (!clicked)
-            {
-                clicked = true;
-                glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                m_CanMoveMouse = true;
-            }
-            else
-            {
-                clicked = false;
-                glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
-                m_CanMoveMouse = false;
-            }
-        }
-
-
-        if (input.IsKey(GLFW_KEY_F) && input.IsKeyPressed())
-        {
-            auto cam = sceneContext.m_CameraManager.GetActiveCamera();
-            auto& camTransform = sceneContext.registry.get<COMPTransform>(cam);
-            auto& camComponent = sceneContext.registry.get<COMPCamera>(cam);
-
-            std::string shadersDir = std::string(SHADERS_DIRECTORY);
-            std::string texturesDir = std::string(TEXTURES_DIRECTORY);
-            std::string objectsDir = std::string(OBJECTS_DIRECTORY);
-
-            ModelID model_id = asset_manager.Load(objectsDir + "Spiderman/scene.gltf");
-            // model
-            auto ModelEntity = sceneContext.registry.create();
-            auto& Model = sceneContext.registry.emplace<COMPModel>(ModelEntity, model_id);
-            auto& Transform = sceneContext.registry.emplace<COMPTransform>(ModelEntity);
-            auto& material = sceneContext.registry.emplace<MaterialOverride>(ModelEntity);
-            material.transparency = 4.f;
-
-            sceneContext.registry.emplace<TAG_GameLayer>(ModelEntity);
-
-            Transform.SetPosition(camTransform.LocalPosition + camComponent.GetForward());
-            Transform.Scale({0.5f, 0.5f, 0.5f});
-
-            // second quad
-            // shaders
-            auto shader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "first.frag");
-            auto sunShader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "sun.frag");
-
-            auto basic_texture = texture_manager.Load(texturesDir + "images.png");
-
-            // Materials
-            auto mat = Material{shader, basic_texture.value()};
-
-            MaterialID matID = material_manager.Load(mat);
-
-            auto [vertices, indices] = GetDefault();
-            auto quad = sceneContext.registry.create();
-            auto& Transform_a = sceneContext.registry.emplace<COMPTransform>(quad);
-            auto& Material_a = sceneContext.registry.emplace<COMPMaterial>(quad, matID);
-            sceneContext.registry.emplace<TAG_GameLayer>(quad);
-
-            auto mesh = Mesh(vertices, indices);
-            mesh.SetData();
-
-            auto meshID = mesh_manager.Load(std::move(mesh));
-
-            sceneContext.registry.emplace<COMPMesh>(quad, meshID);
-
-            HierarchySystem::PutInHierarchy(m_WorldHierarchy, ModelEntity);
-            HierarchySystem::SetChildren(m_WorldHierarchy, ModelEntity, quad);
-            static int x = 0;
-            Transform_a.Move({x / 2 , x / 2, x / 2});
-            x++;
-        }
-    }
-
-    if (e.GetType() == MouseMoveEvent::GetStaticType())
-    {
-        if (!m_CanMoveMouse) return;
-        if (sceneContext.m_CameraManager.GetActiveCamera() == entt::null) return;
-
-        auto& mouse = dynamic_cast<MouseMoveEvent&>(e);
-        auto& cam = sceneContext.registry.get<COMPCamera>(sceneContext.m_CameraManager.GetActiveCamera());
-
-        static constexpr float sensitivity = 0.1f;
-        static bool firstMouseInput = true;
-        static double lastMouseX;
-        static double lastMouseY;
-
-        if (firstMouseInput)
-        {
-            lastMouseX = mouse.xpos;
-            lastMouseY = mouse.ypos;
-            firstMouseInput = false; // reset after first alignment
-            return;
-        }
-
-        float xoffset = mouse.xpos - lastMouseX;
-        float yoffset = lastMouseY - mouse.ypos; // reversed since y-coords go top->down
-
-        lastMouseX = mouse.xpos;
-        lastMouseY = mouse.ypos;
-
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
-
-        cam.RotateEuler(xoffset, yoffset);
-    }
-
-    e.Handled = true; // Set handled to true, since the layer is the last destination
+    engineContext.EventDispatcher.sink<WindowResizeEvent>().disconnect<&GameLayer::OnResize>(this);
+    engineContext.EventDispatcher.sink<KeyInputEvent>().disconnect<&GameLayer::OnKey>(this);
+    engineContext.EventDispatcher.sink<MouseMoveEvent>().disconnect<&GameLayer::OnMouseMove>(this);
 }

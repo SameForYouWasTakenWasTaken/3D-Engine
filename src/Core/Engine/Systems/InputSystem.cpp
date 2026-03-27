@@ -20,18 +20,14 @@ bool InputSystem::IsKeyHeld(int key)
  *
  * @param e Event to process; when it is a KeyInputEvent with a valid key code, the corresponding entry in the key state bitset is set on press and cleared on release.
  */
-void InputSystem::OnEvent(Event& e)
+void InputSystem::OnEvent(const KeyInputEvent& key)
 {
-    if (e.GetType() == KeyInputEvent::GetStaticType())
-    {
-        auto& key = static_cast<KeyInputEvent&>(e);
-        if (key.Key < 0 || key.Key >= m_Keys.size())
-            return; // ignore invalid key codes
-        
-        if (key.Action == GLFW_PRESS)
-            m_Keys[key.Key] = true;
-            
-        if (key.Action == GLFW_RELEASE)
-            m_Keys[key.Key] = false;
-    }
+    if (key.Key < 0 || key.Key >= m_Keys.size())
+        return; // ignore invalid key codes
+
+    if (key.Action == GLFW_PRESS)
+        m_Keys[key.Key] = true;
+
+    if (key.Action == GLFW_RELEASE)
+        m_Keys[key.Key] = false;
 }

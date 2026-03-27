@@ -1,7 +1,7 @@
 #pragma once
 #include <vendor/entt.hpp>
 
-#include "Layer.hpp"
+#include "../../Core/Engine/Renderer/API/Screen/Layer.hpp"
 #include "Engine/Components/Camera.hpp"
 #include "Engine/Components/Transform.hpp"
 #include "Engine/Components/Material.hpp"
@@ -32,9 +32,12 @@ public:
     void OnUpdate(float dt) override;
     void OnAttach() override;
     void OnDetach() override;
-    void OnEvent(Event& e) override;
 
     void SetMaterialOverrides(COMPModel& modelComponent, const MaterialOverride& materialOverride);
     void UpdateWorld(); // Update transform components
     void UpdateTransforms(entt::entity entity, const glm::mat4& inheritedWorld);
+
+    void OnResize(const WindowResizeEvent& resize);
+    void OnMouseMove(MouseMoveEvent& mouse);
+    void OnKey(KeyInputEvent& input);
 };

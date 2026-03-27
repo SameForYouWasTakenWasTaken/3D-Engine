@@ -4,9 +4,9 @@
 
 #include "Texture.hpp"
 #include "Engine/Components/Material.hpp"
-#include "Engine/Renderer/API/VAO.hpp"
-#include "Engine/Renderer/API/VBO.hpp"
-#include "Engine/Renderer/API/EBO.hpp"
+#include "../Renderer/API/OpenGL/VAO.hpp"
+#include "../Renderer/API/OpenGL/VBO.hpp"
+#include "../Renderer/API/OpenGL/EBO.hpp"
 #include "Engine/Systems/Services.hpp"
 
 using MeshID = uint64_t;

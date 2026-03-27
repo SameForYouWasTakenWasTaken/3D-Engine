@@ -1,10 +1,11 @@
 #pragma once
 
 
-#include "Engine/Renderer/API/Scene.hpp"
+#include "Scene.hpp"
 #include "Engine/Events/Events.hpp"
 #include "vendor/Logger.hpp"
 
+class Scene;
 class Layer
 {
 protected:
@@ -37,19 +38,6 @@ public:
     virtual void OnUpdate(float dt)
     {
     }
-
-    /**
- * @brief Handle an incoming event for this layer.
- *
- * Derived layers should override to respond to or modify the provided event.
- * The default implementation performs no action.
- *
- * @param e Event to handle; may be modified by the handler.
- */
-    virtual void OnEvent(Event& e)
-    {
-    }
-
     /**
  * @brief Called when the layer is attached to its scene or layer stack.
  *

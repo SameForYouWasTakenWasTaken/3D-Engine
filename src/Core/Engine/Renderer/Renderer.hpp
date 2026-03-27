@@ -12,7 +12,8 @@
 #include "Contexts/EngineContext.hpp"
 #include "Contexts/SceneContext.hpp"
 #include "Engine/Components/Transform.hpp"
-#include "Engine/Renderer/API/FBO.hpp"
+#include "API/OpenGL/FBO.hpp"
+#include "Engine/Events/WindowResizeEvent.hpp"
 
 class EngineContext; // forward declaration
 class Scene; // forward declaration
@@ -112,5 +113,5 @@ public:
     void Update(float dt);
     void End();
 
-    void OnEvent(Event& e);
+    void OnResize(const WindowResizeEvent& resize);
 };

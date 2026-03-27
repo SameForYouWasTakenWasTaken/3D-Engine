@@ -26,6 +26,21 @@ void Scene::OnAttach(uint32_t id)
     SceneID = id;
 }
 
+void Scene::OnDraw()
+{
+    for (auto& layer : m_Layers)
+        layer->OnDraw();
+}
+
+void Scene::OnUpdate(float dt)
+{
+    auto& context = m_SceneContext;
+    for (auto& layer : m_Layers)
+        layer->OnUpdate(dt);
+
+    context.m_CameraManager.Update(context.registry, dt);
+}
+
 /**
  * @brief Obtain the Renderer service's engine context associated with this scene.
  *
