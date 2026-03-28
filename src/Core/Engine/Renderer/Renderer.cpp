@@ -124,7 +124,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     if (!specular)
     {
         auto& textureManager = Services::Get().GetService<Texture2DManager>();
-        auto id = textureManager.Load(std::string(TEXTURES_DIRECTORY) + "default_spec.png");
+        auto id = textureManager.Load( TEXTURES_DIRECTORY "default_spec.png");
         specular = textureManager.Get(id.value());
 
         assert(specular);
@@ -137,7 +137,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     if (!diffuse)
     {
         auto& textureManager = Services::Get().GetService<Texture2DManager>();
-        auto id = textureManager.Load(std::string(TEXTURES_DIRECTORY) + "default_diffuse.png");
+        auto id = textureManager.Load(TEXTURES_DIRECTORY "default_diffuse.png");
         diffuse = textureManager.Get(id.value());
 
         assert(diffuse);
@@ -151,7 +151,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     {
         auto WireframeShaderID = Services::Get().GetService<ShaderManager>().Load(
             shader->GetFilepaths().first,
-            std::string(SHADERS_DIRECTORY) + "wireframe.frag"
+            SHADERS_DIRECTORY "wireframe.frag"
             );
         auto WireframeShader = Services::Get().GetService<ShaderManager>().Get(WireframeShaderID);
 
@@ -167,7 +167,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     shader->SetInt("materialDiffuse", 0); // Texture slot 0, activated on Texture->Use() below
     shader->SetInt("materialSpecular", 1); // Slot 1
 
-    lightManager.UploadToShader(shader, mesh);
+    lightManager.UploadGPUData(shader, mesh);
     materialManager.UploadToGPU(material);
     object.context->m_CameraManager.UploadGPUData(Camera, TransformCam);
 

@@ -19,14 +19,16 @@ class CameraManager final
     // to the camera component
     struct alignas(16) GPUdata
     {
-        glm::mat4 projectmat;
-        glm::mat4 viewmat;
+        glm::mat4 projectmat = glm::mat4(1.f);
+        glm::mat4 viewmat = glm::mat4(1.f);
 
-        glm::vec3 viewPos;
-        float nearPlane;
+        glm::vec3 viewPos = {0.f, 0.f, 0.f};
+        float nearPlane = 0.01;
+        float farPlane = 1000.f;
 
-        float farPlane;
-        glm::vec3 _cameraPad;
+        float _pad0;
+        float _pad1;
+        float _pad2;
     };
 
     GPUdata active_data;

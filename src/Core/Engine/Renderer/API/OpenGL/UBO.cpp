@@ -5,6 +5,11 @@ UBO::UBO()
     glGenBuffers(1, &id);
 }
 
+UBO::~UBO()
+{
+    glDeleteBuffers(1, &id);
+}
+
 void UBO::SetData(GLsizeiptr size, const void* data, GLenum usage)
 {
     glBufferData(

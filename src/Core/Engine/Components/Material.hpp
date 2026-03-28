@@ -12,12 +12,12 @@ using MaterialID = uint64_t;
 struct alignas(16) MaterialGPU
 {
     glm::vec3 ambient  = glm::vec3(0.1f, 0.1f, 0.1f);
-    float shininess = 32.0f;
+    float shininess = 16.0f;
 
     float transparency = 1.0f;
-    float _pad0;
-    float _pad1;
-    float _pad2;
+    float _pad0 = 0.f;
+    float _pad1 = 0.f;
+    float _pad2 = 0.f;
 };
 
 struct Material

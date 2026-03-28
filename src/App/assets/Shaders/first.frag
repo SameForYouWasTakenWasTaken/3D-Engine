@@ -2,7 +2,8 @@
 
 struct DirectionLight
 {
-    vec3 color;     float _pad0;
+    vec3 color;
+    float intensity;
     vec3 direction; float _pad1;
     vec3 ambient;   float _pad2;
     vec3 diffuse;   float _pad3;
@@ -11,7 +12,8 @@ struct DirectionLight
 
 struct PointLight
 {
-    vec3 color;    float _pad0;
+    vec3 color;
+    float intensity;
     vec3 position; float _pad1;
 
     float constant;
@@ -26,7 +28,8 @@ struct PointLight
 
 struct SpotLight
 {
-    vec3 color;     float _pad0;
+    vec3 color;
+    float intensity;
     vec3 position;  float _pad1;
     vec3 direction; float _pad2;
 
@@ -114,7 +117,7 @@ vec3 calculateDirectional(vec3 norm, vec3 viewDir, vec3 specular, vec3 texColor)
         vec3 diffuseTerm  = light.diffuse * diff * texColor;
         vec3 specularTerm = light.specular * spec * specular;
 
-        result += (ambientTerm + diffuseTerm + specularTerm) * light.color;
+        result += (ambientTerm + diffuseTerm + specularTerm) * light.color * light.intensity;
     }
 
     return result;
@@ -145,7 +148,7 @@ vec3 calculatePoint(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 specular, vec3 t
         vec3 diffuseTerm  = light.diffuse * diff * texColor;
         vec3 specularTerm = light.specular * spec * specular;
 
-        result += (ambientTerm + diffuseTerm + specularTerm) * attenuation * light.color;
+        result += (ambientTerm + diffuseTerm + specularTerm) * attenuation * light.color * light.intensity;
     }
 
     return result;
@@ -177,13 +180,17 @@ vec3 calculateSpot(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 specular, vec3 te
 
         float theta = dot(lightDir, normalize(-light.direction));
         float epsilon = light.cutOff - light.outerCutOff;
-        float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+        float spotFactor = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
         vec3 ambientTerm  = light.ambient * ambient * texColor;
         vec3 diffuseTerm  = light.diffuse * diff * texColor;
         vec3 specularTerm = light.specular * spec * specular;
 
-        result += (ambientTerm + diffuseTerm + specularTerm) * attenuation * intensity * light.color;
+        result += (ambientTerm + diffuseTerm + specularTerm)
+        * light.color
+        * light.intensity
+        * attenuation
+        * spotFactor;
     }
 
     return result;

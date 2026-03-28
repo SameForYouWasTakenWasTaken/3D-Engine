@@ -371,6 +371,7 @@ void GameLayer::OnKey(KeyInputEvent& input)
         Transform.SetPosition(camTransform.LocalPosition + camComponent.GetForward());
         Transform.Scale({0.5f, 0.5f, 0.5f});
 
+        HierarchySystem::PutInHierarchy(m_WorldHierarchy, ModelEntity);
         // second quad
         // shaders
         auto shader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "first.frag");
@@ -396,7 +397,6 @@ void GameLayer::OnKey(KeyInputEvent& input)
 
         sceneContext.registry.emplace<COMPMesh>(quad, meshID);
 
-        HierarchySystem::PutInHierarchy(m_WorldHierarchy, ModelEntity);
         HierarchySystem::SetChildren(m_WorldHierarchy, ModelEntity, quad);
         static int x = 0;
         Transform_a.Move({x / 2, x / 2, x / 2});

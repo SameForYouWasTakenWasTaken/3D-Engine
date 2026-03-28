@@ -14,8 +14,10 @@
 void LightManager::RemoveLight(LightID id)
 {
     auto it = m_Lights.find(id);
-    if (it != m_Lights.end())
-        m_Lights.erase(id);
+    if (it == m_Lights.end()) return;
+
+    m_Lights.erase(id);
+    dirty_SSBO = true;
 }
 
 /**
@@ -28,9 +30,9 @@ void LightManager::RemoveLight(LightID id)
  *
  * @param shader Target shader to receive light uniforms. If `nullptr`, the function does nothing.
  */
-void LightManager::UploadToShader(Shader* shader, Mesh* mesh)
+void LightManager::UploadGPUData(Shader* shader, Mesh* mesh)
 {
-    if (!shader) return;
+    if (!shader || !dirty_SSBO) return;
 
     std::vector<DirectionLightGPU> dirLights;
     std::vector<PointLightGPU> pointLights;
@@ -60,5 +62,6 @@ void LightManager::UploadToShader(Shader* shader, Mesh* mesh)
     shader->SetInt("numDirLights", static_cast<int>(dirLights.size()));
     shader->SetInt("numPointLights", static_cast<int>(pointLights.size()));
     shader->SetInt("numSpotLights", static_cast<int>(spotLights.size()));
+    dirty_SSBO = false;
 
 }
