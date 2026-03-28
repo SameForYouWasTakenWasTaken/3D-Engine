@@ -1,3 +1,4 @@
+#include <ranges>
 #include "LightManager.hpp"
 
 #include "tracy/Tracy.hpp"
@@ -13,8 +14,10 @@
 void LightManager::RemoveLight(LightID id)
 {
     auto it = m_Lights.find(id);
-    if (it != m_Lights.end())
-        m_Lights.erase(id);
+    if (it == m_Lights.end()) return;
+
+    m_Lights.erase(id);
+    dirty_SSBO = true;
 }
 
 /**
@@ -27,42 +30,38 @@ void LightManager::RemoveLight(LightID id)
  *
  * @param shader Target shader to receive light uniforms. If `nullptr`, the function does nothing.
  */
-void LightManager::UploadToShader(Shader* shader)
+void LightManager::UploadGPUData(Shader* shader, Mesh* mesh)
 {
-    if (!shader) return;
+    if (!shader || !dirty_SSBO) return;
 
-    int countDir = 0;
-    int countPoint = 0;
-    int countSpot = 0;
+    std::vector<DirectionLightGPU> dirLights;
+    std::vector<PointLightGPU> pointLights;
+    std::vector<SpotLightGPU> spotLights;
 
-    for (auto& [id, light] : m_Lights)
+    // TODO: Stop dynamic casting lel
+    for (std::unique_ptr<LightBase>& light : m_Lights | std::views::values)
     {
-        constexpr int MAX_LIGHTS = 16;
-        auto base = light.get();
+        if (light->GetType() == LightType::DIRECTIONAL)
+            dirLights.push_back(dynamic_cast<DirectionalLight*>(light.get())->data);
 
-        switch (base->GetType())
-        {
-        case LightType::DIRECTIONAL:
-            if (countDir >= MAX_LIGHTS) continue; // Max lights?
-            base->Upload(shader, countDir++);
-            break;
+        else if (light->GetType() == LightType::SPOT)
+            spotLights.push_back(dynamic_cast<SpotLight*>(light.get())->data);
 
-        case LightType::POINT:
-            if (countPoint >= MAX_LIGHTS) continue; // Max lights?
-            base->Upload(shader, countPoint++);
-            break;
-
-        case LightType::SPOT:
-            if (countSpot >= MAX_LIGHTS) continue; // Max lights?
-            base->Upload(shader, countSpot++);
-            break;
-
-        default:
-            break;
-        }
+        else if (light->GetType() == LightType::POINT)
+            pointLights.push_back(dynamic_cast<PointLight*>(light.get())->data);
     }
 
-    shader->SetInt("numDirLights", countDir);
-    shader->SetInt("numPointLights", countPoint);
-    shader->SetInt("numSpotLights", countSpot);
+    UploadLights<DirectionLightGPU>(dirLights, dirLightSSBO);
+    UploadLights<PointLightGPU>(pointLights, pointLightSSBO);
+    UploadLights<SpotLightGPU>(spotLights, spotLightSSBO);
+
+    dirLightSSBO.SetBinding(2);
+    pointLightSSBO.SetBinding(3);
+    spotLightSSBO.SetBinding(4);
+
+    shader->SetInt("numDirLights", static_cast<int>(dirLights.size()));
+    shader->SetInt("numPointLights", static_cast<int>(pointLights.size()));
+    shader->SetInt("numSpotLights", static_cast<int>(spotLights.size()));
+    dirty_SSBO = false;
+
 }

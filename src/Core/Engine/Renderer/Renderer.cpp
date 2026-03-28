@@ -104,6 +104,7 @@ bool Renderer::PrepareObject(RenderObject& object)
 
     auto& SceneContext = object.context;
     auto& lightManager = SceneContext->m_LightManager;
+    auto& materialManager = Services::Get().GetService<MaterialManager>();
 
     entt::entity cam = SceneContext->m_CameraManager.GetActiveCamera();
     auto* TransformCam = SceneContext->registry.try_get<COMPTransform>(cam);
@@ -123,7 +124,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     if (!specular)
     {
         auto& textureManager = Services::Get().GetService<Texture2DManager>();
-        auto id = textureManager.Load(std::string(TEXTURES_DIRECTORY) + "default_spec.png");
+        auto id = textureManager.Load( TEXTURES_DIRECTORY "default_spec.png");
         specular = textureManager.Get(id.value());
 
         assert(specular);
@@ -136,7 +137,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     if (!diffuse)
     {
         auto& textureManager = Services::Get().GetService<Texture2DManager>();
-        auto id = textureManager.Load(std::string(TEXTURES_DIRECTORY) + "default_diffuse.png");
+        auto id = textureManager.Load(TEXTURES_DIRECTORY "default_diffuse.png");
         diffuse = textureManager.Get(id.value());
 
         assert(diffuse);
@@ -150,32 +151,25 @@ bool Renderer::PrepareObject(RenderObject& object)
     {
         auto WireframeShaderID = Services::Get().GetService<ShaderManager>().Load(
             shader->GetFilepaths().first,
-            std::string(SHADERS_DIRECTORY) + "wireframe.frag"
+            SHADERS_DIRECTORY "wireframe.frag"
             );
         auto WireframeShader = Services::Get().GetService<ShaderManager>().Get(WireframeShaderID);
 
         assert(WireframeShader);
 
         WireframeShader->UseProgram();
-        WireframeShader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
-        WireframeShader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
+        object.context->m_CameraManager.UploadGPUData(Camera, TransformCam);
         mesh->vao.Bind();
         return true;
     }
 
     shader->UseProgram();
-    shader->SetMatrix4("projectmat", 1, glm::value_ptr(Camera->projection));
-    shader->SetMatrix4("viewmat", 1, glm::value_ptr(Camera->view));
-    shader->SetVec3("cam.viewPos", TransformCam->LocalPosition);
-    shader->SetFloat("cam.near", camContext.near);
-    shader->SetFloat("cam.far", camContext.far);
+    shader->SetInt("materialDiffuse", 0); // Texture slot 0, activated on Texture->Use() below
+    shader->SetInt("materialSpecular", 1); // Slot 1
 
-    shader->SetVec3("material.ambient", material->ambient);
-    shader->SetInt("material.diffuse", 0); // Texture slot 0, activated on Texture->Use() below
-    shader->SetInt("material.specular", 1); // Slot 1
-    shader->SetFloat("material.shininess", material->shininess);
-    shader->SetFloat("material.transparency", glm::clamp(material->transparency, 0.0f, 1.0f));
-    lightManager.UploadToShader(shader);
+    lightManager.UploadGPUData(shader, mesh);
+    materialManager.UploadToGPU(material);
+    object.context->m_CameraManager.UploadGPUData(Camera, TransformCam);
 
     diffuse->Use(GL_TEXTURE0);
     specular->Use(GL_TEXTURE1);
