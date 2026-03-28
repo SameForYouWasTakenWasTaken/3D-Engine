@@ -1,5 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
+
+#include "Mesh.hpp"
 #include "Engine/Renderer/API/Shader.hpp"
 
 using LightID = uint32_t;
@@ -16,6 +18,57 @@ enum class LightType
 // TODO: Fix shaders
 // TODO: Refactor unit tests
 
+struct alignas(16) LightBaseGPU
+{
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+    float intensity = 1.0f;
+};
+
+struct alignas(16) DirectionLightGPU
+{
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);     float _pad0 = 0.0f;
+    glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f); float _pad1 = 0.0f;
+    glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);  float _pad2 = 0.0f;
+    glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f) ;  float _pad3 = 0.0f;
+    glm::vec3 specular = glm::vec3(.05f, .05f, .05f); float _pad4 = 0.0f;
+};
+
+struct alignas(16) PointLightGPU
+{
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);    float _pad0 = 0.0f;
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f); float _pad1 = 0.0f;
+
+    float constant = 1.0f;
+    float linear = 0.09f;
+    float quadratic = 0.032f;
+    float _pad2 = 0.0f;
+
+    glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);  float _pad3 = 0.0f;
+    glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f) ;  float _pad4 = 0.0f;
+    glm::vec3 specular = glm::vec3(.05f, .05f, .05f); float _pad5 = 0.0f;
+};
+ // TODO: Fix light
+struct alignas(16) SpotLightGPU
+{
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);     float _pad0 = 0.0f;
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);  float _pad1 = 0.0f;
+    glm::vec3 direction = glm::vec3(0.f, 0.f, 0.f); float _pad2 = 0.0f;
+
+    float cutOff = 0.0f;
+    float outerCutOff = 0.0f;
+    float dist = 0.0f;
+    float _pad3 = 0.0f;
+
+    float constant = 1.0f;
+    float linear = 0.0f;
+    float quadratic = 0.0f;
+    float _pad4 = 0.0f;
+
+    glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);  float _pad5= 0.0f;
+    glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f) ;  float _pad6 = 0.0f;
+    glm::vec3 specular = glm::vec3(.05f, .05f, .05f); float _pad7 = 0.0f;
+};
+
 class LightBase
 {
 public:
@@ -24,56 +77,35 @@ public:
  *
  * Defaulted virtual destructor to allow proper polymorphic destruction of LightBase-derived instances.
  */
-virtual ~LightBase() = default;
-    virtual void Upload(Shader* shader, int at) const = 0;
+    virtual ~LightBase() = default;
     [[nodiscard]] virtual LightType GetType() const = 0;
-
-    glm::vec3 color = {1.f, 1.f, 1.f};
     float intensity = 0.5f;
 };
 
 class DirectionalLight : public LightBase
 {
 public:
-    glm::vec3 direction = {0.f, 0.f, 0.f};
-
-    glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 specular = glm::vec3(.5f, .5f, .5f);
-    glm::vec3 ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-
+    DirectionLightGPU data;
     [[nodiscard]] LightType GetType() const override;
-    void Upload(Shader* shader, int at) const override;
+    DirectionalLight() = default;
 };
 
 
 class PointLight : public LightBase
 {
 public:
-    glm::vec3 position = {0.f, 0.f, 0.f};
-
-    float constant = 1.0f;
-    float linear = 0.09f;
-    float quadratic = 0.032f;
-
-    glm::vec3 diffuse  = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 ambient  = glm::vec3(0.05f, 0.05f, 0.05f);
-
+    PointLightGPU data;
     [[nodiscard]] LightType GetType() const override;
-    void Upload(Shader* shader, int at) const override;
+    PointLight() = default;
 };
 
 class SpotLight : public PointLight
 {
 public:
-    glm::vec3 direction = {0.f, 0.f, 0.f};
-
-    float distance = 3.f;
-    float cutOff = 30.f; // inner cone angle, in degrees
-    float outerCutOff = 40.f; //  outer cone angle, should be larger than cutoff, in degrees
+    SpotLightGPU data;
 
     [[nodiscard]] LightType GetType() const override;
-    void Upload(Shader* shader, int at) const override;
+    SpotLight() = default;
 };
 
 struct COMPLight 

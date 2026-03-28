@@ -27,7 +27,8 @@ public:
     void SetShaderSources(const std::string& VertexShaderFilepath, const std::string& FragmentShaderSource); // This does NOT take in file paths!
     void UseProgram();
     void UnuseProgram();
-    // ? Uniform functions ?
+
+    // Uniform functions
     void SetInt(const std::string& name, int n);
     void SetFloat(const std::string& name, float n);
     void SetVec3(const std::string& name, const glm::vec3& vec);

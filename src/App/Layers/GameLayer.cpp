@@ -213,10 +213,10 @@ void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, const MaterialOv
 
         // modify the clone
         if (hasTransparency)
-            cloneMat.transparency = materialOverride.transparency.value();
+            cloneMat.data.transparency = materialOverride.transparency.value();
 
         if (hasShininess)
-            cloneMat.shininess = materialOverride.shininess.value();
+            cloneMat.data.shininess = materialOverride.shininess.value();
 
         // cache clone to replace material with
         auto matID = materialManager.Load(cloneMat);
@@ -550,7 +550,7 @@ void GameLayer::OnAttach()
     auto lightID = light_manager.Load<PointLight>();
     auto LightType = light_manager.GetLight<PointLight>(lightID.value());
 
-    LightType->position = {0.f, 0.f, 0.f};
+    LightType->data.position = {0.f, 0.f, 0.f};
 
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_1);
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_2);

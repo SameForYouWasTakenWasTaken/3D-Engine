@@ -16,11 +16,11 @@ MaterialID MaterialManager::Load(Material material)
         material.shader,
         material.diffuse,
         material.specular,
-        material.ambient.x,
-        material.ambient.y,
-        material.ambient.z,
-        material.shininess,
-        material.transparency
+        material.data.ambient.x,
+        material.data.ambient.y,
+        material.data.ambient.z,
+        material.data.shininess,
+        material.data.transparency
         );
     if (Get(id) != nullptr)
         return id;
@@ -72,4 +72,13 @@ Material* MaterialManager::Get(MaterialID id)
     if (it == m_Materials.end())
         return nullptr;
     return &it->second;
+}
+
+void MaterialManager::UploadToGPU(Material* material)
+{
+    materialUBO.Bind();
+    materialUBO.SetData(sizeof(material->data), &material->data);
+    materialUBO.Unbind();
+
+    materialUBO.SetBinding(1);
 }

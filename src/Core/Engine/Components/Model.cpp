@@ -206,25 +206,24 @@ MaterialID Model::processMaterial(aiMaterial* aiMat)
     mat.diffuse = diffuse;
     mat.specular = specular;
     // ambient, shininess and transparency already defined with default
-
-    float transparency = mat.transparency;
-    float shininess = mat.shininess;
+    float transparency = mat.data.transparency;
+    float shininess = mat.data.shininess;
 
     // Transparency
     if (aiMat->Get(AI_MATKEY_OPACITY, transparency) == AI_SUCCESS)
     {
-        mat.transparency = transparency;
+        mat.data.transparency = transparency;
     }
 
     // Shininess
     if (aiMat->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS)
-        mat.shininess = shininess;
+        mat.data.shininess = shininess;
 
     // Ambient color
     aiColor3D color(0.1f, 0.1f, 0.1f);
     if (aiMat->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS)
     {
-        mat.ambient = {color.r, color.g, color.b};
+        mat.data.ambient = {color.r, color.g, color.b};
     }
     auto matID = materialManager.Load(mat);
     return matID;

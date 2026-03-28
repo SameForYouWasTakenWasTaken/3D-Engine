@@ -5,7 +5,6 @@ layout(location = 1) in vec4 color;
 layout(location = 2) in vec2 texCoord;
 layout(location = 3) in vec3 aNormal;
 
-// Move instance data to 4-10 (was 11-17)
 layout(location = 4) in vec4 row0;
 layout(location = 5) in vec4 row1;
 layout(location = 6) in vec4 row2;
@@ -20,25 +19,27 @@ out vec2 fragmentTexCoord;
 out vec3 FragPos;
 out vec3 Normal;
 
-uniform mat4 projectmat;
-uniform mat4 viewmat;
-
+layout(std140, binding = 0) uniform CameraBlock
+{
+    mat4 projectmat;
+    mat4 viewmat;
+    vec3 viewPos;
+    float nearPlane;
+    float farPlane;
+    vec3 _cameraPad;
+};
 
 void main()
 {
-    mat4 instanceMatrix = mat4(
-        row0,
-        row1,
-        row2,
-        row3
-    );
-    gl_Position = projectmat * viewmat * instanceMatrix * vec4(position, 1.0);
+    mat4 model = mat4(row0, row1, row2, row3);
+    mat3 normalMatrix = mat3(normalRow0.xyz, normalRow1.xyz, normalRow2.xyz);
+
+    vec4 worldPos = model * vec4(position, 1.0);
+
+    FragPos = worldPos.xyz;
+    Normal = normalize(normalMatrix * aNormal);
     vertexColor = color;
     fragmentTexCoord = texCoord;
 
-    FragPos = vec3(instanceMatrix * vec4(position, 1.0));
-
-    mat3 normalMatrix = mat3(normalRow0.xyz, normalRow1.xyz, normalRow2.xyz);
-    Normal = normalize(normalMatrix * aNormal);
-
+    gl_Position = projectmat * viewmat * worldPos;
 }

@@ -11,6 +11,10 @@ class LightManager final
 {
     std::unordered_map<LightID, std::unique_ptr<LightBase>> m_Lights;
     LightID m_NextLightID = 0;
+
+    SSBO pointLightSSBO;
+    SSBO dirLightSSBO;
+    SSBO spotLightSSBO;
 public:
     /**
  * @brief Constructs an empty LightManager.
@@ -79,6 +83,20 @@ LightManager(const LightManager&) = delete;
     }
 
     void RemoveLight(LightID id);
-    void UploadToShader(Shader* shader);
+    void UploadToShader(Shader* shader, Mesh* mesh);
+    template <typename GPUData> requires(std::is_class_v<GPUData>)
+    void UploadLights(std::vector<GPUData> lights, SSBO& ssbo);
 
 };
+
+template <typename GPUData> requires(std::is_class_v<GPUData>)
+void LightManager::UploadLights(std::vector<GPUData> data, SSBO& ssbo)
+{
+    ssbo.Bind();
+    ssbo.SetData(
+    static_cast<GLsizeiptr>(data.size() * sizeof(GPUData)),
+    data.data(),
+    GL_DYNAMIC_DRAW
+    );
+    SSBO::Unbind();
+}

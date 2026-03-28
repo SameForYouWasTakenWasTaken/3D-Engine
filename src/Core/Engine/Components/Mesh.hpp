@@ -7,6 +7,7 @@
 #include "../Renderer/API/OpenGL/VAO.hpp"
 #include "../Renderer/API/OpenGL/VBO.hpp"
 #include "../Renderer/API/OpenGL/EBO.hpp"
+#include "Engine/Renderer/API/OpenGL/SSBO.hpp"
 #include "Engine/Systems/Services.hpp"
 
 using MeshID = uint64_t;
@@ -140,6 +141,7 @@ public:
     VAO vao;
     VBO vbo;
     EBO ebo;
+
     VBO instanceVBO; // For instanced rendering
 
 

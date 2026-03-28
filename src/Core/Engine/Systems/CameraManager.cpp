@@ -76,3 +76,21 @@ entt::entity CameraManager::GetActiveCamera() const
 {
     return m_ActiveCamera;
 }
+
+void CameraManager::UploadGPUData(COMPCamera* cam, COMPTransform* transform)
+{
+    if (!cam) return;
+    CameraContext context = cam->GetCameraContext();
+    active_data.farPlane = context.far;
+    active_data.nearPlane = context.near;
+    active_data.projectmat = cam->projection;
+    active_data.viewmat = cam->view;
+    active_data.viewPos = transform != nullptr ?
+    transform->LocalPosition : glm::vec3(0.0f, 0.0f, 0.0f);
+
+    cameraUBO.Bind();
+    cameraUBO.SetData(sizeof(active_data), &active_data);
+    cameraUBO.Unbind();
+
+    cameraUBO.SetBinding(0);
+}

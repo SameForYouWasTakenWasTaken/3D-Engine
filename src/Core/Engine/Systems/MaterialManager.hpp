@@ -1,15 +1,17 @@
 #pragma once
 
 #include <optional>
-#include <../../../src/Core/Engine/Systems/Services.hpp>
-#include <../../../src/Core/Engine/Systems/ShaderManager.hpp>
-#include <../../../src/Core/Engine/Components/Material.hpp>
+#include "Engine/Systems/Services.hpp"
+#include "Engine/Systems/ShaderManager.hpp"
+#include "Engine/Components/Material.hpp"
+#include "Engine/Renderer/API/OpenGL/UBO.hpp"
 
 class MaterialManager : public IService
 {
     std::unordered_map<MaterialID, Material> m_Materials;
 
     MaterialID m_NextMaterialID = 0;
+    UBO materialUBO;
 public:
     /**
  * @brief Constructs an empty MaterialManager.
@@ -32,4 +34,6 @@ MaterialManager(const MaterialManager&) = delete;
 
     [[nodiscard]]
     Material* Get(MaterialID id);
+
+    void UploadToGPU(Material* material);
 };
