@@ -251,8 +251,14 @@ TextureID Model::loadMaterialTexture(aiMaterial* mat, aiTextureType type)
     filename = m_Directory + "/" + filename;
 
     auto& textureManager = Services::Get().GetService<Texture2DManager>();
+    TextureSettings s{};
 
-    auto texID = textureManager.Load(filename);
+    if (type == aiTextureType_SPECULAR)
+        s.Texture_Use_sRGB = false;
+    if (type == aiTextureType_NORMALS)
+        s.Texture_Use_sRGB = false;
+
+    auto texID = textureManager.Load(filename, s);
     if (!texID.has_value())
         return static_cast<TextureID>(-1);
 

@@ -30,8 +30,6 @@ bool Engine::Init(EngineSettings settings)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwWindowHint(GLFW_SAMPLES, 4); // Activate MSAA
-
     m_EngineContext.ActiveWindow = glfwCreateWindow(
         m_EngineContext.WindowWidth, m_EngineContext.WindowHeight, // Width, height
         settings.Name.c_str(), // App name
@@ -52,7 +50,6 @@ bool Engine::Init(EngineSettings settings)
     }
 
     enableReportGlErrors();
-    glEnable(GL_MULTISAMPLE); // Enable MSAA
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Blending alpha thingy. Basically lets stuff be opaque or not
     return true;
 }

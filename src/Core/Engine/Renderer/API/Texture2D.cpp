@@ -2,13 +2,26 @@
 
 #include <tracy/TracyOpenGL.hpp>
 
-void UploadTexture(unsigned char* data, int width, int height, int nrChannels)
+void UploadTexture(unsigned char* data, int width, int height, int nrChannels, bool sRGB)
 {
     GLenum format, internal;
-    if (nrChannels == 1) { format = internal = GL_RED; }
-    else if (nrChannels == 2) { format = GL_RG; internal = GL_RG8; }
-    else if (nrChannels == 3) { format = GL_RGB; internal = GL_RGB8; }
-    else if (nrChannels == 4) { format = GL_RGBA; internal = GL_RGBA8; }
+
+    if (nrChannels == 1) {
+        format = GL_RED;
+        internal = GL_R8;
+    }
+    else if (nrChannels == 2) {
+        format = GL_RG;
+        internal = GL_RG8;
+    }
+    else if (nrChannels == 3) {
+        format = GL_RGB;
+        internal = sRGB ? GL_SRGB8 : GL_RGB8;
+    }
+    else if (nrChannels == 4) {
+        format = GL_RGBA;
+        internal = sRGB ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+    }
 
     GLint alignment = 1;
     if ((width * nrChannels) % 8 == 0) alignment = 8;
@@ -50,7 +63,8 @@ void Texture2D::Bind()
     }
 }
 
-void Texture2D::Unbind(){
+void Texture2D::Unbind(int slot){
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -88,7 +102,7 @@ void Texture2D::Recreate()
     if (data)
     {
        Bind();
-       UploadTexture(data, width, height, nrChannels);
+       UploadTexture(data, width, height, nrChannels, settings.Texture_Use_sRGB);
        if (glIsTexture(id) == GL_TRUE) loaded = true;
     }
     else {

@@ -63,5 +63,4 @@ void LightManager::UploadGPUData(Shader* shader, Mesh* mesh)
     shader->SetInt("numPointLights", static_cast<int>(pointLights.size()));
     shader->SetInt("numSpotLights", static_cast<int>(spotLights.size()));
     dirty_SSBO = false;
-
 }

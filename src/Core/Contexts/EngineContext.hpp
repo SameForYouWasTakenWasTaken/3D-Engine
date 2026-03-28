@@ -102,9 +102,15 @@ inline GLenum ToGLCullDir(WINDING_DIR dir)
     return GL_CCW;
 }
 
+struct EngineContextConfig
+{
+    bool UseFXAA = true;
+};
+
 class Renderer; // Forward declaration
 struct EngineContext
 {
+    EngineContextConfig Config;
     // Window properties
     GLFWwindow* ActiveWindow = nullptr;
     int WindowWidth, WindowHeight;

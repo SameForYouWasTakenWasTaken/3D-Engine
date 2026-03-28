@@ -26,7 +26,7 @@ Texture2DManager() = default;
 Texture2DManager(const Texture2DManager&) = delete;
 
     [[nodiscard]]
-    std::optional<TextureID> Load(const std::string& path);
+    std::optional<TextureID> Load(const std::string& path, TextureSettings settings = TextureSettings());
 
     [[nodiscard]]
     std::optional<TextureID> Load(std::shared_ptr<Texture2D> texture);

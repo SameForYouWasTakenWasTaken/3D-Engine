@@ -122,7 +122,11 @@ bool Renderer::PrepareObject(RenderObject& object)
     if (!specular)
     {
         auto& textureManager = Services::Get().GetService<Texture2DManager>();
-        auto id = textureManager.Load(TEXTURES_DIRECTORY "default_spec.png");
+
+        TextureSettings textSettings;
+        textSettings.Texture_Use_sRGB = false;
+
+        auto id = textureManager.Load(TEXTURES_DIRECTORY "default_spec.png", textSettings);
         specular = textureManager.Get(id.value());
 
         assert(specular);
@@ -418,17 +422,23 @@ void Renderer::RenderSceneToFBO()
         );
 
         DrawObject(Object, instanceCount);
-        diffuseTexture->Unbind();
-        specularTexture->Unbind();
+        Texture2D::Unbind(0);
+        Texture2D::Unbind(1);
     }
 
     FBO::Unbind();
+
 }
 
 void Renderer::PresentTexture(GLuint texture)
 {
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_STENCIL_TEST);
+    auto& engineContext = Engine::GetContext();
+    auto saved_depth = engineContext.StateCache.DepthTest;
+    auto saved_stencil = engineContext.StateCache.StencilTest;
+    engineContext.StateCache.DepthTest = OPTION::NO;
+    engineContext.StateCache.StencilTest = OPTION::NO;
+
+    ApplyState();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -442,8 +452,9 @@ void Renderer::PresentTexture(GLuint texture)
     m_ScreenVAO.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
+    engineContext.StateCache.DepthTest = saved_depth;
+    engineContext.StateCache.StencilTest = saved_stencil;
+    ApplyState();
 }
 
 GLuint Renderer::RunPostProcessChain(GLuint inputTexture)
@@ -462,6 +473,13 @@ GLuint Renderer::RunPostProcessChain(GLuint inputTexture)
 
     for (const auto& pass : m_Passes)
     {
+        if (!pass.shader) continue;
+
+        // Use Specific anti aliasing?
+        if (pass.shader == m_FXAAShader.get())
+            if (!engineContext.Config.UseFXAA)
+                continue;
+
         FBO& target = usePing ? m_Ping : m_Pong;
         target.Bind();
 
@@ -554,15 +572,15 @@ void Renderer::Init()
         SHADERS_DIRECTORY "Preprocessing/preprocess.vert",
         SHADERS_DIRECTORY "Preprocessing/preprocess.frag");
 
-    auto MSAAShaderID = shaderManager.Load(
+    auto FXAAShaderID = shaderManager.Load(
         SHADERS_DIRECTORY "Preprocessing/FXAA.vert",
         SHADERS_DIRECTORY "Preprocessing/FXAA.frag"
     );
 
     m_PreprocessShader = shaderManager.Get(PreprocessShaderID);
-    m_AAShader = shaderManager.Get(MSAAShaderID);
+    m_FXAAShader = shaderManager.Get(FXAAShaderID);
 
-    m_Passes.push_back({m_AAShader.get()});
+    m_Passes.push_back({m_FXAAShader.get()});
 
     engineContext.EventDispatcher.sink<WindowResizeEvent>().connect<&Renderer::OnResize>(this);
 }
@@ -589,7 +607,9 @@ void Renderer::End()
 {
     RenderSceneToFBO();
     GLuint finalTexture = RunPostProcessChain(m_SceneFBO.GetColorTexture());
+    glEnable(GL_FRAMEBUFFER_SRGB);
     PresentTexture(finalTexture);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
 /**

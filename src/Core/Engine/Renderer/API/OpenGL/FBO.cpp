@@ -119,7 +119,7 @@ void FBO::Create(int width, int height)
  * @param width New framebuffer width in pixels.
  * @param height New framebuffer height in pixels.
  */
-void FBO::Resize(float width, float height)
+void FBO::Resize(double width, double height)
 {
     if (width <= 0 || height <= 0)
         return;

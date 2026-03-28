@@ -12,6 +12,8 @@ struct TextureSettings {
     // Resolution stuff
     GLenum Texture_Res_Min = GL_LINEAR_MIPMAP_LINEAR;
     GLenum Texture_Res_Mag = GL_LINEAR;
+
+    bool Texture_Use_sRGB = true;
 };
 
 class Texture2D final {
@@ -31,7 +33,7 @@ public:
     void Recreate(const std::string& filepath);
     void Recreate();
     void Bind();
-    static void Unbind();
+    static void Unbind(int slot = 0);
 
     /*
     You can draw by binding() and running the necessary OpenGL draw functions, but it's recommended to use

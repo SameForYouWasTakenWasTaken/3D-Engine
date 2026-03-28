@@ -97,7 +97,7 @@ class Renderer : public IService {
     // Shaders
     std::shared_ptr<Shader> m_PreprocessShader;
     std::shared_ptr<Shader> m_WireframeShader;
-    std::shared_ptr<Shader> m_AAShader;
+    std::shared_ptr<Shader> m_FXAAShader;
 public:
     RenderStats g_RenderStats; // Statistics for performance managing
     Logger logger = Logger("RENDERER");
@@ -109,7 +109,7 @@ public:
  * @details Uses the default destructor behavior; member objects and RAII-managed resources
  * are cleaned up by their own destructors.
  */
-~Renderer() = default;
+    ~Renderer() = default;
     void Init();
 
     void Submit(SubmitObject& submit);
@@ -120,7 +120,6 @@ public:
 
     void RenderSceneToFBO();
     void PresentTexture(GLuint texture);
-    void PresentScene();
     GLuint RunPostProcessChain(GLuint inputTexture);
 
     void Begin();
