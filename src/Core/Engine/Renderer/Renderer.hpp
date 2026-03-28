@@ -75,19 +75,29 @@ class Renderer : public IService {
         SceneContext* context; // The scene it is currently in
     };
 
+    struct PostProcessPass
+    {
+        Shader* shader = nullptr;
+    };
+
     std::unordered_map<size_t, Batch> m_Batches;
 
 
     // GPU
+    std::vector<PostProcessPass> m_Passes;
+
     FBO m_SceneFBO;
+    FBO m_Ping;
+    FBO m_Pong;
 
     VAO m_ScreenVAO;
     VBO m_ScreenVBO;
     EBO m_ScreenEBO;
 
-    ShaderID m_PreprocessShaderID;
-    ShaderID m_WireframeShaderID;
-
+    // Shaders
+    std::shared_ptr<Shader> m_PreprocessShader;
+    std::shared_ptr<Shader> m_WireframeShader;
+    std::shared_ptr<Shader> m_AAShader;
 public:
     RenderStats g_RenderStats; // Statistics for performance managing
     Logger logger = Logger("RENDERER");
@@ -100,15 +110,19 @@ public:
  * are cleaned up by their own destructors.
  */
 ~Renderer() = default;
+    void Init();
 
     void Submit(SubmitObject& submit);
     bool PrepareObject(RenderObject& object);
-
     void DrawObject(RenderObject& object, size_t InstanceCount);
+
     void ApplyState();
+
     void RenderSceneToFBO();
+    void PresentTexture(GLuint texture);
     void PresentScene();
-    void Init();
+    GLuint RunPostProcessChain(GLuint inputTexture);
+
     void Begin();
     void Update(float dt);
     void End();

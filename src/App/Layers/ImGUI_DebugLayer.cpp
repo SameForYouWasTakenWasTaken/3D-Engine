@@ -262,23 +262,8 @@ void ImGUI_DebugLayer::WorldGUI()
         // --- Wireframe ---
         {
             bool v = OptionToBool(engineContext.StateCache.Wireframe);
-            static bool toggled = false;
             if (ImGui::Checkbox("Wireframe", &v))
-            {
-                static bool CullingOption = OptionToBool(engineContext.StateCache.Culling);
-                static bool DepthOption = OptionToBool(engineContext.StateCache.DepthTest);
                 engineContext.StateCache.Wireframe = BoolToOption(v);
-                engineContext.StateCache.Culling = BoolToOption(false);
-                engineContext.StateCache.DepthTest = BoolToOption(false);
-
-                if (toggled)
-                {
-                    engineContext.StateCache.Culling = BoolToOption(CullingOption);
-                    engineContext.StateCache.DepthTest = BoolToOption(DepthOption);
-                }
-
-                toggled = !toggled;
-            }
         }
 
         // --- Depth Test ---
