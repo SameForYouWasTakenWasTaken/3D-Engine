@@ -17,15 +17,14 @@ struct TextureSettings {
 };
 
 class Texture2D final {
-    GLuint id;    
+    GLuint id{};
     TextureSettings settings;
     std::string texture_filepath;
-    int width, height, nrChannels;
+    int width{}, height{}, nrChannels{};
     bool loaded = false;
 public:
     Logger logger = Logger("TEXTURE_2D");
     Texture2D(const std::string& filepath, TextureSettings s = TextureSettings()); // Default texture settings already provided
-    Texture2D();
     ~Texture2D();
 
     

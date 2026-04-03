@@ -40,8 +40,8 @@ GLuint GetColorTexture() const { return m_ColorTexture; }
  */
 GLuint GetRBO() const { return m_RBO; }
 
-    float GetWidth();
-    float GetHeight();
+    double GetWidth() const;
+    double GetHeight() const;
 
     static void Unbind();
     static bool CheckStatus();

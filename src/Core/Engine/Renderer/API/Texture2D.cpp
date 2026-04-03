@@ -42,12 +42,10 @@ Texture2D::Texture2D(const std::string& filepath, TextureSettings s)
     Recreate(filepath); // Functionality already present
 }
 
-Texture2D::Texture2D()
-{}
-
 Texture2D::~Texture2D()
 {
-
+    if (id != 0)
+        glDeleteTextures(1, &id);
 }
 
 void Texture2D::Bind()

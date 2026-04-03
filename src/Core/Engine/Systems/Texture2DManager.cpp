@@ -17,7 +17,7 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path, Texture
     auto hash = Hash<TextureID>(path);
     if (Get(hash) != nullptr) return hash;
 
-    auto texture = std::make_shared<Texture2D>(path);
+    auto texture = std::make_shared<Texture2D>(path, settings);
     if (texture->IsLoaded())
     {
         m_Textures.emplace(hash, texture);

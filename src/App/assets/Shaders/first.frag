@@ -128,11 +128,10 @@ vec3 calculateDirectional(vec3 norm, vec3 viewDir, vec3 specTex, vec3 texColor)
         float diff = max(dot(norm, lightDir), 0.0);
         float spec = computeSpecular(norm, halfwayDir);
 
-        vec3 ambientTerm  = ambient * texColor; // fixed
         vec3 diffuseTerm  = light.diffuse * diff * texColor;
         vec3 specularTerm = light.specular * spec * specTex;
 
-        result += (ambientTerm + diffuseTerm + specularTerm)
+        result += (diffuseTerm + specularTerm)
         * light.color * light.intensity;
     }
 
@@ -160,11 +159,10 @@ vec3 calculatePoint(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 specTex, vec3 te
         light.quadratic * distance * distance
         );
 
-        vec3 ambientTerm  = ambient * texColor; // not attenuated
         vec3 diffuseTerm  = light.diffuse * diff * texColor;
         vec3 specularTerm = light.specular * spec * specTex;
 
-        result += ambientTerm +
+        result +=
         (diffuseTerm + specularTerm) * attenuation
         * light.color * light.intensity;
     }
@@ -200,11 +198,10 @@ vec3 calculateSpot(vec3 norm, vec3 viewDir, vec3 fragPos, vec3 specTex, vec3 tex
         float epsilon = light.cutOff - light.outerCutOff;
         float spotFactor = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
-        vec3 ambientTerm  = ambient * texColor;
         vec3 diffuseTerm  = light.diffuse * diff * texColor;
         vec3 specularTerm = light.specular * spec * specTex;
 
-        result += ambientTerm +
+        result +=
         (diffuseTerm + specularTerm)
         * attenuation
         * spotFactor
@@ -225,7 +222,9 @@ void main()
     vec3 texColor = texSample.rgb;
     vec3 specTex = texture(materialSpecular, fragmentTexCoord).rgb;
 
+    vec3 ambientTerm = ambient * texColor;
     vec3 result =
+    ambientTerm +
     calculateDirectional(norm, viewDir, specTex, texColor) +
     calculatePoint(norm, viewDir, FragPos, specTex, texColor) +
     calculateSpot(norm, viewDir, FragPos, specTex, texColor);

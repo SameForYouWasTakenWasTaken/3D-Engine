@@ -7,8 +7,8 @@ class WindowResizeEvent : public Event
 {
 public:
     GLFWwindow* Window;
-    double Width, Height;
+    int Width, Height;
 
-    WindowResizeEvent(GLFWwindow* window, double width, double height) : Window(window), Width(width), Height(height) {}
+    WindowResizeEvent(GLFWwindow* window, int width, int height) : Window(window), Width(width), Height(height) {}
     EVENT_TYPE(WindowResizeEvent);
 };

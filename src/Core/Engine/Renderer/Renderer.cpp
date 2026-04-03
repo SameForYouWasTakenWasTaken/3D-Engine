@@ -580,9 +580,22 @@ void Renderer::Init()
     m_PreprocessShader = shaderManager.Get(PreprocessShaderID);
     m_FXAAShader = shaderManager.Get(FXAAShaderID);
 
-    m_Passes.push_back({m_FXAAShader.get()});
+    if (!m_PreprocessShader)
+    {
+        logger.LogError("Failed to load preprocess shader!");
+        return;
+    }
+
+    if (!m_FXAAShader)
+        logger.LogWarning("FXAA shader not loaded, anti-aliasing disabled");
+    else
+        m_Passes.push_back({m_FXAAShader.get()});
+
+
+
 
     engineContext.EventDispatcher.sink<WindowResizeEvent>().connect<&Renderer::OnResize>(this);
+    logger.DumpLogs();
 }
 
 /**

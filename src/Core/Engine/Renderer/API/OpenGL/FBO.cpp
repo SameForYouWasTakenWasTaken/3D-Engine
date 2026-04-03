@@ -145,12 +145,12 @@ void FBO::Bind()
     glBindFramebuffer(GL_FRAMEBUFFER, id);
 }
 
-float FBO::GetWidth()
+double FBO::GetWidth() const
 {
     return m_Width;
 }
 
-float FBO::GetHeight()
+double FBO::GetHeight() const
 {
     return m_Height;
 }
