@@ -64,7 +64,6 @@ void Renderer::Submit(SubmitObject& submit)
     instanceData.normal2 = glm::vec4(normalMat[2], 0.0f);
 
 
-
     // prevent unnecessary initialization
     auto [it, inserted] = m_Batches.try_emplace(batchKey);
     auto& batch = it->second;
@@ -111,7 +110,6 @@ bool Renderer::PrepareObject(RenderObject& object)
     auto* Camera = SceneContext->registry.try_get<COMPCamera>(cam);
 
 
-
     assert(shader);
     assert(mesh);
     assert(material);
@@ -124,7 +122,11 @@ bool Renderer::PrepareObject(RenderObject& object)
     if (!specular)
     {
         auto& textureManager = Services::Get().GetService<Texture2DManager>();
-        auto id = textureManager.Load( TEXTURES_DIRECTORY "default_spec.png");
+
+        TextureSettings textSettings;
+        textSettings.Texture_Use_sRGB = false;
+
+        auto id = textureManager.Load(TEXTURES_DIRECTORY "default_spec.png", textSettings);
         specular = textureManager.Get(id.value());
 
         assert(specular);
@@ -152,7 +154,7 @@ bool Renderer::PrepareObject(RenderObject& object)
         auto WireframeShaderID = Services::Get().GetService<ShaderManager>().Load(
             shader->GetFilepaths().first,
             SHADERS_DIRECTORY "wireframe.frag"
-            );
+        );
         auto WireframeShader = Services::Get().GetService<ShaderManager>().Get(WireframeShaderID);
 
         assert(WireframeShader);
@@ -338,7 +340,7 @@ void Renderer::ApplyState()
     if (state.Wireframe != pending.Wireframe)
     {
         state.Wireframe = pending.Wireframe;
-
+        glLineWidth(2.0f);
         glPolygonMode(
             GL_FRONT_AND_BACK,
             pending.Wireframe == OPTION::YES ? GL_LINE : GL_FILL
@@ -375,7 +377,6 @@ void Renderer::RenderSceneToFBO()
     auto& meshManager = services.GetService<MeshManager>();
 
     m_SceneFBO.Bind();
-
     ApplyState();
 
     glClearColor(0.f, 0.502f, 0.502f, 1.f);
@@ -421,49 +422,94 @@ void Renderer::RenderSceneToFBO()
         );
 
         DrawObject(Object, instanceCount);
-        diffuseTexture->Unbind();
-        specularTexture->Unbind();
+        Texture2D::Unbind(0);
+        Texture2D::Unbind(1);
     }
 
     FBO::Unbind();
+
 }
 
-/**
- * @brief Blits the scene FBO color texture to the default framebuffer using the preprocess shader.
- *
- * Uses the stored preprocess/screen shader to draw a fullscreen quad sampling the renderer's
- * scene framebuffer color attachment, temporarily disables depth testing for the blit, and
- * restores the previous depth test setting before returning.
- */
-void Renderer::PresentScene()
+void Renderer::PresentTexture(GLuint texture)
 {
-    auto& services = Services::Get();
-    auto& shaderManager = services.GetService<ShaderManager>();
-
-    auto screenShader = shaderManager.Get(m_PreprocessShaderID);
-    if (!screenShader)
-        return;
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     auto& engineContext = Engine::GetContext();
-    OPTION SavedOption = engineContext.StateCache.DepthTest;
-    engineContext.StateCache.DepthTest = OPTION::NO; // Disable depth testing for this
+    auto saved_depth = engineContext.StateCache.DepthTest;
+    auto saved_stencil = engineContext.StateCache.StencilTest;
+    engineContext.StateCache.DepthTest = OPTION::NO;
+    engineContext.StateCache.StencilTest = OPTION::NO;
 
     ApplyState();
 
-
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    screenShader->UseProgram();
+    m_PreprocessShader->UseProgram();
+    m_PreprocessShader->SetInt("u_ScreenTexture", 0);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_SceneFBO.GetColorTexture());
-    screenShader->SetInt("u_ScreenTexture", 0);
+    glBindTexture(GL_TEXTURE_2D, texture);
 
     m_ScreenVAO.Bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-    engineContext.StateCache.DepthTest = SavedOption; //Reset back to the previously saved option
+
+    engineContext.StateCache.DepthTest = saved_depth;
+    engineContext.StateCache.StencilTest = saved_stencil;
+    ApplyState();
+}
+
+GLuint Renderer::RunPostProcessChain(GLuint inputTexture)
+{
+    auto& engineContext = Engine::GetContext();
+
+    OPTION savedDepth = engineContext.StateCache.DepthTest;
+    OPTION savedStencil = engineContext.StateCache.StencilTest;
+
+    engineContext.StateCache.DepthTest = OPTION::NO;
+    engineContext.StateCache.StencilTest = OPTION::NO;
+    ApplyState();
+
+    bool usePing = true;
+    GLuint currentTexture = inputTexture;
+
+    for (const auto& pass : m_Passes)
+    {
+        if (!pass.shader) continue;
+
+        // Use Specific anti aliasing?
+        if (pass.shader == m_FXAAShader.get())
+            if (!engineContext.Config.UseFXAA)
+                continue;
+
+        FBO& target = usePing ? m_Ping : m_Pong;
+        target.Bind();
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        pass.shader->UseProgram();
+        pass.shader->SetInt("u_ScreenTexture", 0);
+        pass.shader->SetVec2("u_InvScreenSize",
+                                glm::vec2(
+                                 1.0f / target.GetWidth(),
+                                 1.0f / target.GetHeight())
+        );
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, currentTexture);
+
+        m_ScreenVAO.Bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+        currentTexture = target.GetColorTexture();
+        usePing = !usePing;
+    }
+
+    FBO::Unbind();
+
+    engineContext.StateCache.DepthTest = savedDepth;
+    engineContext.StateCache.StencilTest = savedStencil;
+    ApplyState();
+
+    return currentTexture;
 }
 
 
@@ -481,9 +527,9 @@ void Renderer::Init()
     {
         // pos      // uv
         -1.f, -1.f, 0.f, 0.f,
-         1.f, -1.f, 1.f, 0.f,
-         1.f,  1.f, 1.f, 1.f,
-        -1.f,  1.f, 0.f, 1.f
+        1.f, -1.f, 1.f, 0.f,
+        1.f, 1.f, 1.f, 1.f,
+        -1.f, 1.f, 0.f, 1.f
     };
 
     std::vector<GLuint> indices =
@@ -493,6 +539,8 @@ void Renderer::Init()
     };
     auto& engineContext = Engine::GetContext();
     m_SceneFBO.Create(engineContext.WindowWidth, engineContext.WindowHeight);
+    m_Ping.Create(engineContext.WindowWidth, engineContext.WindowHeight);
+    m_Pong.Create(engineContext.WindowWidth, engineContext.WindowHeight);
     m_ScreenVAO.Bind();
 
     m_ScreenVBO.Bind();
@@ -520,11 +568,34 @@ void Renderer::Init()
     m_ScreenVAO.LinkAttrib(a1);
     m_ScreenVAO.LinkAttrib(a2);
 
-    m_PreprocessShaderID = shaderManager.Load(
-        std::string(SHADERS_DIRECTORY) + "Preprocessing/preprocess.vert",
-        std::string(SHADERS_DIRECTORY) + "Preprocessing/preprocess.frag");
+    auto PreprocessShaderID = shaderManager.Load(
+        SHADERS_DIRECTORY "Preprocessing/preprocess.vert",
+        SHADERS_DIRECTORY "Preprocessing/preprocess.frag");
+
+    auto FXAAShaderID = shaderManager.Load(
+        SHADERS_DIRECTORY "Preprocessing/FXAA.vert",
+        SHADERS_DIRECTORY "Preprocessing/FXAA.frag"
+    );
+
+    m_PreprocessShader = shaderManager.Get(PreprocessShaderID);
+    m_FXAAShader = shaderManager.Get(FXAAShaderID);
+
+    if (!m_PreprocessShader)
+    {
+        logger.LogError("Failed to load preprocess shader!");
+        return;
+    }
+
+    if (!m_FXAAShader)
+        logger.LogWarning("FXAA shader not loaded, anti-aliasing disabled");
+    else
+        m_Passes.push_back({m_FXAAShader.get()});
+
+
+
 
     engineContext.EventDispatcher.sink<WindowResizeEvent>().connect<&Renderer::OnResize>(this);
+    logger.DumpLogs();
 }
 
 /**
@@ -548,7 +619,10 @@ void Renderer::Begin()
 void Renderer::End()
 {
     RenderSceneToFBO();
-    PresentScene();
+    GLuint finalTexture = RunPostProcessChain(m_SceneFBO.GetColorTexture());
+    glEnable(GL_FRAMEBUFFER_SRGB);
+    PresentTexture(finalTexture);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 }
 
 /**
@@ -562,6 +636,9 @@ void Renderer::End()
 void Renderer::OnResize(const WindowResizeEvent& resize)
 {
     m_SceneFBO.Resize(resize.Width, resize.Height);
-    m_SceneFBO.Bind();
+    m_Ping.Resize(resize.Width, resize.Height);
+    m_Pong.Resize(resize.Width, resize.Height);
+
+    FBO::Unbind();
     glViewport(0, 0, resize.Width, resize.Height);
 }

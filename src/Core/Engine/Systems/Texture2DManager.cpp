@@ -12,12 +12,12 @@
  * @param path Filesystem path to the texture asset.
  * @return std::optional<TextureID> The computed texture ID if the texture is cached or successfully loaded, `std::nullopt` if loading failed.
  */
-std::optional<TextureID> Texture2DManager::Load(const std::string& path)
+std::optional<TextureID> Texture2DManager::Load(const std::string& path, TextureSettings settings)
 {
     auto hash = Hash<TextureID>(path);
     if (Get(hash) != nullptr) return hash;
 
-    auto texture = std::make_shared<Texture2D>(path);
+    auto texture = std::make_shared<Texture2D>(path, settings);
     if (texture->IsLoaded())
     {
         m_Textures.emplace(hash, texture);

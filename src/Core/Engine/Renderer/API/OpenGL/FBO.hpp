@@ -7,6 +7,9 @@ class FBO final
 {
     GLuint m_ColorTexture;
     GLuint m_RBO;
+
+    double m_Width = 1.f;
+    double m_Height = 1.f;
 public:
     GLuint id;
     FBO();
@@ -22,7 +25,7 @@ public:
     void Bind();
 
     void Create(int width, int height);
-    void Resize(int width, int height);
+    void Resize(double width, double height);
 
     /**
  * @brief Retrieves the OpenGL texture handle used as the framebuffer's color attachment.
@@ -36,6 +39,9 @@ GLuint GetColorTexture() const { return m_ColorTexture; }
  * @return GLuint OpenGL renderbuffer object (RBO) ID associated with the FBO.
  */
 GLuint GetRBO() const { return m_RBO; }
+
+    double GetWidth() const;
+    double GetHeight() const;
 
     static void Unbind();
     static bool CheckStatus();

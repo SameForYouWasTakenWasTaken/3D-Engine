@@ -268,6 +268,13 @@ void Shader::SetVec3(const std::string& name, const glm::vec3& vec)
         glUniform3f(loc, vec.x, vec.y, vec.z);
 }
 
+void Shader::SetVec2(const std::string& name, const glm::vec2& vec)
+{
+    int loc = GetUniformLocation(name);
+    if (loc != -1)
+        glUniform2f(loc, vec.x, vec.y);
+}
+
 
 /**
  * @brief Retrieves the location of a named uniform in the shader program.

@@ -32,6 +32,7 @@ public:
     void SetInt(const std::string& name, int n);
     void SetFloat(const std::string& name, float n);
     void SetVec3(const std::string& name, const glm::vec3& vec);
+    void SetVec2(const std::string& name, const glm::vec2& vec);
     
     void SetMatrix4(const std::string& name, int amount, const GLfloat* value);
     void SetMatrix3(const std::string& name, int amount, const GLfloat* value);

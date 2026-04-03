@@ -423,10 +423,15 @@ void GameLayer::OnUpdate(float dt)
 
     if (transform && cam)
     {
-        float speed = 2.0f;
-        float zoomSpeed = 100.f;
+        float speed = 2.0f * dt;
+        float rotSpeed = 1.f * dt;
 
         glm::vec3 input(0);
+        glm::vec2 rot(0.f);
+        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_SHIFT))
+            speed = 0.5f * dt;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_CONTROL))
+            speed = 5.f * dt;
         // WASD
         if (InputSystem::IsKeyHeld(GLFW_KEY_W)) input.z += 1;
         if (InputSystem::IsKeyHeld(GLFW_KEY_S)) input.z -= 1;
@@ -437,20 +442,22 @@ void GameLayer::OnUpdate(float dt)
         if (InputSystem::IsKeyHeld(GLFW_KEY_Q)) input.y -= 1.f;
         if (InputSystem::IsKeyHeld(GLFW_KEY_E)) input.y += 1.f;
 
+        // Laptop support (because of mouse)
+        if (InputSystem::IsKeyHeld(GLFW_KEY_UP)) rot.y += 1;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_DOWN)) rot.y -= 1;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT)) rot.x -= 1;
+        if (InputSystem::IsKeyHeld(GLFW_KEY_RIGHT)) rot.x += 1;
+
 
         glm::vec3 move = input.x * cam->GetRight() +
             input.y * glm::vec3(0.f, 1.f, 0.f) +
             input.z * cam->GetForward();
 
-        if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_SHIFT))
-        {
-            move *= zoomSpeed;
-        }
-
         if (glm::length(move) > 0.f)
             move = glm::normalize(move);
 
-        transform->Move(move * speed * dt);
+        transform->Move(move * speed);
+        cam->RotateEuler(rot.x * rotSpeed, rot.y * rotSpeed);
     }
 }
 

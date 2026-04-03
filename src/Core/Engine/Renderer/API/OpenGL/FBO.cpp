@@ -56,6 +56,7 @@ void FBO::Create(int width, int height)
 {
     // 1. Create color texture
     Bind();
+    glDeleteTextures(1, &m_ColorTexture);
     glGenTextures(1, &m_ColorTexture);
     glBindTexture(GL_TEXTURE_2D, m_ColorTexture);
     glTexImage2D(
@@ -85,6 +86,7 @@ void FBO::Create(int width, int height)
     );
 
     // 2. Create renderbuffer for depth + stencil
+    glDeleteRenderbuffers(1, &m_RBO);
     glGenRenderbuffers(1, &m_RBO);
     glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
@@ -103,6 +105,9 @@ void FBO::Create(int width, int height)
     }
 
     Unbind();
+
+    m_Width = width;
+    m_Height = height;
 }
 
 /**
@@ -114,8 +119,10 @@ void FBO::Create(int width, int height)
  * @param width New framebuffer width in pixels.
  * @param height New framebuffer height in pixels.
  */
-void FBO::Resize(int width, int height)
+void FBO::Resize(double width, double height)
 {
+    if (width <= 0 || height <= 0)
+        return;
     // delete old
     if (m_ColorTexture)
         glDeleteTextures(1, &m_ColorTexture);
@@ -136,6 +143,16 @@ void FBO::Resize(int width, int height)
 void FBO::Bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, id);
+}
+
+double FBO::GetWidth() const
+{
+    return m_Width;
+}
+
+double FBO::GetHeight() const
+{
+    return m_Height;
 }
 
 /**
