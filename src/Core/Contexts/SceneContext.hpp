@@ -6,7 +6,7 @@
 
 struct SceneContext
 {
-    LightManager m_LightManager;
     CameraManager m_CameraManager;
     entt::registry registry;
+    LightManager m_LightManager{registry};
 };

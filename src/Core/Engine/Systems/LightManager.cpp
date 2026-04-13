@@ -1,23 +1,65 @@
 #include <ranges>
 #include "LightManager.hpp"
 
+#include "Engine/Components/Transform.hpp"
 #include "tracy/Tracy.hpp"
 #include "tracy/TracyOpenGL.hpp"
 
-/**
- * @brief Removes the light with the given identifier from the manager.
- *
- * Does nothing if no light exists for the provided `id`.
- *
- * @param id Identifier of the light to remove.
- */
-void LightManager::RemoveLight(LightID id)
+DirectionLightGPU LightManager::ConvertLightToData(const DirectionalLight& light)
 {
-    auto it = m_Lights.find(id);
-    if (it == m_Lights.end()) return;
+    return DirectionLightGPU{
+        .direction = light.direction,
+        .ambient = light.ambient,
+        .diffuse = light.diffuse,
+        .specular = light.specular
+    };
+}
 
-    m_Lights.erase(id);
-    dirty_SSBO = true;
+SpotLightGPU LightManager::ConvertLightToData(const SpotLight& light)
+{
+    return SpotLightGPU
+    {
+        .direction = light.direction,
+        .cosCutOff = light.cosCutOff,
+        .cosOuterCutOff = light.cosOuterCutOff,
+        .dist = light.dist,
+        .constant =  light.constant,
+        .linear = light.linear,
+        .quadratic = light.quadratic,
+        .ambient = light.ambient,
+        .diffuse = light.diffuse,
+        .specular = light.specular
+    };
+}
+
+PointLightGPU LightManager::ConvertLightToData(const PointLight& light)
+{
+    return PointLightGPU{
+        .constant = light.constant,
+        .linear = light.linear,
+        .quadratic = light.quadratic,
+        .ambient = light.ambient,
+        .diffuse = light.diffuse,
+        .specular = light.specular
+    };
+}
+
+LightManager::LightManager(entt::registry& scene_registry)
+    : m_SceneRegistry(scene_registry)
+{
+    scene_registry.on_construct<PointLight>().connect<&LightManager::OnPointLightChanged>(*this);
+    scene_registry.on_destroy<PointLight>().connect<&LightManager::OnPointLightChanged>(*this);
+    scene_registry.on_update<PointLight>().connect<&LightManager::OnPointLightChanged>(*this);
+
+    scene_registry.on_construct<SpotLight>().connect<&LightManager::OnSpotlightChanged>(*this);
+    scene_registry.on_destroy<SpotLight>().connect<&LightManager::OnSpotlightChanged>(*this);
+    scene_registry.on_update<SpotLight>().connect<&LightManager::OnSpotlightChanged>(*this);
+
+    scene_registry.on_construct<DirectionalLight>().connect<&LightManager::OnDirectionalLightChanged>(*this);
+    scene_registry.on_destroy<DirectionalLight>().connect<&LightManager::OnDirectionalLightChanged>(*this);
+    scene_registry.on_update<DirectionalLight>().connect<&LightManager::OnDirectionalLightChanged>(*this);
+
+    // Fix on transform creation
 }
 
 /**
@@ -30,37 +72,48 @@ void LightManager::RemoveLight(LightID id)
  *
  * @param shader Target shader to receive light uniforms. If `nullptr`, the function does nothing.
  */
-void LightManager::UploadGPUData(Shader* shader, Mesh* mesh)
+void LightManager::UploadGPUData(Shader* shader)
 {
-    if (!shader || !dirty_SSBO) return;
+    if (!shader) return;
 
-    std::vector<DirectionLightGPU> dirLights;
-    std::vector<PointLightGPU> pointLights;
-    std::vector<SpotLightGPU> spotLights;
-
-    // TODO: Stop dynamic casting lel
-    for (std::unique_ptr<LightBase>& light : m_Lights | std::views::values)
+    if (dirty_Direction)
     {
-        if (light->GetType() == LightType::DIRECTIONAL)
-            dirLights.push_back(dynamic_cast<DirectionalLight*>(light.get())->data);
-
-        else if (light->GetType() == LightType::SPOT)
-            spotLights.push_back(dynamic_cast<SpotLight*>(light.get())->data);
-
-        else if (light->GetType() == LightType::POINT)
-            pointLights.push_back(dynamic_cast<PointLight*>(light.get())->data);
+        auto lightSize = UpdateLightGPUData<DirectionalLight, DirectionLightGPU>(dirLightSSBO);
+        dirLightSSBO.SetBinding(2);
+        shader->SetInt("numDirLights", static_cast<int>(lightSize));
     }
 
-    UploadLights<DirectionLightGPU>(dirLights, dirLightSSBO);
-    UploadLights<PointLightGPU>(pointLights, pointLightSSBO);
-    UploadLights<SpotLightGPU>(spotLights, spotLightSSBO);
+    if (dirty_Point)
+    {
+        auto lightSize = UpdateLightGPUData<PointLight, PointLightGPU>(pointLightSSBO);
+        pointLightSSBO.SetBinding(3);
+        shader->SetInt("numPointLights", static_cast<int>(lightSize));
+    }
 
-    dirLightSSBO.SetBinding(2);
-    pointLightSSBO.SetBinding(3);
-    spotLightSSBO.SetBinding(4);
+    if (dirty_Spot)
+    {
+        auto lightSize = UpdateLightGPUData<SpotLight, SpotLightGPU>(spotLightSSBO);
+        spotLightSSBO.SetBinding(4);
+        shader->SetInt("numSpotLights", static_cast<int>(lightSize));
+    }
 
-    shader->SetInt("numDirLights", static_cast<int>(dirLights.size()));
-    shader->SetInt("numPointLights", static_cast<int>(pointLights.size()));
-    shader->SetInt("numSpotLights", static_cast<int>(spotLights.size()));
-    dirty_SSBO = false;
+    dirty_Spot = false;
+    dirty_Point = false;
+    dirty_Direction = false;
 }
+
+void LightManager::OnSpotlightChanged()
+{
+    dirty_Spot = true;
+}
+
+void LightManager::OnPointLightChanged()
+{
+    dirty_Point = true;
+}
+
+void LightManager::OnDirectionalLightChanged()
+{
+    dirty_Direction = true;
+}
+

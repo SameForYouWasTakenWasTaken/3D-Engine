@@ -10,7 +10,7 @@ SSBO::~SSBO()
     glDeleteBuffers(1, &id);
 }
 
-void SSBO::SetData(GLsizeiptr size, const void* data, GLenum usage)
+void SSBO::SetBufferData(GLsizeiptr size, const void* data, GLenum usage)
 {
     glBufferData(
         GL_SHADER_STORAGE_BUFFER,

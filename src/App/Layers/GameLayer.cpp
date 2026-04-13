@@ -424,7 +424,7 @@ void GameLayer::OnUpdate(float dt)
     if (transform && cam)
     {
         float speed = 2.0f * dt;
-        float rotSpeed = 1.f * dt;
+        float rotSpeed = 50.f * dt;
 
         glm::vec3 input(0);
         glm::vec2 rot(0.f);
@@ -542,28 +542,28 @@ void GameLayer::OnAttach()
     // THE SUNS
     // i dont need many if checks, fairly confident this'll work
     // Light object
-    auto LightEntity = sceneContext.registry.create();
-    auto& lightTransform = sceneContext.registry.emplace<COMPTransform>(LightEntity);
-    auto& lightMaterial = sceneContext.registry.emplace<COMPMaterial>(LightEntity, matID);
+    auto lightCubeEntity = sceneContext.registry.create();
+    auto& lightCubeTransf = sceneContext.registry.emplace<COMPTransform>(lightCubeEntity);
+    sceneContext.registry.emplace<COMPMaterial>(lightCubeEntity, matID);
 
-    sceneContext.registry.emplace<TAG_GameLayer>(LightEntity);
+    sceneContext.registry.emplace<TAG_GameLayer>(lightCubeEntity);
 
     auto lightMesh = Mesh(vertices, indices);
     lightMesh.SetData();
     auto lightMeshID = mesh_manager.Load(std::move(lightMesh));
-    sceneContext.registry.emplace<COMPMesh>(LightEntity, lightMeshID);
+    sceneContext.registry.emplace<COMPMesh>(lightCubeEntity, lightMeshID);
 
-    auto LightObject = sceneContext.registry.create();
-    auto lightID = light_manager.Load<PointLight>();
-    auto LightType = light_manager.GetLight<PointLight>(lightID.value());
+    auto lightEntity = sceneContext.registry.create();
+    auto& lightObject = sceneContext.registry.emplace<PointLight>(lightEntity);
+    auto& lightTransform = sceneContext.registry.emplace<COMPTransform>(lightEntity);
 
-    LightType->data.position = {0.f, 0.f, 0.f};
+    lightTransform.LocalPosition = {0.f, 0.f, 0.f};
 
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_1);
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_2);
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, ironman);
-    HierarchySystem::PutInHierarchy(m_WorldHierarchy, LightEntity);
-    HierarchySystem::SetChildren(m_WorldHierarchy, LightEntity, LightObject);
+    HierarchySystem::PutInHierarchy(m_WorldHierarchy, lightCubeEntity);
+    HierarchySystem::SetChildren(m_WorldHierarchy, lightCubeEntity, lightEntity);
 
     EngineContext& engineContext = Engine::GetContext();
 

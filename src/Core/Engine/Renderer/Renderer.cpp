@@ -169,7 +169,7 @@ bool Renderer::PrepareObject(RenderObject& object)
     shader->SetInt("materialDiffuse", 0); // Texture slot 0, activated on Texture->Use() below
     shader->SetInt("materialSpecular", 1); // Slot 1
 
-    lightManager.UploadGPUData(shader, mesh);
+    lightManager.UploadGPUData(shader);
     materialManager.UploadToGPU(material);
     object.context->m_CameraManager.UploadGPUData(Camera, TransformCam);
 
