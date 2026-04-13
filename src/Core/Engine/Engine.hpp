@@ -7,7 +7,7 @@ class Engine final
     static EngineContext m_EngineContext;
 public:
     Engine() = default;
-    static bool Init(EngineSettings settings);
+    static bool Init(const EngineSettings& settings);
     static void InitServices();
     static EngineContext& GetContext()
     {

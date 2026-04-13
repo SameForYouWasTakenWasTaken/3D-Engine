@@ -33,15 +33,16 @@ class Model
 
     void loadModel(const std::string& path);
     void processNode(aiNode *node, const aiScene *scene);
-    void AddMeshesToRegistry(entt::registry& registry);
     SubMesh processMesh(aiMesh *mesh, const aiScene *scene);
     MaterialID processMaterial(aiMaterial *material);
     TextureID loadMaterialTexture(aiMaterial *mat, aiTextureType type);
 
 public:
+    Model() = default;
     Model(const std::string& path);
     [[nodiscard]] const std::vector<SubMesh>& GetSubMeshes() const;
     [[nodiscard]] std::string GetDirectory() const;
+    void ReloadModel(const std::string& path);
 };
 
 struct COMPModel

@@ -173,8 +173,8 @@ bool Renderer::PrepareObject(RenderObject& object)
     materialManager.UploadToGPU(material);
     object.context->m_CameraManager.UploadGPUData(Camera, TransformCam);
 
-    diffuse->Use(GL_TEXTURE0);
-    specular->Use(GL_TEXTURE1);
+    diffuse->Use(0);
+    specular->Use(1);
     mesh->vao.Bind();
 
     return true;

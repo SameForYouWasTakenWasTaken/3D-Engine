@@ -17,12 +17,17 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path, Texture
     auto hash = Hash<TextureID>(path);
     if (Get(hash) != nullptr) return hash;
 
-    auto texture = std::make_shared<Texture2D>(path, settings);
-    if (texture->IsLoaded())
-    {
-        m_Textures.emplace(hash, texture);
+    auto [it, inserted] = m_Textures.try_emplace(hash, path, settings);
+    if (!inserted)
         return hash;
+
+    if (!it->second.IsLoaded())
+    {
+        m_Textures.erase(it);
+        return std::nullopt;
     }
+
+    return hash;
 
     return std::nullopt;
 }
@@ -35,15 +40,14 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path, Texture
  * @param texture Shared pointer to the Texture2D to cache; the texture's path is used to derive the ID.
  * @return std::optional<TextureID> `TextureID` for the cached (or newly inserted) texture, `std::nullopt` if the provided texture is not loaded.
  */
-std::optional<TextureID> Texture2DManager::Load(const std::shared_ptr<Texture2D> texture)
+std::optional<TextureID> Texture2DManager::Load(Texture2D& texture)
 {
-    if (!texture) return std::nullopt;
-    auto hash = Hash<TextureID>(texture->GetPath());
+    auto hash = Hash<TextureID>(texture.GetPath());
     if (Get(hash) != nullptr) return hash;
 
-    if (texture->IsLoaded())
+    if (texture.IsLoaded())
     {
-        m_Textures.emplace(hash, texture);
+        m_Textures.emplace(hash, std::move(texture));
         return hash;
     }
 
@@ -56,9 +60,9 @@ std::optional<TextureID> Texture2DManager::Load(const std::shared_ptr<Texture2D>
  * @param id Identifier of the texture to look up.
  * @return std::shared_ptr<Texture2D> Pointer to the stored texture, or `nullptr` if no texture is associated with `id`.
  */
-std::shared_ptr<Texture2D> Texture2DManager::Get(TextureID id)
+Texture2D* Texture2DManager::Get(TextureID id)
 {
     auto it = m_Textures.find(id);
     if (it == m_Textures.end()) return nullptr;
-    return it->second;
+    return &it->second;
 }

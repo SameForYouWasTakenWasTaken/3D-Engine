@@ -13,7 +13,7 @@
 
 EngineContext Engine::m_EngineContext{};
 
-bool Engine::Init(EngineSettings settings)
+bool Engine::Init(const EngineSettings& settings)
 {
     m_EngineContext.WindowHeight = settings.Height;
     m_EngineContext.WindowWidth = settings.Width;

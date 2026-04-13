@@ -13,8 +13,6 @@ void Scene::Update(float dt)
 {
     auto& context = m_SceneContext;
     context.m_CameraManager.Update(context.registry, dt);
-
-
 }
 
 /**

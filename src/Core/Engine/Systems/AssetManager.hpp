@@ -10,7 +10,7 @@ struct ModelData
 {
     ModelID id;
     std::string directory;
-    std::unique_ptr<Model> model;
+    Model model;
 };
 
 class AssetManager : public IService
@@ -33,7 +33,7 @@ AssetManager(const AssetManager&) = delete;
     ModelID Load(const std::string& directory);
 
     [[nodiscard]]
-    ModelID Load(std::unique_ptr<Model>& model);
+    ModelID Load(Model& model);
 
     [[nodiscard]]
     Model* Get(ModelID id);

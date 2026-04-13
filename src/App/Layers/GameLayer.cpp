@@ -273,36 +273,22 @@ void GameLayer::OnResize(const WindowResizeEvent& resize)
 
 void GameLayer::OnMouseMove(MouseMoveEvent& mouse)
 {
-    auto& sceneContext = m_Scene->GetContext();
-
-    static constexpr float sensitivity = 0.1f;
-    static bool firstMouseInput = true;
-    static double lastMouseX;
-    static double lastMouseY;
 
     if (!m_CanMoveMouse) return;
-    if (sceneContext.m_CameraManager.GetActiveCamera() == entt::null) return;
 
-    auto& cam = sceneContext.registry.get<COMPCamera>(sceneContext.m_CameraManager.GetActiveCamera());
-
-    if (firstMouseInput)
+    if (m_FirstMouseInput)
     {
-        lastMouseX = mouse.xpos;
-        lastMouseY = mouse.ypos;
-        firstMouseInput = false; // reset after first alignment
+        m_LastMousX = mouse.xpos;
+        m_LastMouseY = mouse.ypos;
+        m_FirstMouseInput = false;
         return;
     }
 
-    float xoffset = mouse.xpos - lastMouseX;
-    float yoffset = lastMouseY - mouse.ypos; // reversed since y-coords go top->down
+    m_MouseDeltaX += mouse.xpos - m_LastMousX;
+    m_MouseDeltaY += m_LastMouseY - mouse.ypos;
 
-    lastMouseX = mouse.xpos;
-    lastMouseY = mouse.ypos;
-
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    cam.RotateEuler(xoffset, yoffset);
+    m_LastMousX = mouse.xpos;
+    m_LastMouseY = mouse.ypos;
 }
 
 void GameLayer::OnKey(KeyInputEvent& input)
@@ -323,23 +309,23 @@ void GameLayer::OnKey(KeyInputEvent& input)
         int screenHeight = engineContext.WindowHeight;
         static bool firstCapture = true;
         static bool clicked = false;
-        static double LastMouseX = 0, LastMouseY = 0;
 
         if (!clicked)
         {
             clicked = true;
-            glfwSetCursorPos(input.Window, LastMouseX, LastMouseY);
-            glfwGetCursorPos(input.Window, &LastMouseX, &LastMouseY);
-
             glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+            if (glfwRawMouseMotionSupported())
+                glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
             m_CanMoveMouse = true;
         }
         else
         {
             clicked = false;
-            glfwSetCursorPos(input.Window, LastMouseX, LastMouseY);
-            glfwGetCursorPos(input.Window, &LastMouseX, &LastMouseY);
+            int width, height;
+            glfwGetWindowSize(input.Window, &width, &height);
+            glfwSetCursorPos(input.Window, width/2, height/2);
 
             glfwSetInputMode(input.Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             glfwSetInputMode(input.Window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
@@ -458,6 +444,12 @@ void GameLayer::OnUpdate(float dt)
 
         transform->Move(move * speed);
         cam->RotateEuler(rot.x * rotSpeed, rot.y * rotSpeed);
+
+        constexpr float sensitivity = 0.1f;
+        cam->RotateEuler(m_MouseDeltaX * sensitivity, m_MouseDeltaY * sensitivity);
+
+        m_MouseDeltaX = 0.0;
+        m_MouseDeltaY = 0.0;
     }
 }
 

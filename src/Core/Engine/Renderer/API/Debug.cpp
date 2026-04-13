@@ -2,7 +2,7 @@
 #include <spdlog/spdlog.h>
 
 #include "Debug.hpp"
-#include "../../../vendor/Logger.hpp"
+#include "vendor/Logger.hpp"
 #include <GLFW/glfw3.h>
 
 //https://learnopengl.com/In-Practice/Debugging
@@ -60,5 +60,4 @@ void enableReportGlErrors()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(glDebugOutput, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-	glDebugMessageCallback(0, nullptr);
 }
