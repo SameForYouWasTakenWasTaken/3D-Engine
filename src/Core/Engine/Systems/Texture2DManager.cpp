@@ -40,18 +40,14 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path, Texture
  * @param texture Shared pointer to the Texture2D to cache; the texture's path is used to derive the ID.
  * @return std::optional<TextureID> `TextureID` for the cached (or newly inserted) texture, `std::nullopt` if the provided texture is not loaded.
  */
-std::optional<TextureID> Texture2DManager::Load(Texture2D& texture)
+std::optional<TextureID> Texture2DManager::Load(Texture2D&& texture)
 {
+    if (!texture.IsLoaded())
+        return std::nullopt;
+
     auto hash = Hash<TextureID>(texture.GetPath());
-    if (Get(hash) != nullptr) return hash;
-
-    if (texture.IsLoaded())
-    {
-        m_Textures.emplace(hash, std::move(texture));
-        return hash;
-    }
-
-    return std::nullopt;
+    auto [it, inserted] = m_Textures.try_emplace(hash, std::move(texture));
+    return hash;
 }
 
 /**

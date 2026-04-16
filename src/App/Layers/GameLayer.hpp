@@ -26,7 +26,7 @@ class GameLayer : public Layer
     double m_MouseDeltaX{};
     double m_MouseDeltaY{};
     bool m_FirstMouseInput = true;
-    double m_LastMousX = 0.0;
+    double m_LastMouseX = 0.0;
     double m_LastMouseY = 0.0;
 
     Hierarchy m_WorldHierarchy;

@@ -44,19 +44,6 @@ LightManager(entt::registry& scene_registry);
  */
 LightManager(const LightManager&) = delete;
 
-    template <typename T>
-    /**
-     * @brief Retrieve a stored light by ID cast to the requested derived light type.
-     *
-     * @tparam T Desired light type to retrieve (must derive from LightBase).
-     * @param id Identifier of the light to look up.
-     * @return T* Pointer to the light cast to `T` if a light with `id` exists and is of type `T`, `nullptr` otherwise.
-     */
-    T* GetLight(entt::entity id)
-    {
-        T* light = m_SceneRegistry.try_get<T>(id);
-        return light;
-    }
     void UploadGPUData(Shader* shader);
 
     void OnSpotlightChanged();

@@ -6,6 +6,12 @@
 
 struct SceneContext
 {
+    SceneContext() = default;
+    SceneContext(const SceneContext&) = delete;
+    SceneContext& operator=(const SceneContext&) = delete;
+    SceneContext(SceneContext&&) = delete;
+    SceneContext& operator=(SceneContext&&) = delete;
+
     CameraManager m_CameraManager;
     entt::registry registry;
     LightManager m_LightManager{registry};

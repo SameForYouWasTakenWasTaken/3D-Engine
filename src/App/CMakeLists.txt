@@ -6,7 +6,7 @@ file(GLOB_RECURSE APP_FILES CONFIGURE_DEPENDS
 add_library(App
         ${APP_FILES}
 )
-target_link_libraries(App PUBLIC Engine imgui SharedLib)
+target_link_libraries(App PUBLIC Engine imgui)
 target_include_directories(App PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 

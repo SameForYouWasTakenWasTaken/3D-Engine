@@ -278,16 +278,16 @@ void GameLayer::OnMouseMove(MouseMoveEvent& mouse)
 
     if (m_FirstMouseInput)
     {
-        m_LastMousX = mouse.xpos;
+        m_LastMouseX = mouse.xpos;
         m_LastMouseY = mouse.ypos;
         m_FirstMouseInput = false;
         return;
     }
 
-    m_MouseDeltaX += mouse.xpos - m_LastMousX;
+    m_MouseDeltaX += mouse.xpos - m_LastMouseX;
     m_MouseDeltaY += m_LastMouseY - mouse.ypos;
 
-    m_LastMousX = mouse.xpos;
+    m_LastMouseX = mouse.xpos;
     m_LastMouseY = mouse.ypos;
 }
 
@@ -554,8 +554,8 @@ void GameLayer::OnAttach()
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_1);
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad_2);
     HierarchySystem::PutInHierarchy(m_WorldHierarchy, ironman);
-    HierarchySystem::PutInHierarchy(m_WorldHierarchy, lightCubeEntity);
-    HierarchySystem::SetChildren(m_WorldHierarchy, lightCubeEntity, lightEntity);
+    HierarchySystem::PutInHierarchy(m_WorldHierarchy, lightEntity);
+    HierarchySystem::SetChildren(m_WorldHierarchy, lightEntity, lightCubeEntity);
 
     EngineContext& engineContext = Engine::GetContext();
 

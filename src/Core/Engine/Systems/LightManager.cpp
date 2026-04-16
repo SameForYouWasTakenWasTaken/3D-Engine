@@ -8,10 +8,12 @@
 DirectionLightGPU LightManager::ConvertLightToData(const DirectionalLight& light)
 {
     return DirectionLightGPU{
+        .color = light.color,
+        .intensity  = light.intensity,
         .direction = light.direction,
         .ambient = light.ambient,
         .diffuse = light.diffuse,
-        .specular = light.specular
+        .specular = light.specular,
     };
 }
 
@@ -19,6 +21,8 @@ SpotLightGPU LightManager::ConvertLightToData(const SpotLight& light)
 {
     return SpotLightGPU
     {
+        .color = light.color,
+        .intensity  = light.intensity,
         .direction = light.direction,
         .cosCutOff = light.cosCutOff,
         .cosOuterCutOff = light.cosOuterCutOff,
@@ -35,6 +39,8 @@ SpotLightGPU LightManager::ConvertLightToData(const SpotLight& light)
 PointLightGPU LightManager::ConvertLightToData(const PointLight& light)
 {
     return PointLightGPU{
+        .color = light.color,
+        .intensity  = light.intensity,
         .constant = light.constant,
         .linear = light.linear,
         .quadratic = light.quadratic,
@@ -76,30 +82,34 @@ void LightManager::UploadGPUData(Shader* shader)
 {
     if (!shader) return;
 
+    size_t dirLightSize{};
+    size_t pointLightSize{};
+    size_t spotLightSize{};
+
     if (dirty_Direction)
     {
-        auto lightSize = UpdateLightGPUData<DirectionalLight, DirectionLightGPU>(dirLightSSBO);
+        dirLightSize = UpdateLightGPUData<DirectionalLight, DirectionLightGPU>(dirLightSSBO);
         dirLightSSBO.SetBinding(2);
-        shader->SetInt("numDirLights", static_cast<int>(lightSize));
     }
 
     if (dirty_Point)
     {
-        auto lightSize = UpdateLightGPUData<PointLight, PointLightGPU>(pointLightSSBO);
+        pointLightSize = UpdateLightGPUData<PointLight, PointLightGPU>(pointLightSSBO);
         pointLightSSBO.SetBinding(3);
-        shader->SetInt("numPointLights", static_cast<int>(lightSize));
     }
 
     if (dirty_Spot)
     {
-        auto lightSize = UpdateLightGPUData<SpotLight, SpotLightGPU>(spotLightSSBO);
+        spotLightSize = UpdateLightGPUData<SpotLight, SpotLightGPU>(spotLightSSBO);
         spotLightSSBO.SetBinding(4);
-        shader->SetInt("numSpotLights", static_cast<int>(lightSize));
     }
 
     dirty_Spot = false;
     dirty_Point = false;
     dirty_Direction = false;
+    shader->SetInt("numDirLights", static_cast<int>(dirLightSize));
+    shader->SetInt("numPointLights", static_cast<int>(pointLightSize));
+    shader->SetInt("numSpotLights", static_cast<int>(spotLightSize));
 }
 
 void LightManager::OnSpotlightChanged()
