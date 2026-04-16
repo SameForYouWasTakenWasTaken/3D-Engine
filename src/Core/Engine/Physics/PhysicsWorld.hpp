@@ -3,20 +3,11 @@
 #include "Engine/Components/Physics/Collider.hpp"
 #include "Engine/Components/Physics/Rigidbody.hpp"
 #include "glm/vec3.hpp"
+#include "Misc/PhysicsBody.hpp"
 #include "vendor/entt.hpp"
 
 class PhysicsWorld final
 {
-    struct PhysicsBody
-    {
-        entt::entity entity{entt::null};
-        COMPRigidBody RigidBody;
-        COMPTransform Transform;
-        COMPCollider Collider;
-
-        PhysicsBody(entt::entity entity, COMPRigidBody& body, COMPTransform& transform, COMPCollider& collider)
-            : entity(entity), RigidBody(body), Transform(transform), Collider(collider) {}
-    };
     entt::registry& m_SceneRegistry;
 
     void ApplyForces(float dt);

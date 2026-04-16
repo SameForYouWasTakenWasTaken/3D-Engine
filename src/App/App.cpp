@@ -1,12 +1,13 @@
 #include "App.hpp"
 
+#include "Layers/GameLayer.hpp"
 #include "Layers/ImGUI_DebugLayer.hpp"
 #include "Layers/PresentLayer.hpp"
 
 #include <tracy/Tracy.hpp>
 
 #include "Engine/Engine.hpp"
-#include "Engine/Systems/Texture2DManager.hpp"
+#include "Systems/SceneManager.hpp"
 
 /**
  * @brief Initialize application window, OpenGL context, input callbacks, and engine services.

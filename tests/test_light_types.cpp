@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Components/Light.hpp>
+#include "Engine/Components/Light.hpp"
 
 // ─── LightType enum ────────────────────────────────────────────────────────
 

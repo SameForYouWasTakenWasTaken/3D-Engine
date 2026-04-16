@@ -12,14 +12,14 @@ struct COMPTransform
     glm::mat4 WorldMatrix{1.f};
     bool IsUniform = true;
 
-    void Move(const glm::vec3& translation);
-    void Rotate(const glm::vec3& rotation);
-    void Scale(const glm::vec3& factor);
+    void Move(glm::vec3 translation);
+    void Rotate(glm::vec3 rotation);
+    void Scale(glm::vec3 factor);
 
     // Setters
-    void SetPosition(const glm::vec3& position);
-    void SetRotation(const glm::vec3& rotation);
-    void SetScale(const glm::vec3& scale);
+    void SetPosition(glm::vec3 position);
+    void SetRotation(glm::vec3 rotation);
+    void SetScale(glm::vec3 scale);
 
     glm::mat4 GetModelMatrix();
     glm::mat3 GetNormalMatrix();

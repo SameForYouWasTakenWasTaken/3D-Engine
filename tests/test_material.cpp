@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Components/Material.hpp>
+#include "Engine/Components/Material.hpp"
 
 // Test Material struct default construction
 TEST(MaterialTest, DefaultConstruction) {
@@ -144,16 +144,16 @@ TEST(MaterialTest, ShininessEdgeCases) {
     material.shader = 1;
 
     // Very low shininess (dull surface)
-    material.shininess = 1.0f;
+    material.data.shininess = 1.0f;
     EXPECT_FLOAT_EQ(material.shininess, 1.0f);
 
     // Very high shininess (very shiny surface)
-    material.shininess = 256.0f;
+    material.data.shininess = 256.0f;
     EXPECT_FLOAT_EQ(material.shininess, 256.0f);
 
     // Zero shininess (edge case)
-    material.shininess = 0.0f;
-    EXPECT_FLOAT_EQ(material.shininess, 0.0f);
+    material.data.shininess = 0.0f;
+    EXPECT_FLOAT_EQ(material.data.shininess, 0.0f);
 }
 
 // Test Material ambient variations
@@ -162,22 +162,22 @@ TEST(MaterialTest, AmbientVariations) {
     material.shader = 1;
 
     // No ambient light
-    material.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
-    EXPECT_FLOAT_EQ(material.ambient.x, 0.0f);
-    EXPECT_FLOAT_EQ(material.ambient.y, 0.0f);
-    EXPECT_FLOAT_EQ(material.ambient.z, 0.0f);
+    material.data.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+    EXPECT_FLOAT_EQ(material.data.ambient.x, 0.0f);
+    EXPECT_FLOAT_EQ(material.data.ambient.y, 0.0f);
+    EXPECT_FLOAT_EQ(material.data.ambient.z, 0.0f);
 
     // Full ambient light
-    material.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-    EXPECT_FLOAT_EQ(material.ambient.x, 1.0f);
-    EXPECT_FLOAT_EQ(material.ambient.y, 1.0f);
-    EXPECT_FLOAT_EQ(material.ambient.z, 1.0f);
+    material.data.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    EXPECT_FLOAT_EQ(material.data.ambient.x, 1.0f);
+    EXPECT_FLOAT_EQ(material.data.ambient.y, 1.0f);
+    EXPECT_FLOAT_EQ(material.data.ambient.z, 1.0f);
 
     // Colored ambient (warm)
-    material.ambient = glm::vec3(0.3f, 0.2f, 0.1f);
-    EXPECT_FLOAT_EQ(material.ambient.x, 0.3f);
-    EXPECT_FLOAT_EQ(material.ambient.y, 0.2f);
-    EXPECT_FLOAT_EQ(material.ambient.z, 0.1f);
+    material.data.ambient = glm::vec3(0.3f, 0.2f, 0.1f);
+    EXPECT_FLOAT_EQ(material.data.ambient.x, 0.3f);
+    EXPECT_FLOAT_EQ(material.data.ambient.y, 0.2f);
+    EXPECT_FLOAT_EQ(material.data.ambient.z, 0.1f);
 }
 
 // Test realistic material properties
@@ -185,23 +185,23 @@ TEST(MaterialTest, RealisticMaterials) {
     // Plastic material
     Material plastic;
     plastic.shader = 1;
-    plastic.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-    plastic.shininess = 32.0f;
-    EXPECT_LT(plastic.shininess, 64.0f);
+    plastic.data.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    plastic.data.shininess = 32.0f;
+    EXPECT_LT(plastic.data.shininess, 64.0f);
 
     // Metal material
     Material metal;
     metal.shader = 1;
-    metal.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
-    metal.shininess = 128.0f;
+    metal.data.ambient = glm::vec3(0.2f, 0.2f, 0.2f);
+    metal.data.shininess = 128.0f;
     EXPECT_GT(metal.shininess, 64.0f);
 
     // Rubber material (very dull)
     Material rubber;
     rubber.shader = 1;
-    rubber.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-    rubber.shininess = 8.0f;
-    EXPECT_LT(rubber.shininess, 16.0f);
+    rubber.data.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    rubber.data.shininess = 8.0f;
+    EXPECT_LT(rubber.data.shininess, 16.0f);
 }
 
 // ─── Transparency field tests ──────────────────────────────────────────────
@@ -209,20 +209,20 @@ TEST(MaterialTest, RealisticMaterials) {
 // Test Material default transparency
 TEST(MaterialTest, TransparencyDefaultIsOpaque) {
     Material material;
-    EXPECT_FLOAT_EQ(material.transparency, 1.0f);
+    EXPECT_FLOAT_EQ(material.data.transparency, 1.0f);
 }
 
 // Test setting transparency to fully transparent
 TEST(MaterialTest, TransparencyFullyTransparent) {
     Material material;
-    material.transparency = 0.0f;
-    EXPECT_FLOAT_EQ(material.transparency, 0.0f);
+    material.data.transparency = 0.0f;
+    EXPECT_FLOAT_EQ(material.data.transparency, 0.0f);
 }
 
 // Test setting transparency to semi-transparent
 TEST(MaterialTest, TransparencySemiTransparent) {
     Material material;
-    material.transparency = 0.5f;
+    material.data.transparency = 0.5f;
     EXPECT_FLOAT_EQ(material.transparency, 0.5f);
 }
 

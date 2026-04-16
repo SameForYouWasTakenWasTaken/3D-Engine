@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Renderer/API/Shader.hpp>
+#include "Engine/Renderer/API/Shader.hpp"
 #include <fstream>
 #include <filesystem>
 

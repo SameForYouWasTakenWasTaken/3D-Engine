@@ -4,7 +4,7 @@
 #include "Engine/Components/Physics/Collider.hpp"
 #include "Engine/Components/Physics/Rigidbody.hpp"
 
-constexpr float DEFAULT_STEP_INTERVAL = 60.f;
+constexpr float TICK_SPEED = 60.f;
 
 void Sanitize(glm::vec3& v)
 {
@@ -90,27 +90,23 @@ void PhysicsWorld::ResolveContacts(float dt)
         float invMassB = bodyB.isStatic ? 0.0f : 1.0f / std::max(bodyB.mass, 0.0001f);
 
         float invMassSum = invMassA + invMassB;
-
         if (invMassSum <= 0.0f)
             continue;
 
-        // 1. positional correction
-        constexpr float percent = 0.2f;  // prevents jitter
-        constexpr float slop = 0.001f;    // allow tiny penetration
-        float correction = glm::max(contact.penetration - slop, 0.0f) * percent;
-        glm::vec3 correctionVec = contact.normal * (correction / invMassSum);
+        // Positional correction
+        constexpr float percent = 0.2f;   // usually 0.2f - 0.8f
+        constexpr float slop = 0.001f;
+
+        float correctionMagnitude =
+            glm::max(contact.penetration - slop, 0.0f) / invMassSum * percent;
+
+        glm::vec3 correction = correctionMagnitude * contact.normal;
 
         if (!bodyA.isStatic)
-            transformA.Move({
-                -correctionVec.x * invMassA,
-                -correctionVec.y * invMassA,
-                -correctionVec.z * invMassA});
+            transformA.Move(-correction * invMassA);
 
         if (!bodyB.isStatic)
-            transformB.Move({
-                correctionVec.x * invMassB,
-                correctionVec.y * invMassB,
-                correctionVec.z * invMassB});
+            transformB.Move(correction * invMassB);
 
         // 2. impulse resolution
         glm::vec3 relativeVelocity = bodyB.linearVelocity - bodyA.linearVelocity;
@@ -119,7 +115,7 @@ void PhysicsWorld::ResolveContacts(float dt)
         if (velocityAlongNormal > 0.0f)
             continue;
 
-        float restitution = 0.0f; // no bounce for now
+        float restitution = .05f;
 
         float j = -(1.0f + restitution) * velocityAlongNormal;
         j /= invMassSum;
@@ -154,10 +150,10 @@ void PhysicsWorld::HandleAABB(PhysicsBody& PhysBodyA, PhysicsBody& PhysBodyB)
     auto& colliderA = PhysBodyA.Collider;
     auto& colliderB = PhysBodyB.Collider;
 
-    glm::vec3 centerA = glm::vec3(transformA.WorldMatrix[3]) + colliderA.centerOffset;
+    glm::vec3 centerA = transformA.LocalPosition + colliderA.centerOffset;
     glm::vec3 halfA = colliderA.halfExtents * transformA.LocalScale;
 
-    glm::vec3 centerB = glm::vec3(transformB.WorldMatrix[3]) + colliderB.centerOffset;
+    glm::vec3 centerB = transformB.LocalPosition + colliderB.centerOffset;
     glm::vec3 halfB = colliderB.halfExtents * transformB.LocalScale;
 
     glm::vec3 delta = centerB - centerA;
@@ -191,14 +187,15 @@ void PhysicsWorld::HandleAABB(PhysicsBody& PhysBodyA, PhysicsBody& PhysBodyB)
 
 void PhysicsWorld::Step(float dt)
 {
-    float step_interval = 1.f / DEFAULT_STEP_INTERVAL;
+    float step_interval = 1.f / TICK_SPEED;
 
     ApplyForces(step_interval);
     IntegrateVelocities(step_interval);
 
-    for (int i{}; i < 4; i++)
+    DetectCollisions();
+
+    for (int i{}; i < 5; i++)
     {
-        DetectCollisions();
         ResolveContacts(step_interval);
     }
 

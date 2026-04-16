@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Renderer/API/Vertex.hpp>
+#include "Engine/Renderer/API/Vertex.hpp"
 
-#include "glad/glad.h"
+#include "vendor/glad.h"
 
 // Test Vertex struct default construction
 TEST(VertexTest, DefaultConstruction) {
