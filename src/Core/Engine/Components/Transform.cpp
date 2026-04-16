@@ -40,8 +40,7 @@ void COMPTransform::Scale(const glm::vec3& factor)
  */
 void COMPTransform::SetPosition(const glm::vec3& position)
 {
-    this->LocalPosition = glm::vec3(0.f);
-    Move(position);
+    this->LocalPosition = position;
 }
 
 /**
