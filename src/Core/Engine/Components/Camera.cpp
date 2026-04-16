@@ -79,13 +79,14 @@ void COMPCamera::RotateEuler(float yaw, float pitch)
  *
  * @return glm::vec3 Normalized forward direction vector corresponding to the current `yaw` and `pitch`.
  */
-glm::vec3 COMPCamera::GetForward()
+glm::vec3 COMPCamera::GetForward() const
 {
-    glm::vec3 forward;
-    forward.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    forward.y = sin(glm::radians(pitch));
-    forward.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    return glm::normalize(forward);
+    return glm::normalize(
+        glm::vec3(
+            std::cos(glm::radians(yaw)) * std::cos(glm::radians(pitch)),
+            std::sin(glm::radians(pitch)),
+            std::sin(glm::radians(yaw)) * std::cos(glm::radians(pitch))
+        ));
 }
 
 /**

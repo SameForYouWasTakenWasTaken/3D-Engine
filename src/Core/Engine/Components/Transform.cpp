@@ -5,7 +5,7 @@
  *
  * @param translation Vector to add to the current position.
  */
-void COMPTransform::Move(const glm::vec3& translation)
+void COMPTransform::Move(const glm::vec3 translation)
 {
     this->LocalPosition += translation;
 }
@@ -15,7 +15,7 @@ void COMPTransform::Move(const glm::vec3& translation)
  *
  * @param rot Angular offset in degrees applied to the (x, y, z) rotation components.
  */
-void COMPTransform::Rotate(const glm::vec3& rot)
+void COMPTransform::Rotate(const glm::vec3 rot)
 {
     this->LocalRotation += rot;
     this->LocalRotation = glm::mod(LocalRotation, glm::vec3(360.f));
@@ -28,7 +28,7 @@ void COMPTransform::Rotate(const glm::vec3& rot)
  *
  * @param factor Per-axis scale factors (x, y, z) to apply.
  */
-void COMPTransform::Scale(const glm::vec3& factor)
+void COMPTransform::Scale(const glm::vec3 factor)
 {
     this->LocalScale *= factor;
 }
@@ -38,10 +38,9 @@ void COMPTransform::Scale(const glm::vec3& factor)
  *
  * @param position Target position (x, y, z) in the transform's coordinate space.
  */
-void COMPTransform::SetPosition(const glm::vec3& position)
+void COMPTransform::SetPosition(const glm::vec3 position)
 {
-    this->LocalPosition = glm::vec3(0.f);
-    Move(position);
+    this->LocalPosition = position;
 }
 
 /**
@@ -52,10 +51,9 @@ void COMPTransform::SetPosition(const glm::vec3& position)
  *
  * @param rotation Euler angles in degrees (x: rotation about X / pitch, y: rotation about Y / yaw, z: rotation about Z / roll).
  */
-void COMPTransform::SetRotation(const glm::vec3& rotation)
+void COMPTransform::SetRotation(const glm::vec3 rotation)
 {
-    this->LocalRotation = glm::vec3(0.f);
-    Rotate(rotation);
+    this->LocalRotation = rotation;
 }
 
 /**
@@ -66,7 +64,7 @@ void COMPTransform::SetRotation(const glm::vec3& rotation)
  *
  * @param scale Desired absolute scale for the transform.
  */
-void COMPTransform::SetScale(const glm::vec3& scale)
+void COMPTransform::SetScale(const glm::vec3 scale)
 {
     this->LocalScale = scale;
 }

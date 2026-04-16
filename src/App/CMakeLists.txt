@@ -21,7 +21,7 @@ add_custom_command(TARGET App POST_BUILD
 set(ASSET_DIR "$<TARGET_FILE_DIR:App>/assets")
 set(OBJECTS_DIR "${ASSET_DIR}/Objects")
 set(SHADERS_DIR "${ASSET_DIR}/Shaders")
-set(TEXTURES_DIR "${ASSET_DIR}/Textures2D")
+set(TEXTURES_DIR "${ASSET_DIR}/Textures")
 
 # Give engine and app same directories
 target_compile_definitions(Engine PRIVATE ASSET_DIRECTORY="${ASSET_DIR}/")

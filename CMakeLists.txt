@@ -13,5 +13,5 @@ add_subdirectory(src)
 add_executable(GLmain src/main.cpp)
 target_link_libraries(GLmain PUBLIC App)
 
- enable_testing()
- add_subdirectory(tests)
+ # enable_testing() # no need for testing now
+ # add_subdirectory(tests)

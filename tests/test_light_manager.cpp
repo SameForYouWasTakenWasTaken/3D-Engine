@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Systems/LightManager.hpp>
+#include "Engine/Systems/LightManager.hpp"
 
 // ─── Load ─────────────────────────────────────────────────────────────────
 

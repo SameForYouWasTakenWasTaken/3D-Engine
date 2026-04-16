@@ -13,6 +13,7 @@
 #include <tracy/Tracy.hpp>
 
 #include "Engine/Engine.hpp"
+#include "Engine/Components/Physics/Rigidbody.hpp"
 #include "Engine/Systems/MeshManager.hpp"
 #include "Engine/Systems/Texture2DManager.hpp"
 
@@ -226,6 +227,7 @@ void GameLayer::SetMaterialOverrides(COMPModel& modelComponent, const MaterialOv
 
 void GameLayer::UpdateWorld()
 {
+    DestroyOutOfBoundsEntities();
     for (const auto& [entity, node] : m_WorldHierarchy.nodes)
     {
         if (node.parent == entt::null)
@@ -233,6 +235,7 @@ void GameLayer::UpdateWorld()
             UpdateTransforms(entity, glm::mat4(1.0f));
         }
     }
+
 }
 
 void GameLayer::UpdateTransforms(entt::entity entity, const glm::mat4& inheritedWorld)
@@ -333,6 +336,11 @@ void GameLayer::OnKey(KeyInputEvent& input)
         }
     }
 
+    static bool StaticRigidbodies = false;
+    if (input.IsKey(GLFW_KEY_G) && input.IsKeyPressed())
+    {
+           StaticRigidbodies = not StaticRigidbodies;
+    }
 
     if (input.IsKey(GLFW_KEY_F) && input.IsKeyPressed())
     {
@@ -344,25 +352,9 @@ void GameLayer::OnKey(KeyInputEvent& input)
         auto texturesDir = std::string(TEXTURES_DIRECTORY);
         auto objectsDir = std::string(OBJECTS_DIRECTORY);
 
-        ModelID model_id = asset_manager.Load(objectsDir + "Spiderman/scene.gltf");
-        // model
-        auto ModelEntity = sceneContext.registry.create();
-        auto& Model = sceneContext.registry.emplace<COMPModel>(ModelEntity, model_id);
-        auto& Transform = sceneContext.registry.emplace<COMPTransform>(ModelEntity);
-        auto& material = sceneContext.registry.emplace<MaterialOverride>(ModelEntity);
-        material.transparency = 4.f;
-
-        sceneContext.registry.emplace<TAG_GameLayer>(ModelEntity);
-
-        Transform.SetPosition(camTransform.LocalPosition + camComponent.GetForward());
-        Transform.Scale({0.5f, 0.5f, 0.5f});
-
-        HierarchySystem::PutInHierarchy(m_WorldHierarchy, ModelEntity);
         // second quad
         // shaders
         auto shader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "first.frag");
-        auto sunShader = shader_manager.Load(shadersDir + "first.vert", shadersDir + "sun.frag");
-
         auto basic_texture = texture_manager.Load(texturesDir + "images.png");
 
         // Materials
@@ -374,6 +366,9 @@ void GameLayer::OnKey(KeyInputEvent& input)
         auto quad = sceneContext.registry.create();
         auto& Transform_a = sceneContext.registry.emplace<COMPTransform>(quad);
         auto& Material_a = sceneContext.registry.emplace<COMPMaterial>(quad, matID);
+        auto& RigidBody = sceneContext.registry.emplace<COMPRigidBody>(quad);
+        auto& Collider = sceneContext.registry.emplace<COMPCollider>(quad);
+        RigidBody.isStatic = StaticRigidbodies;
         sceneContext.registry.emplace<TAG_GameLayer>(quad);
 
         auto mesh = Mesh(vertices, indices);
@@ -381,13 +376,37 @@ void GameLayer::OnKey(KeyInputEvent& input)
 
         auto meshID = mesh_manager.Load(std::move(mesh));
 
+        // Set proper AABB boundaries
+        glm::vec3 minBounds(FLT_MAX), maxBounds(-FLT_MAX);
+        for (const auto& vertex : vertices)
+        {
+            minBounds = glm::min(minBounds, vertex.position);
+            maxBounds = glm::max(maxBounds, vertex.position);
+        }
+
+        Collider.halfExtents = (maxBounds - minBounds) * 0.5f;
+
         sceneContext.registry.emplace<COMPMesh>(quad, meshID);
 
-        HierarchySystem::SetChildren(m_WorldHierarchy, ModelEntity, quad);
-        static int x = 0;
-        Transform_a.Move({x / 2, x / 2, x / 2});
-        x++;
+        HierarchySystem::PutInHierarchy(m_WorldHierarchy, quad);
+
+        Transform_a.SetPosition(camTransform.LocalPosition);
+        Transform_a.Move(camComponent.GetForward());
+
     }
+}
+
+void GameLayer::DestroyOutOfBoundsEntities()
+{
+    auto transforms = m_Scene->GetContext().registry.view<COMPTransform>();
+
+    transforms.each([&](auto entity, COMPTransform& transf)
+    {
+        float constexpr MAX_DISTANCE = 1'000'000.f;
+
+        if (glm::length(transf.WorldMatrix[3]) > MAX_DISTANCE)
+            m_Scene->GetContext().registry.destroy(entity);
+    });
 }
 
 /**
@@ -414,6 +433,7 @@ void GameLayer::OnUpdate(float dt)
 
         glm::vec3 input(0);
         glm::vec2 rot(0.f);
+
         if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_SHIFT))
             speed = 0.5f * dt;
         if (InputSystem::IsKeyHeld(GLFW_KEY_LEFT_CONTROL))
@@ -472,7 +492,6 @@ void GameLayer::OnAttach()
     auto& material_manager = services.GetService<MaterialManager>();
     auto& texture_manager = services.GetService<Texture2DManager>();
     auto& asset_manager = services.GetService<AssetManager>();
-    auto& light_manager = sceneContext.m_LightManager;
     auto& mesh_manager = services.GetService<MeshManager>();
 
     std::string shadersDir = std::string(SHADERS_DIRECTORY);

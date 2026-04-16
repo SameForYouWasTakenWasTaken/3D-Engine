@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Systems/Services.hpp>
+#include "Engine/Systems/Services.hpp"
 #include <stdexcept>
 
 // ─── HashCombine ──────────────────────────────────────────────────────────

@@ -17,7 +17,7 @@ std::optional<TextureID> Texture2DManager::Load(const std::string& path, Texture
     auto hash = Hash<TextureID>(path);
     if (Get(hash) != nullptr) return hash;
 
-    auto [it, inserted] = m_Textures.try_emplace(hash, path, settings);
+    auto [it, inserted] = m_Textures.try_emplace(hash, Texture2D(path, settings));
     if (!inserted)
         return hash;
 

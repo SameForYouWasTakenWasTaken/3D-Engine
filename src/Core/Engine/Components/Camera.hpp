@@ -26,7 +26,7 @@ public:
     void RotateEuler(float yaw, float pitch);
 
     CameraContext GetCameraContext() const;
-    glm::vec3 GetForward();
+    glm::vec3 GetForward() const;
     glm::vec3 GetRight();
     glm::vec3 GetUp();
 };

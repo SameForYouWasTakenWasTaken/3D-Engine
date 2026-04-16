@@ -39,6 +39,9 @@ public:
     void OnAttach() override;
     void OnDetach() override;
 
+
+
+private:
     void SetMaterialOverrides(COMPModel& modelComponent, const MaterialOverride& materialOverride);
     void UpdateWorld(); // Update transform components
     void UpdateTransforms(entt::entity entity, const glm::mat4& inheritedWorld);
@@ -46,4 +49,6 @@ public:
     void OnResize(const WindowResizeEvent& resize);
     void OnMouseMove(MouseMoveEvent& mouse);
     void OnKey(KeyInputEvent& input);
+
+    void DestroyOutOfBoundsEntities();
 };

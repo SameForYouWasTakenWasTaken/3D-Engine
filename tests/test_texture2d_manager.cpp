@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <../src/Core/Engine/Systems/Texture2DManager.hpp>
+#include "Engine/Systems/Texture2DManager.hpp"
 #include <unordered_set>
 
 // Test Texture2DManager Hash basic functionality
