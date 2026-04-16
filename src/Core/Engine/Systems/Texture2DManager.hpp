@@ -29,7 +29,7 @@ Texture2DManager(const Texture2DManager&) = delete;
     std::optional<TextureID> Load(const std::string& path, TextureSettings settings = TextureSettings());
 
     [[nodiscard]]
-    std::optional<TextureID> Load(Texture2D& texture);
+    std::optional<TextureID> Load(Texture2D&& texture);
 
     [[nodiscard]]
     Texture2D* Get(TextureID id);

@@ -57,8 +57,8 @@ public:
     // glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f); // Handled by COMPTransform
     glm::vec3 direction = glm::vec3(0.f, 0.f, 0.f);
 
-    float cosCutOff = std::cos(45.f);
-    float cosOuterCutOff = std::cos(90.f);
+    float cosCutOff = std::cos(glm::radians(45.f));
+    float cosOuterCutOff = std::cos(glm::radians(90.f));
     float dist = 0.0f;
     float intensity = 1.f;
 

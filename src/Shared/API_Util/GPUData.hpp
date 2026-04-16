@@ -4,22 +4,23 @@
 #include "glm/vec3.hpp"
 
 // ============================= LIGHTS ====================== //
-struct alignas(16) LightBaseGPU
+
+struct alignas(16) DirectionLightGPU
 {
     glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
     float intensity = 1.0f;
-};
 
-struct alignas(16) DirectionLightGPU : LightBaseGPU
-{
     glm::vec3 direction = glm::vec3(0.0f, 0.0f, 0.0f); float _pad1 = 0.0f;
     glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);  float _pad2 = 0.0f;
     glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f) ;  float _pad3 = 0.0f;
     glm::vec3 specular = glm::vec3(.05f, .05f, .05f); float _pad4 = 0.0f;
 };
 
-struct alignas(16) PointLightGPU : LightBaseGPU
+struct alignas(16) PointLightGPU
 {
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+    float intensity = 1.0f;
+
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f); float _pad1 = 0.0f;
 
     float constant = 1.0f;
@@ -32,8 +33,11 @@ struct alignas(16) PointLightGPU : LightBaseGPU
     glm::vec3 specular = glm::vec3(.05f, .05f, .05f); float _pad5 = 0.0f;
 };
 // TODO: Fix light
-struct alignas(16) SpotLightGPU : LightBaseGPU
+struct alignas(16) SpotLightGPU
 {
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+    float intensity = 1.0f;
+
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f); float _pad0 = 0.0f;
     glm::vec3 direction = glm::vec3(0.f, 0.f, 0.f); float _pad1 = 0.0f;
 
