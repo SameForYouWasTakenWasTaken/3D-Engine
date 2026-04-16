@@ -6,7 +6,8 @@
 #include "tracy/Tracy.hpp"
 
 Scene::Scene()
-{}
+{
+}
 
 void Scene::Update(float dt)
 {

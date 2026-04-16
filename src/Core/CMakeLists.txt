@@ -19,3 +19,5 @@ target_link_libraries(Engine
         assimp::assimp
         Tracy::TracyClient
 )
+
+target_link_libraries(Engine PUBLIC SharedLib)

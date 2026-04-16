@@ -18,5 +18,7 @@ set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
 
 
 include(Dependencies.cmake)
+
+add_subdirectory(Shared)
 add_subdirectory(Core)
 add_subdirectory(App)

@@ -69,8 +69,8 @@ class Renderer : public IService {
         Mesh* mesh;
         Shader* shader;
         Material* material;
-        std::shared_ptr<Texture2D> diffuse;
-        std::shared_ptr<Texture2D> specular;
+        Texture2D* diffuse;
+        Texture2D* specular;
         COMPTransform* transform;
         SceneContext* context; // The scene it is currently in
     };

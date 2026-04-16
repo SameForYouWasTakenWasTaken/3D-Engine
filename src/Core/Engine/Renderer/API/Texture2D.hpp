@@ -17,15 +17,32 @@ struct TextureSettings {
 };
 
 class Texture2D final {
-    GLuint id{};
-    TextureSettings settings;
-    std::string texture_filepath;
+    GLuint id;
+    TextureSettings settings{};
+    std::string texture_filepath{};
     int width{}, height{}, nrChannels{};
     bool loaded = false;
 public:
     Logger logger = Logger("TEXTURE_2D");
+    Texture2D();
     Texture2D(const std::string& filepath, TextureSettings s = TextureSettings()); // Default texture settings already provided
     ~Texture2D();
+
+    Texture2D(Texture2D&& other) noexcept
+        : id(other.id),
+          width(other.width),
+          height(other.height),
+          nrChannels(other.nrChannels),
+          loaded(other.loaded),
+          texture_filepath(std::move(other.texture_filepath)),
+          settings(other.settings)
+    {
+        other.id = 0;
+        other.width = 0;
+        other.height = 0;
+        other.nrChannels = 0;
+        other.loaded = false;
+    }
 
     
     void SetSettings(TextureSettings s);
@@ -39,24 +56,24 @@ public:
     Use() before drawing, as it can help prevent bugs on other machines. Bind() is typically used for
     changing the texture parameters if the TextureSettings struct wasn't enough.
     */
-    void Use(GLenum type = GL_TEXTURE0);
+    void Use(int slot);
 
-    /**
- * @brief Access the OpenGL texture object handle for this texture.
- *
- * @return GLuint OpenGL texture handle associated with this Texture2D.
- */
-GLuint GetTexture() const {return id;}
-    /**
- * @brief Gets the stored file path for this texture.
- *
- * @return std::string The file system path used to load or recreate the texture.
- */
-std::string GetPath() const {return texture_filepath;};
-    /**
- * @brief Reports whether the texture image has been successfully loaded.
- *
- * @return `true` if the texture has been loaded successfully, `false` otherwise.
- */
-bool IsLoaded() const {return loaded;}
+        /**
+     * @brief Access the OpenGL texture object handle for this texture.
+     *
+     * @return GLuint OpenGL texture handle associated with this Texture2D.
+     */
+    GLuint GetGLTexture() const {return id;}
+        /**
+     * @brief Gets the stored file path for this texture.
+     *
+     * @return std::string The file system path used to load or recreate the texture.
+     */
+    std::string GetPath() const {return texture_filepath;};
+        /**
+     * @brief Reports whether the texture image has been successfully loaded.
+     *
+     * @return `true` if the texture has been loaded successfully, `false` otherwise.
+     */
+    bool IsLoaded() const {return loaded;}
 };

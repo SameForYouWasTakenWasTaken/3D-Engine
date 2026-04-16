@@ -23,6 +23,12 @@
 class GameLayer : public Layer
 {
     bool m_CanMoveMouse = false;
+    double m_MouseDeltaX{};
+    double m_MouseDeltaY{};
+    bool m_FirstMouseInput = true;
+    double m_LastMouseX = 0.0;
+    double m_LastMouseY = 0.0;
+
     Hierarchy m_WorldHierarchy;
 public:
     GameLayer() = default;

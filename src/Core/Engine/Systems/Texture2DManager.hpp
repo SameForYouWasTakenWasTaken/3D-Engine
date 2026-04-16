@@ -10,7 +10,7 @@
 
 class Texture2DManager : public IService
 {
-    std::unordered_map<TextureID, std::shared_ptr<Texture2D>> m_Textures;
+    std::unordered_map<TextureID, Texture2D> m_Textures;
 public:
     /**
  * @brief Constructs a Texture2DManager with an empty texture registry.
@@ -29,8 +29,8 @@ Texture2DManager(const Texture2DManager&) = delete;
     std::optional<TextureID> Load(const std::string& path, TextureSettings settings = TextureSettings());
 
     [[nodiscard]]
-    std::optional<TextureID> Load(std::shared_ptr<Texture2D> texture);
+    std::optional<TextureID> Load(Texture2D&& texture);
 
     [[nodiscard]]
-    std::shared_ptr<Texture2D> Get(TextureID id);
+    Texture2D* Get(TextureID id);
 };

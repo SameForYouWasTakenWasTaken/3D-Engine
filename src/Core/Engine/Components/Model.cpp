@@ -12,7 +12,7 @@
  */
 Model::Model(const std::string& path)
 {
-    loadModel(path);
+    ReloadModel(path);
 }
 
 /**
@@ -34,6 +34,11 @@ const std::vector<SubMesh>& Model::GetSubMeshes() const
 std::string Model::GetDirectory() const
 {
     return m_Directory;
+}
+
+void Model::ReloadModel(const std::string& path)
+{
+    loadModel(path);
 }
 
 /**

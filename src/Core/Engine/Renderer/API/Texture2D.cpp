@@ -4,7 +4,7 @@
 
 void UploadTexture(unsigned char* data, int width, int height, int nrChannels, bool sRGB)
 {
-    GLenum format, internal;
+    GLenum format{}, internal{};
 
     if (nrChannels == 1) {
         format = GL_RED;
@@ -35,6 +35,11 @@ void UploadTexture(unsigned char* data, int width, int height, int nrChannels, b
 }
 
 
+Texture2D::Texture2D()
+{
+    glGenTextures(1, &id);
+}
+
 Texture2D::Texture2D(const std::string& filepath, TextureSettings s)
 : texture_filepath(filepath), settings(s)
 {
@@ -50,15 +55,7 @@ Texture2D::~Texture2D()
 
 void Texture2D::Bind()
 {
-    glBindTexture(GL_TEXTURE_2D, id); // glIsTexture only works if a texture is bound. Henceforth it is in the beginning.
-    if (!glIsTexture(id))
-    {
-        logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
-        logger.LogError("Texture not bound!");
-        logger.DumpLogs();
-        loaded = false;
-        return;
-    }
+    glBindTexture(GL_TEXTURE_2D, id);
 }
 
 void Texture2D::Unbind(int slot){
@@ -75,25 +72,20 @@ void Texture2D::Recreate(const std::string& filepath)
 void Texture2D::Recreate()
 {
     Bind();
-    if (!glIsTexture(id))
+    if (texture_filepath.empty())
     {
-        if (texture_filepath.empty())
-        {
-            logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
-            logger.LogError("Provide a path for your texture!");
-            logger.DumpLogs();
-            return;
-        }
+        logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
+        logger.LogError("Provide a path for your texture!");
+        logger.DumpLogs();
+        return;
     }
-    
-    Bind();
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, settings.Texture_Style_X);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, settings.Texture_Style_Y);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, settings.Texture_Res_Min);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, settings.Texture_Res_Mag);
 
-    //                            ->            Private member variables           <-
     stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(texture_filepath.c_str(), &width, &height, &nrChannels, 0);
 
@@ -101,7 +93,7 @@ void Texture2D::Recreate()
     {
        Bind();
        UploadTexture(data, width, height, nrChannels, settings.Texture_Use_sRGB);
-       if (glIsTexture(id) == GL_TRUE) loaded = true;
+       loaded = true;
     }
     else {
         logger.AppendLogTag("TEXTURE_2D", LogColors::CYAN);
@@ -117,8 +109,9 @@ void Texture2D::SetSettings(TextureSettings s)
     settings = s;
 }
 
-void Texture2D::Use(GLenum type)
+void Texture2D::Use(int slot)
 {
-    glActiveTexture(type);
+    if (!loaded) return;
+    glActiveTexture(GL_TEXTURE0 + slot);
     Bind();
 }
